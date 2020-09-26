@@ -125,14 +125,14 @@ type ImageResource struct {
 	width  int
 }
 
-func (s *ImageResource) Image(palette *Palette) image.Image {
-	height := len(s.pixels) / s.width
+func (i *ImageResource) Image(palette *Palette) image.Image {
+	height := len(i.pixels) / i.width
 	upLeft := image.Point{}
-	lowRight := image.Point{X: s.width, Y: height}
+	lowRight := image.Point{X: i.width, Y: height}
 	img := image.NewRGBA(image.Rectangle{Min: upLeft, Max: lowRight})
-	for idx, col := range s.pixels {
-		x := idx % s.width
-		y := (idx / s.width) - 1
+	for idx, col := range i.pixels {
+		x := idx % i.width
+		y := (idx / i.width)
 		if col == 0 {
 			img.Set(x, y, image.Transparent)
 		} else {
@@ -140,4 +140,12 @@ func (s *ImageResource) Image(palette *Palette) image.Image {
 		}
 	}
 	return img
+}
+
+func (i *ImageResource) Width() int {
+	return i.width
+}
+
+func (i *ImageResource) Height() int {
+	return len(i.pixels) / i.width
 }
