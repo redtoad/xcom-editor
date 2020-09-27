@@ -2,6 +2,7 @@ package resources
 
 import (
 	"encoding/binary"
+	"image"
 	"image/color"
 	"io/ioutil"
 
@@ -68,4 +69,13 @@ func (p *Palette) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	}
 	p.Buffer = buf[768 : 768+6]
 	return buf[p.SizeOf():], nil
+}
+
+func (p *Palette) Palette() *color.Palette {
+	palette := make(color.Palette, len(p.Colors))
+	palette[0] = image.Transparent
+	for i := 1; i < len(p.Colors); i++ {
+		palette[i] = p.Colors[i]
+	}
+	return &palette
 }

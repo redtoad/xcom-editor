@@ -132,7 +132,23 @@ func (i *ImageResource) Image(palette *Palette) image.Image {
 	img := image.NewRGBA(image.Rectangle{Min: upLeft, Max: lowRight})
 	for idx, col := range i.pixels {
 		x := idx % i.width
-		y := (idx / i.width)
+		y := idx / i.width
+		if col == 0 {
+			img.Set(x, y, image.Transparent)
+		} else {
+			img.Set(x, y, palette.Colors[col])
+		}
+	}
+	return img
+}
+func (i *ImageResource) Paletted(palette *Palette) *image.Paletted {
+	height := len(i.pixels) / i.width
+	upLeft := image.Point{}
+	lowRight := image.Point{X: i.width, Y: height}
+	img := image.NewPaletted(image.Rectangle{Min: upLeft, Max: lowRight}, *palette.Palette())
+	for idx, col := range i.pixels {
+		x := idx % i.width
+		y := idx / i.width
 		if col == 0 {
 			img.Set(x, y, image.Transparent)
 		} else {
