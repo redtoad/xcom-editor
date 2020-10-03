@@ -2,15 +2,21 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
+	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path"
+	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/redtoad/xcom-editor/resources"
 )
 
@@ -28,10 +34,15 @@ var images = map[string]ImageEntry{
 	"GEOGRAPH/BASEBITS.PCK": {1, 32, 40, "GEOGRAPH/BASEBITS.TAB", 2},
 	"GEOGRAPH/INTICON.PCK":  {1, 32, 40, "GEOGRAPH/INTICON.TAB", 2},
 	// ...
+	"TERRAIN/XBASE1.PCK": {4, 32, 40, "TERRAIN/XBASE1.TAB", 2},
+	"TERRAIN/XBASE2.PCK": {4, 32, 40, "TERRAIN/XBASE2.TAB", 2},
+	// ...
+	"UFOGRAPH/X1.PCK": {1, 128, 40, "UFOGRAPH/X1.TAB", 2},
+	// ...
 	"UNITS/BIGOBS.PCK": {4, 32, 48, "UNITS/BIGOBS.TAB", 2},
-	"UNITS/XCOM_0.PCK": {1, 32, 40, "UNITS/XCOM_0.TAB", 2},
-	"UNITS/XCOM_1.PCK": {1, 32, 40, "UNITS/XCOM_1.TAB", 2},
-	"UNITS/XCOM_2.PCK": {1, 32, 40, "UNITS/XCOM_2.TAB", 2},
+	"UNITS/XCOM_0.PCK": {4, 32, 40, "UNITS/XCOM_0.TAB", 2},
+	"UNITS/XCOM_1.PCK": {4, 32, 40, "UNITS/XCOM_1.TAB", 2},
+	"UNITS/XCOM_2.PCK": {4, 32, 40, "UNITS/XCOM_2.TAB", 2},
 	"UNITS/X_REAP.PCK": {1, 32, 40, "UNITS/X_REAP.TAB", 2},
 	"UNITS/X_ROB.PCK":  {1, 32, 40, "UNITS/X_ROB.TAB", 2},
 	// ...
@@ -43,8 +54,7 @@ var images = map[string]ImageEntry{
 
 }
 
-// root path of X-Com game
-var root = os.Args[1]
+var root = "."
 
 func init() {
 
@@ -118,7 +128,7 @@ func LoadImage(root string, pth string) (image.Image, error) {
 				sprites = append(sprites, sprite)
 
 				if sprite.Height() > meta.Height {
-					fmt.Printf("Warning: sprite %dx%d is bigger than specified in meta data (%dx%d)!\n",
+					log.Printf("Warning: sprite %dx%d is bigger than specified in meta data (%dx%d)!\n",
 						sprite.Width(), sprite.Height(), meta.Width, meta.Height)
 				}
 
@@ -183,16 +193,18 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 	pth := r.RequestURI[10:]
 	basename := path.Base(pth)
 
-	println(pth)
-
 	img, err := LoadImage(root, pth)
 	if err != nil {
 		if err == ErrImageNotFound {
+			log.Printf("Error: File %s not found!\n", pth)
 			http.Error(w, "image not found", http.StatusNotFound)
 		}
+		log.Printf("Error: Could not load %s: %s\n", pth, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	log.Printf("Serving file %s\n", pth)
 
 	buf := new(bytes.Buffer)
 	_ = png.Encode(buf, img)
@@ -204,12 +216,50 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Printf("Game root: %s\n", root)
-	fmt.Printf("Starting server...\n")
-	fmt.Println("Try opening http://localhost:8080/resource/UNITS/ZOMBIE.PCK")
-	http.HandleFunc("/", ServeImage)
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		panic(err)
+	var wait time.Duration
+	flag.StringVar(&root, "root", ".", "the directory to serve files from. Defaults to the current dir")
+	flag.Parse()
+
+	log.Printf("Starting server...\n")
+	log.Printf("Game root: %s\n", root)
+	log.Println("Try opening http://localhost:8080/resource/UNITS/ZOMBIE.PCK")
+
+	r := mux.NewRouter()
+	r.PathPrefix("/resource").HandlerFunc(ServeImage)
+
+	srv := &http.Server{
+		Addr: "0.0.0.0:8080",
+		// Good practice to set timeouts to avoid Slowloris attacks.
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      r, // Pass our instance of gorilla/mux in.
 	}
+
+	// Run our server in a goroutine so that it doesn't block.
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Println(err)
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
+	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
+	signal.Notify(c, os.Interrupt)
+
+	// Block until we receive our signal.
+	<-c
+
+	// Create a deadline to wait for.
+	ctx, cancel := context.WithTimeout(context.Background(), wait)
+	defer cancel()
+	// Doesn't block if no connections, but will otherwise wait
+	// until the timeout deadline.
+	srv.Shutdown(ctx)
+	// Optionally, you could run srv.Shutdown in a goroutine and block on
+	// <-ctx.Done() if your application should wait for other services
+	// to finalize based on context cancellation.
+	log.Println("shutting down")
+	os.Exit(0)
 }
