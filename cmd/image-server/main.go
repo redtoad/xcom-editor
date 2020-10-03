@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -23,25 +24,7 @@ import (
 // Root path of game (containing all images and save games)
 var root = "."
 
-func init() {
-
-	// add all 56 BIGOB
-	for i := 0; i <= 56; i++ {
-		images[fmt.Sprintf("UFOGRAPH/BIGOB_%02d.PCK", i)] = ImageEntry{1, 32, 40, "", 4}
-	}
-
-	// add soldier images
-	for armour := 0; armour <= 1; armour++ {
-		for _, sex := range []string{"F", "M"} {
-			for race := 0; race <= 3; race++ {
-				images[fmt.Sprintf("UFOGRAPH/MAN_%d%s%d.SPK", armour, sex, race)] = ImageEntry{4, 32, 40, "", 4}
-			}
-		}
-	}
-	// soldiers in armoured suits
-	images["UFOGRAPH/MAN_2.SPK"] = ImageEntry{4, 32, 40, "", 4}
-	images["UFOGRAPH/MAN_3.SPK"] = ImageEntry{4, 32, 40, "", 4}
-}
+var palettes []*resources.Palette
 
 var PalettePath = "GEODATA/PALETTES.DAT"
 
@@ -60,17 +43,7 @@ func min(a, b int) int {
 	return a
 }
 
-func LoadImage(root string, pth string) (image.Image, error) {
-
-	meta, ok := images[pth]
-	if !ok {
-		return nil, ErrImageNotFound
-	}
-
-	palettes, err := resources.LoadPalettes(path.Join(root, PalettePath))
-	if err != nil {
-		return nil, err
-	}
+func LoadImage(root string, pth string, meta ImageEntry, palette *resources.Palette) (image.Image, error) {
 
 	ext := path.Ext(pth)
 	switch ext {
@@ -124,7 +97,7 @@ func LoadImage(root string, pth string) (image.Image, error) {
 					Max: image.Point{dstX + sprite.Width(), dstY + sprite.Height()},
 				}
 
-				img := sprite.Image(palettes[meta.PaletteNr])
+				img := sprite.Image(palette)
 				draw.Draw(collection, dstR,
 					img, img.Bounds().Min,
 					draw.Src)
@@ -138,7 +111,7 @@ func LoadImage(root string, pth string) (image.Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return img.Image(palettes[meta.PaletteNr]), nil
+		return img.Image(palette), nil
 
 	case ".SPK":
 
@@ -146,21 +119,40 @@ func LoadImage(root string, pth string) (image.Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return img.Image(palettes[meta.PaletteNr]), nil
+		return img.Image(palette), nil
+
+	case ".SCR":
+
+		img, err := resources.LoadSCR(path.Join(root, pth), meta.Width)
+		if err != nil {
+			return nil, err
+		}
+		return img.Image(palette), nil
 
 	}
 
-	// currently only PCKs and SPK are supported
+	// unsupported file extension!
 	return nil, ErrNotImplemented
 
 }
 
 func ServeImage(w http.ResponseWriter, r *http.Request) {
 
-	pth := r.RequestURI[10:]
+	pth := r.URL.Path[10:]
 	basename := path.Base(pth)
 
-	img, err := LoadImage(root, pth)
+	meta, ok := images[pth]
+	if !ok {
+		log.Printf("image %s not found", pth)
+	}
+
+	paletteNo, err := strconv.Atoi(r.URL.Query().Get("palette"))
+	log.Printf("using palette no %s", r.URL.Query().Get("palette"))
+	if err != nil || paletteNo >= len(palettes) {
+		paletteNo = meta.PaletteNr
+	}
+
+	img, err := LoadImage(root, pth, meta, palettes[paletteNo])
 	if err != nil {
 		if err == ErrImageNotFound {
 			log.Printf("Error: File %s not found!\n", pth)
@@ -190,6 +182,12 @@ func main() {
 	log.Printf("Starting server...\n")
 	log.Printf("Game root: %s\n", root)
 	log.Println("Try opening http://localhost:8080/resource/UNITS/ZOMBIE.PCK")
+
+	var err error
+	palettes, err = resources.LoadPalettes(path.Join(root, PalettePath))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	r := mux.NewRouter()
 	r.PathPrefix("/resource").HandlerFunc(ServeImage)

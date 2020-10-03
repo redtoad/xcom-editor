@@ -3,6 +3,7 @@ package resources
 import (
 	"bufio"
 	"encoding/binary"
+	"log"
 	"os"
 )
 
@@ -26,13 +27,18 @@ func LoadSPK(path string) (*ImageResource, error) {
 
 	var spriteData []uint
 
+	pxCount := 0 // count number of pixels rad from file for debugging
+
 	for {
 
 		// Read a 16-bit unsigned integer, call it "a".
 		value, err := readInt16(buf)
 		if err != nil {
+			log.Printf("Pixels read: %d", pxCount)
 			return nil, err
 		}
+
+		pxCount += 1
 
 		switch value {
 
@@ -68,6 +74,7 @@ func LoadSPK(path string) (*ImageResource, error) {
 		// If "a" is 0xFFFD (65533) then you are done. This is always the
 		// last code in the file.
 		case 0xfffd:
+			log.Printf("Pixels read: %d", pxCount)
 			return &ImageResource{spriteData, 320}, nil
 
 		}
