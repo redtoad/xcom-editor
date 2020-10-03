@@ -20,40 +20,7 @@ import (
 	"github.com/redtoad/xcom-editor/resources"
 )
 
-type ImageEntry struct {
-	PaletteNr int
-	Width     int
-	Height    int
-	TabFile   string
-	TabOffset int
-}
-
-var images = map[string]ImageEntry{
-
-	// ...
-	"GEOGRAPH/BASEBITS.PCK": {1, 32, 40, "GEOGRAPH/BASEBITS.TAB", 2},
-	"GEOGRAPH/INTICON.PCK":  {1, 32, 40, "GEOGRAPH/INTICON.TAB", 2},
-	// ...
-	"TERRAIN/XBASE1.PCK": {4, 32, 40, "TERRAIN/XBASE1.TAB", 2},
-	"TERRAIN/XBASE2.PCK": {4, 32, 40, "TERRAIN/XBASE2.TAB", 2},
-	// ...
-	"UFOGRAPH/X1.PCK": {1, 128, 40, "UFOGRAPH/X1.TAB", 2},
-	// ...
-	"UNITS/BIGOBS.PCK": {4, 32, 48, "UNITS/BIGOBS.TAB", 2},
-	"UNITS/XCOM_0.PCK": {4, 32, 40, "UNITS/XCOM_0.TAB", 2},
-	"UNITS/XCOM_1.PCK": {4, 32, 40, "UNITS/XCOM_1.TAB", 2},
-	"UNITS/XCOM_2.PCK": {4, 32, 40, "UNITS/XCOM_2.TAB", 2},
-	"UNITS/X_REAP.PCK": {1, 32, 40, "UNITS/X_REAP.TAB", 2},
-	"UNITS/X_ROB.PCK":  {1, 32, 40, "UNITS/X_ROB.TAB", 2},
-	// ...
-	"UNITS/ZOMBIE.PCK": {1, 32, 40, "UNITS/ZOMBIE.TAB", 2},
-
-	// INTERWIN.DAT - 10 images 160px wide no compression
-	// LANG1.DAT - GeoScape control panel overlay in German. Direct palette indexes, no compression, 64x154.
-	// LANG2.DAT - GeoScape control panel overlay in French. Direct palette indexes, no compression, 64x154.
-
-}
-
+// Root path of game (containing all images and save games)
 var root = "."
 
 func init() {
@@ -198,6 +165,7 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 		if err == ErrImageNotFound {
 			log.Printf("Error: File %s not found!\n", pth)
 			http.Error(w, "image not found", http.StatusNotFound)
+			return
 		}
 		log.Printf("Error: Could not load %s: %s\n", pth, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -216,7 +184,6 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var wait time.Duration
 	flag.StringVar(&root, "root", ".", "the directory to serve files from. Defaults to the current dir")
 	flag.Parse()
 
@@ -239,7 +206,7 @@ func main() {
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			log.Println(err)
+			log.Fatal(err)
 		}
 	}()
 
@@ -252,11 +219,11 @@ func main() {
 	<-c
 
 	// Create a deadline to wait for.
-	ctx, cancel := context.WithTimeout(context.Background(), wait)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
-	srv.Shutdown(ctx)
+	_ = srv.Shutdown(ctx)
 	// Optionally, you could run srv.Shutdown in a goroutine and block on
 	// <-ctx.Done() if your application should wait for other services
 	// to finalize based on context cancellation.
