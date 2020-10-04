@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"image"
-	"image/draw"
 	"image/png"
 	"log"
 	"net/http"
@@ -29,21 +28,12 @@ var palettes []*resources.Palette
 var PalettePath = "GEODATA/PALETTES.DAT"
 
 var (
-	ErrImageNotFound    = errors.New("image not found in meta data")
-	ErrNotImplemented   = errors.New("not implemented yet")
-	ErrNotEnoughSprites = errors.New("could not load sprites from file")
-	ErrNotEnoughTabs    = errors.New("could not load offsets from tab file")
+	ErrImageNotFound  = errors.New("image not found in meta data")
+	ErrNotImplemented = errors.New("not implemented yet")
+	ErrNotEnoughTabs  = errors.New("could not load offsets from tab file")
 )
 
-// min returns the larger of a and b
-func min(a, b int) int {
-	if a > b {
-		return b
-	}
-	return a
-}
-
-func LoadImage(root string, pth string, meta ImageEntry, palette *resources.Palette) (image.Image, error) {
+func loadImage(root string, pth string, meta ImageEntry, palette *resources.Palette) (image.Image, error) {
 
 	ext := path.Ext(pth)
 	switch ext {
@@ -59,52 +49,12 @@ func LoadImage(root string, pth string, meta ImageEntry, palette *resources.Pale
 				return nil, ErrNotEnoughTabs
 			}
 
-			var sprites []*resources.ImageResource
-			for _, tab := range tabs {
-				sprite, err := resources.LoadPCK(path.Join(root, pth), meta.Width, tab)
-				if err != nil {
-					return nil, err
-				}
-				sprites = append(sprites, sprite)
-
-				if sprite.Height() > meta.Height {
-					log.Printf("Warning: sprite %dx%d is bigger than specified in meta data (%dx%d)!\n",
-						sprite.Width(), sprite.Height(), meta.Width, meta.Height)
-				}
-
+			collection, err := resources.LoadImageCollectionFromPCK(path.Join(root, pth), meta.Width, tabs)
+			if err != nil {
+				return nil, err
 			}
 
-			if len(sprites) == 0 {
-				return nil, ErrNotEnoughSprites
-			}
-
-			// calculate grid size for collection
-			width := min(len(sprites), 10)
-			height := (len(sprites) / width) + 1
-
-			// create new image with black background
-			collection := image.NewRGBA(image.Rect(
-				0, 0,
-				width*meta.Width, height*meta.Height))
-
-			// draw each image onto collection
-			for no, sprite := range sprites {
-
-				dstX := (no % width) * meta.Width
-				dstY := (no / width) * meta.Height
-				dstR := image.Rectangle{
-					Min: image.Point{dstX, dstY},
-					Max: image.Point{dstX + sprite.Width(), dstY + sprite.Height()},
-				}
-
-				img := sprite.Image(palette)
-				draw.Draw(collection, dstR,
-					img, img.Bounds().Min,
-					draw.Src)
-
-			}
-
-			return collection, nil
+			return collection.Gallery(10, meta.Height, palette)
 		}
 
 		img, err := resources.LoadPCK(path.Join(root, pth), meta.Width, 0)
@@ -147,12 +97,14 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paletteNo, err := strconv.Atoi(r.URL.Query().Get("palette"))
-	log.Printf("using palette no %s", r.URL.Query().Get("palette"))
 	if err != nil || paletteNo >= len(palettes) {
+		log.Printf("Warning: Could not load palette no %v", r.URL.Query().Get("palette"))
 		paletteNo = meta.PaletteNr
+	} else {
+		log.Printf("using palette no %v", paletteNo)
 	}
 
-	img, err := LoadImage(root, pth, meta, palettes[paletteNo])
+	img, err := loadImage(root, pth, meta, palettes[paletteNo])
 	if err != nil {
 		if err == ErrImageNotFound {
 			log.Printf("Error: File %s not found!\n", pth)

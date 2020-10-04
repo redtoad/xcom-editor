@@ -5,7 +5,9 @@ import (
 	"encoding/binary"
 	"errors"
 	"image"
+	"image/draw"
 	"io"
+	"log"
 	"os"
 )
 
@@ -120,6 +122,11 @@ func LoadPCK(path string, width int, offset int) (*ImageResource, error) {
 
 }
 
+var (
+	ErrNotEnoughSprites = errors.New("could not load sprites from file")
+	ErrNotEnoughTabs    = errors.New("could not load offsets from tab file")
+)
+
 type ImageResource struct {
 	pixels []uint
 	width  int
@@ -164,4 +171,77 @@ func (i *ImageResource) Width() int {
 
 func (i *ImageResource) Height() int {
 	return len(i.pixels) / i.width
+}
+
+func LoadImageCollectionFromPCK(path string, width int, offsets []int) (*ImageCollection, error) {
+
+	if len(offsets) == 0 {
+		return nil, ErrNotEnoughTabs
+	}
+
+	var sprites []*ImageResource
+	for _, tab := range offsets {
+		sprite, err := LoadPCK(path, width, tab)
+		if err != nil {
+			return nil, err
+		}
+		sprites = append(sprites, sprite)
+
+	}
+	return &ImageCollection{Sprites: sprites, SpriteWidth: width}, nil
+}
+
+type ImageCollection struct {
+	Sprites     []*ImageResource
+	SpriteWidth int
+}
+
+// min returns the larger of a and b
+func min(a, b int) int {
+	if a > b {
+		return b
+	}
+	return a
+}
+
+// Gallery creates a collection of all images on a grid with numberPerRow images in each
+// row. The final size will depend on the number of Sprites in the collection (making up
+// the grid), the size of the single SpriteWidth and the rowHeight.
+func (c *ImageCollection) Gallery(numberPerRow int, rowHeight int, palette *Palette) (image.Image, error) {
+
+	if len(c.Sprites) == 0 {
+		return nil, ErrNotEnoughSprites
+	}
+
+	// calculate grid size for collection
+	gridWidth := min(len(c.Sprites), numberPerRow)
+	gridHeight := (len(c.Sprites) / gridWidth) + 1
+
+	// create new image with black background
+	collection := image.NewRGBA(image.Rect(
+		0, 0,
+		gridWidth*c.SpriteWidth, gridHeight*rowHeight))
+
+	// draw each image onto collection
+	for no, sprite := range c.Sprites {
+
+		if sprite.Height() > rowHeight {
+			log.Printf("Warning: sprite %dx%d is bigger than specified in meta data (%dx%d)!\n",
+				sprite.Width(), sprite.Height(), c.SpriteWidth, rowHeight)
+		}
+
+		dstX := (no % gridWidth) * c.SpriteWidth
+		dstY := (no / gridWidth) * rowHeight
+		dstR := image.Rectangle{
+			Min: image.Point{X: dstX, Y: dstY},
+			Max: image.Point{X: dstX + sprite.Width(), Y: dstY + sprite.Height()},
+		}
+
+		img := sprite.Image(palette)
+		draw.Draw(collection, dstR,
+			img, img.Bounds().Min,
+			draw.Src)
+	}
+
+	return collection, nil
 }
