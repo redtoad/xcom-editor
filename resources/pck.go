@@ -6,6 +6,7 @@ import (
 	"errors"
 	"image"
 	"image/draw"
+	"image/gif"
 	"io"
 	"log"
 	"os"
@@ -244,4 +245,29 @@ func (c *ImageCollection) Gallery(numberPerRow int, rowHeight int, palette *Pale
 	}
 
 	return collection, nil
+}
+
+// Animated converts Sprites into a single GIF.
+func (c *ImageCollection) Animated(delay int, height int, palette *Palette) *gif.GIF {
+
+	sprites := make([]*image.Paletted, len(c.Sprites))
+	for i, sprite := range c.Sprites {
+		sprites[i] = sprite.Paletted(palette)
+	}
+
+	delays := make([]int, len(sprites))
+	disposal := make([]byte, len(sprites))
+	for i := 0; i < len(delays); i++ {
+		delays[i] = delay
+		disposal[i] = gif.DisposalBackground
+	}
+
+	return &gif.GIF{
+		Image:           sprites,
+		Delay:           delays,
+		LoopCount:       0,
+		Disposal:        disposal,
+		BackgroundIndex: 0,
+		Config:          image.Config{Width: c.SpriteWidth, Height: height},
+	}
 }
