@@ -9,6 +9,7 @@ import (
 	"image/gif"
 	"io"
 	"log"
+	"math"
 	"os"
 )
 
@@ -197,12 +198,15 @@ type ImageCollection struct {
 	SpriteWidth int
 }
 
-// min returns the larger of a and b
-func min(a, b int) int {
-	if a > b {
-		return b
+// gridSize calculates width and height of grid for collection of images
+func gridSize(sprites, perRow int) (width int, height int) {
+	if sprites > perRow {
+		width = perRow
+	} else {
+		width = sprites
 	}
-	return a
+	height = int(math.Ceil(float64(sprites) / float64(width)))
+	return
 }
 
 // Gallery creates a collection of all images on a grid with numberPerRow images in each
@@ -214,11 +218,8 @@ func (c *ImageCollection) Gallery(numberPerRow int, rowHeight int, palette *Pale
 		return nil, ErrNotEnoughSprites
 	}
 
-	// calculate grid size for collection
-	gridWidth := min(len(c.Sprites), numberPerRow)
-	gridHeight := (len(c.Sprites) / gridWidth) + 1
-
 	// create new image with black background
+	gridWidth, gridHeight := gridSize(len(c.Sprites), numberPerRow)
 	collection := image.NewRGBA(image.Rect(
 		0, 0,
 		gridWidth*c.SpriteWidth, gridHeight*rowHeight))
