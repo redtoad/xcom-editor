@@ -1,7 +1,7 @@
 before:
   hooks:
     - go mod download
-      #- go generate ./...  
+    - go generate ./...
 builds:
   - main: ./cmd/image-server/main.go
     id: "image-server"

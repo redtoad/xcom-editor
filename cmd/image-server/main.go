@@ -1,5 +1,7 @@
 package main
 
+//go:generate go run gen_resource_list.go
+
 import (
 	"bytes"
 	"context"
