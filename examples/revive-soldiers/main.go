@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/redtoad/xcom-editor/savegame"
+	"github.com/redtoad/xcom-editor/lib/savegame"
 )
 
 func main() {

@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/redtoad/xcom-editor/resources"
+	"github.com/redtoad/xcom-editor/lib/resources"
 )
 
 var port string // server port
