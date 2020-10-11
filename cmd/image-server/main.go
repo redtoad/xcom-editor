@@ -20,8 +20,8 @@ import (
 	"github.com/redtoad/xcom-editor/resources"
 )
 
-// Root path of game (containing all images and save games)
-var root = "."
+var port string // server port
+var root string // root path of game (containing all images and save games)
 
 var palettes []*resources.Palette
 
@@ -128,12 +128,16 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	flag.StringVar(&root, "root", ".", "the directory to serve files from. Defaults to the current dir")
+	flag.StringVar(&port, "port", "8080", "port server run on (default: 8080)")
 	flag.Parse()
+	if root = flag.Arg(0); root == "" {
+		// use current dir as default
+		root, _ = os.Getwd()
+	}
 
 	log.Printf("Starting server...\n")
 	log.Printf("Game root: %s\n", root)
-	log.Println("Try opening http://localhost:8080/resource/UNITS/ZOMBIE.PCK")
+	log.Printf("Try opening http://localhost:%s/resource/UNITS/ZOMBIE.PCK\n", port)
 
 	var err error
 	palettes, err = resources.LoadPalettes(path.Join(root, PalettePath))
