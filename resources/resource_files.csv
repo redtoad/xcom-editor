@@ -1,4 +1,5 @@
-# find . -type f | sort | sed 's/^..//' > resource_files.csv
+# List of resource files from game root dir
+# (comiled with "find . -type f | sort | sed 's/^..//' > resource_files.csv")
 # path;paletteNr;width;height;tabFile;tabOffset
 GEODATA/BACKPALS.DAT;;;;;
 GEODATA/BIGLETS.DAT;;;;;
