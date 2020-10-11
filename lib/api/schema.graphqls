@@ -1,0 +1,25 @@
+
+schema {
+    query: Query
+}
+
+type Query {
+    savegame(nr: Int!): Savegame!
+}
+
+type Savegame {
+    bases: [Base]
+    soldiers: [Soldier]
+}
+
+type Base {
+    name: String!
+}
+
+type Soldier {
+    slot: Int! # overall position in SOLDIERS.DAT
+    rank: String!
+    name: String!
+    missions: Int!
+    kills: Int!
+}

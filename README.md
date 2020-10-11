@@ -1,9 +1,10 @@
 
 # xcom-editor
 
-This is a library to load image resources for the game [UFO: Enemy Unknown](https://en.wikipedia.org/wiki/UFO:_Enemy_Unknown). 
+This is both a library to load image resources for the game [UFO: Enemy Unknown](https://en.wikipedia.org/wiki/UFO:_Enemy_Unknown)
+and a savegame editor (wip). 
 
-## Game images
+## Loading game images
 
 All images are stored in a custom format (see https://www.ufopaedia.org/index.php/Image_Formats for more information).
 
