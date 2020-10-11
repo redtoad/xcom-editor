@@ -3,7 +3,7 @@ before:
     - go mod download
     - go generate ./...
 builds:
-  - main: ./cmd/image-server/main.go
+  - main: ./cmd/image-server/
     id: "image-server"
     binary: image-server
     env:
