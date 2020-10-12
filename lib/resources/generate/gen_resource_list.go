@@ -22,6 +22,7 @@ type csvRow struct {
 	Width, Height int
 	TabFile       string
 	TabOffset     int
+	Comment       string
 }
 
 func toInt(txt string, defaultValue int) int {
@@ -62,6 +63,7 @@ func main() {
 			Height:    toInt(record[3], -1),
 			TabFile:   record[4],
 			TabOffset: toInt(record[5], -1),
+			Comment:   record[6],
 		}
 		row.Valid = row.PaletteNr != -1
 
@@ -102,6 +104,8 @@ var images = map[string]ImageEntry{
 {{- range .Rows }}
 	{{- if .Valid }}
 	{{ printf "%q" .Path }}: { {{- .PaletteNr }}, {{ .Width }}, {{ .Height }}, {{ printf "%q" .TabFile }}, {{ .TabOffset -}} },
+	{{- if .Comment}} // {{ .Comment }}
+	{{- end }}
 	{{- else }}
 	// {{ .Path }}
 	{{- end }}
