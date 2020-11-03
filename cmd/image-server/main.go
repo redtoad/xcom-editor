@@ -5,12 +5,14 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"image"
 	"image/png"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"path"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -26,8 +28,16 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 
 	pth := r.URL.Path[10:]
 	basename := path.Base(pth)
+	var img image.Image
+	var err error
+	paletteNr := r.URL.Query().Get("palette")
 
-	img, err := loader.LoadImage(pth)
+	if paletteNr != "" {
+		val, _ := strconv.Atoi(paletteNr)
+		img, err = 	loader.LoadImageWithPalette(pth, val)
+	} else {
+		img, err = loader.LoadImage(pth)
+	}
 	if err != nil {
 		if err == resources.ErrImageNotFound {
 			log.Printf("Error: File %s not found!\n", pth)

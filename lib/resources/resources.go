@@ -12,16 +12,31 @@ import (
 const palettePath = "GEODATA/PALETTES.DAT"
 
 var (
-	ErrImageNotFound  = errors.New("image not found in meta data")
+	// ErrImageNotFound is thrown if path is not found in meta data map
+	ErrImageNotFound = errors.New("image not found in meta data")
+	// ErrNotImplemented is thrown if image type is not supported
 	ErrNotImplemented = errors.New("not implemented yet")
 )
 
+// ResourceLoader will load resources from game directory.
 type ResourceLoader struct {
 	rootPath string
 	palettes []*Palette
 }
 
+// LoadImage loads an image from pth with the palette as defined in resource list meta data. If pth
+// is not found in meta data, an error is returned.
 func (rs *ResourceLoader) LoadImage(pth string) (image.Image, error) {
+	meta, ok := images[pth]
+	if !ok {
+		return nil, ErrImageNotFound
+	}
+	return rs.LoadImageWithPalette(pth, meta.PaletteNr)
+}
+
+// LoadImageWithPalette loads an image with a specific palette (rather than the one defined in
+// meta data).
+func (rs *ResourceLoader) LoadImageWithPalette(pth string, paletteNr int) (image.Image, error) {
 
 	meta, ok := images[pth]
 	if !ok {
@@ -30,7 +45,7 @@ func (rs *ResourceLoader) LoadImage(pth string) (image.Image, error) {
 
 	imgPath := path.Join(rs.rootPath, pth)
 	tabPath := path.Join(rs.rootPath, meta.TabFile)
-	palette := rs.palettes[meta.PaletteNr]
+	palette := rs.palettes[paletteNr]
 
 	ext := path.Ext(pth)
 	switch ext {
@@ -82,6 +97,7 @@ func (rs *ResourceLoader) LoadImage(pth string) (image.Image, error) {
 	return nil, ErrNotImplemented
 }
 
+// NewResourceLoader will return a new instance of ResourceLoader.
 func NewResourceLoader(root string) (*ResourceLoader, error) {
 	palettes, err := LoadPalettes(path.Join(root, palettePath))
 	if err != nil {
