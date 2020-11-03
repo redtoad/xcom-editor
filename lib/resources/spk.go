@@ -16,6 +16,7 @@ func readInt16(rd *bufio.Reader) (int, error) {
 	return int(binary.LittleEndian.Uint16(buf)), nil
 }
 
+// LoadSPK loads SPK image from path.
 func LoadSPK(path string) (*ImageResource, error) {
 
 	fp, err := os.Open(path)
@@ -38,7 +39,7 @@ func LoadSPK(path string) (*ImageResource, error) {
 			return nil, err
 		}
 
-		pxCount += 1
+		pxCount++
 
 		switch value {
 

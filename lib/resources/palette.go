@@ -11,6 +11,7 @@ import (
 
 // https://www.ufopaedia.org/index.php/PALETTES.DAT
 
+// LoadPalettes loads Palettes from path.
 func LoadPalettes(path string) ([]*Palette, error) {
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -43,6 +44,7 @@ type Palette struct {
 	Buffer []byte           `struct:"[6]byte"`
 }
 
+// SizeOf implements the restruct.Sizer interface
 func (p Palette) SizeOf() int {
 	// Each palette is made up of the standard 256 colors stored as three byte RGB records (a value
 	// for Red, a value for Green and a value for Blue). This makes a total of 768 bytes per palette.
@@ -50,7 +52,7 @@ func (p Palette) SizeOf() int {
 	return 768 + 6
 }
 
-// Implements the restruct.Unpacker interface
+// Unpack implements the restruct.Unpacker interface
 func (p *Palette) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	for i := 0; i < 256; i++ {
 		rgb := struct{ R, G, B uint8 }{}
@@ -71,6 +73,7 @@ func (p *Palette) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	return buf[p.SizeOf():], nil
 }
 
+// Palette returns the colors as color.Palette object.‚
 func (p *Palette) Palette() *color.Palette {
 	palette := make(color.Palette, len(p.Colors))
 	palette[0] = image.Transparent

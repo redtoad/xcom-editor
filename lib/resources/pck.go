@@ -13,7 +13,14 @@ import (
 	"os"
 )
 
-var ErrUnsupportedTABOffset = errors.New("unsupported offset size for TAB file")
+var (
+	// ErrUnsupportedTABOffset is thrown if the offset is not 2 or 4
+	ErrUnsupportedTABOffset = errors.New("unsupported offset size for TAB file")
+	// ErrNotEnoughSprites is thrown if no (or not enough) images are found in ImageCollection.
+	ErrNotEnoughSprites = errors.New("could not load sprites from file")
+	// ErrNotEnoughTabs is thrown if not enough offsets are found to load PCK file.
+	ErrNotEnoughTabs = errors.New("could not load offsets from tab file")
+)
 
 //  32x40 sprites for use in the BattleScape
 //  32x48 sprites in BIGOBS.PCK
@@ -27,6 +34,8 @@ func readInt(rd *bufio.Reader) (int, error) {
 	return int(value), nil
 }
 
+// LoadTAB loads TAB file from path.
+//
 // The TAB file is a list of file offsets saying where each image begins in the related PCK archive.
 // Some offsets are encoded in 2 bytes while others are encoded in 4. It depends on how many images
 // are in the PCK archive.
@@ -44,9 +53,8 @@ func LoadTAB(path string, offsetSize int) ([]int, error) {
 		if err != nil {
 			if err == io.EOF {
 				return offsets, nil
-			} else {
-				return nil, err
 			}
+			return nil, err
 		}
 
 		switch offsetSize {
@@ -68,6 +76,7 @@ func LoadTAB(path string, offsetSize int) ([]int, error) {
 
 }
 
+// LoadPCK loads PCK image from path.
 func LoadPCK(path string, width int, offset int) (*ImageResource, error) {
 
 	fp, err := os.Open(path)
@@ -124,16 +133,13 @@ func LoadPCK(path string, width int, offset int) (*ImageResource, error) {
 
 }
 
-var (
-	ErrNotEnoughSprites = errors.New("could not load sprites from file")
-	ErrNotEnoughTabs    = errors.New("could not load offsets from tab file")
-)
-
+// ImageResource is a list of pixels (colors) that will create an image of width.
 type ImageResource struct {
 	pixels []uint
 	width  int
 }
 
+// Image will create an Image object with colors from palette.
 func (i *ImageResource) Image(palette *Palette) image.Image {
 	height := len(i.pixels) / i.width
 	upLeft := image.Point{}
@@ -150,6 +156,8 @@ func (i *ImageResource) Image(palette *Palette) image.Image {
 	}
 	return img
 }
+
+// Paletted returns an image with a limited palette (used for GIFs).
 func (i *ImageResource) Paletted(palette *Palette) *image.Paletted {
 	height := len(i.pixels) / i.width
 	upLeft := image.Point{}
@@ -167,14 +175,17 @@ func (i *ImageResource) Paletted(palette *Palette) *image.Paletted {
 	return img
 }
 
+// Width returns the image's width in pixels.
 func (i *ImageResource) Width() int {
 	return i.width
 }
 
+// Height calculates the image's height in pixels.
 func (i *ImageResource) Height() int {
 	return len(i.pixels) / i.width
 }
 
+// LoadImageCollectionFromPCK loads a collection of images from a PCK file.
 func LoadImageCollectionFromPCK(path string, width int, offsets []int) (*ImageCollection, error) {
 
 	if len(offsets) == 0 {
@@ -193,6 +204,8 @@ func LoadImageCollectionFromPCK(path string, width int, offsets []int) (*ImageCo
 	return &ImageCollection{Sprites: sprites, SpriteWidth: width}, nil
 }
 
+// ImageCollection is a list of ImageResources. These will typically be turned into
+// a gallery or an animated image.
 type ImageCollection struct {
 	Sprites     []*ImageResource
 	SpriteWidth int
@@ -248,7 +261,7 @@ func (c *ImageCollection) Gallery(numberPerRow int, rowHeight int, palette *Pale
 	return collection, nil
 }
 
-// Animated converts Sprites into a single GIF.
+// Animated converts ImageCollection into a single GIF.
 func (c *ImageCollection) Animated(delay int, height int, palette *Palette) *gif.GIF {
 
 	sprites := make([]*image.Paletted, len(c.Sprites))
