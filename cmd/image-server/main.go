@@ -19,6 +19,13 @@ import (
 	"github.com/redtoad/xcom-editor/lib/resources"
 )
 
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	builtBy = "unknown"
+)
+
 var port string // server port
 var root string // root path of game (containing all images and save games)
 
@@ -34,7 +41,7 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 
 	if paletteNr != "" {
 		val, _ := strconv.Atoi(paletteNr)
-		img, err = 	loader.LoadImageWithPalette(pth, val)
+		img, err = loader.LoadImageWithPalette(pth, val)
 	} else {
 		img, err = loader.LoadImage(pth)
 	}
@@ -69,6 +76,7 @@ func main() {
 	}
 
 	log.Printf("Starting server...\n")
+	log.Printf("Version %s-%s %s %s\n", version, commit, date, builtBy)
 	log.Printf("Game root: %s\n", root)
 	log.Printf("Try opening http://localhost:%s/resource/UNITS/ZOMBIE.PCK\n", port)
 
