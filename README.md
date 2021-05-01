@@ -1,6 +1,8 @@
 
 # xcom-editor
 
+[![Go](https://github.com/redtoad/xcom-editor/actions/workflows/go.yml/badge.svg)](https://github.com/redtoad/xcom-editor/actions/workflows/go.yml)
+
 This is a library to load image resources for the game [UFO: Enemy Unknown](https://en.wikipedia.org/wiki/UFO:_Enemy_Unknown). 
 
 ## Game images
