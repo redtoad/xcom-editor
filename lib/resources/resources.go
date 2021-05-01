@@ -27,7 +27,7 @@ type ResourceLoader struct {
 // LoadImage loads an image from pth with the palette as defined in resource list meta data. If pth
 // is not found in meta data, an error is returned.
 func (rs *ResourceLoader) LoadImage(pth string) (image.Image, error) {
-	meta, ok := images[pth]
+	meta, ok := Images[pth]
 	if !ok {
 		return nil, ErrImageNotFound
 	}
@@ -38,7 +38,7 @@ func (rs *ResourceLoader) LoadImage(pth string) (image.Image, error) {
 // meta data).
 func (rs *ResourceLoader) LoadImageWithPalette(pth string, paletteNr int) (image.Image, error) {
 
-	meta, ok := images[pth]
+	meta, ok := Images[pth]
 	if !ok {
 		return nil, ErrImageNotFound
 	}
