@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"sort"
 	"strconv"
 	"time"
 
@@ -42,9 +43,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	var paths []string
 	for pth, _ := range resources.Images {
-		println(pth)
 		paths = append(paths, pth)
 	}
+	sort.Strings(paths)
 
 	w.Header().Set("Content-Type", "text/html")
 
