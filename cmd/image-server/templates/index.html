@@ -44,7 +44,7 @@
         {{- range .Images }}
         <figure class="resource">
             <a href="/resource/{{ printf "%s" . }}">
-                <img src="/resource/{{ printf "%s" . }}"/>
+                <img src="/resource/{{ printf "%s" . }}" loading="lazy" />
                 <figcaption>{{ printf "%s" . }}</figcaption>
             </a>
         </figure>
