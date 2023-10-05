@@ -685,24 +685,24 @@ var Images = map[string]ImageEntry{
 	"UFOGRAPH/ICONS.PCK":   {1, 320, 200, "", 2}, // Broken
 	"UFOGRAPH/INTICON.PCK": {1, 32, 40, "UFOGRAPH/INTICON.TAB", 2},
 	// UFOGRAPH/INTICON.TAB
-	"UFOGRAPH/MAN_0F0.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_0F1.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_0F2.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_0F3.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_0M0.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_0M1.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_0M2.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_0M3.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_1F0.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_1F1.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_1F2.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_1F3.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_1M0.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_1M1.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_1M2.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_1M3.SPK": {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_2.SPK":   {4, 32, 40, "", 4},
-	"UFOGRAPH/MAN_3.SPK":   {4, 32, 40, "", 4},
+	"UFOGRAPH/MAN_0F0.SPK": {4, 32, 40, "", 4}, // no armour / female / blonde
+	"UFOGRAPH/MAN_0F1.SPK": {4, 32, 40, "", 4}, // no armour / female / brown hair
+	"UFOGRAPH/MAN_0F2.SPK": {4, 32, 40, "", 4}, // no armour / female / oriental
+	"UFOGRAPH/MAN_0F3.SPK": {4, 32, 40, "", 4}, // no armour / female / African
+	"UFOGRAPH/MAN_0M0.SPK": {4, 32, 40, "", 4}, // no armour / male / blonde
+	"UFOGRAPH/MAN_0M1.SPK": {4, 32, 40, "", 4}, // no armour / male / brown hair
+	"UFOGRAPH/MAN_0M2.SPK": {4, 32, 40, "", 4}, // no armour / male / oriental
+	"UFOGRAPH/MAN_0M3.SPK": {4, 32, 40, "", 4}, // no armour / male / African
+	"UFOGRAPH/MAN_1F0.SPK": {4, 32, 40, "", 4}, // body armour / female / blonde
+	"UFOGRAPH/MAN_1F1.SPK": {4, 32, 40, "", 4}, // body armour / female / brown hair
+	"UFOGRAPH/MAN_1F2.SPK": {4, 32, 40, "", 4}, // body armour / female / oriental
+	"UFOGRAPH/MAN_1F3.SPK": {4, 32, 40, "", 4}, // body armour / female / African
+	"UFOGRAPH/MAN_1M0.SPK": {4, 32, 40, "", 4}, // body armour / male / blonde
+	"UFOGRAPH/MAN_1M1.SPK": {4, 32, 40, "", 4}, // body armour / male / brown hair
+	"UFOGRAPH/MAN_1M2.SPK": {4, 32, 40, "", 4}, // body armour / male / oriental
+	"UFOGRAPH/MAN_1M3.SPK": {4, 32, 40, "", 4}, // body armour / male / African
+	"UFOGRAPH/MAN_2.SPK":   {4, 32, 40, "", 4}, // power suit
+	"UFOGRAPH/MAN_3.SPK":   {4, 32, 40, "", 4}, // flying suit
 	// UFOGRAPH/MEDIBITS.DAT
 	// UFOGRAPH/MEDIBORD.PCK
 	// UFOGRAPH/MOC1.LBM
