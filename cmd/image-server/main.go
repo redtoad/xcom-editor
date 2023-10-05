@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"embed"
 	"flag"
 	"fmt"
 	"html/template"
@@ -32,22 +33,12 @@ var root string // root path of game (containing all images and save games)
 
 var loader *resources.ResourceLoader
 
+//go:embed templates/*
+var templates embed.FS
+
 func Index(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Index")
-
-	tpl := template.Must(template.New("").Parse(`
-	<html><body>
-		{{- range .Images }}
-		<div style="float: left;">
-			<a href="/resource/{{ printf "%s" . }}">
-				<img src="/resource/{{ printf "%s" . }}"/><br/>
-				{{ printf "%s" . }}
-			</a>
-		</div>
-		{{- end }}
-	</body></html>
-	`))
 
 	var paths []string
 	for pth, _ := range resources.Images {
@@ -56,6 +47,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
+
+	tpl := template.Must(template.New("index.html").ParseFS(templates, "templates/index.html"))
 	err := tpl.Execute(w, struct {
 		Images []string
 	}{
