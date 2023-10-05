@@ -6,12 +6,11 @@ import (
 	"image/color"
 	"io/ioutil"
 
-	"gopkg.in/restruct.v1"
+	"github.com/go-restruct/restruct"
 )
 
-// https://www.ufopaedia.org/index.php/PALETTES.DAT
-
 // LoadPalettes loads Palettes from path.
+// (see https://www.ufopaedia.org/index.php/PALETTES.DAT)
 func LoadPalettes(path string) ([]*Palette, error) {
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -73,7 +72,7 @@ func (p *Palette) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	return buf[p.SizeOf():], nil
 }
 
-// Palette returns the colors as color.Palette object.‚
+// Palette returns the colors as color.Palette object.
 func (p *Palette) Palette() *color.Palette {
 	palette := make(color.Palette, len(p.Colors))
 	palette[0] = image.Transparent

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"image"
 	"path"
+	"strings"
 )
 
 // path to main palettes file
@@ -16,11 +17,14 @@ var (
 	ErrImageNotFound = errors.New("image not found in meta data")
 	// ErrNotImplemented is thrown if image type is not supported
 	ErrNotImplemented = errors.New("not implemented yet")
+	// ErrPaletteNotFound is thrown if specified colour pallete is not found
+	ErrPaletteNotFound = errors.New("color pallete not found")
 )
 
 // ResourceLoader will load resources from game directory.
 type ResourceLoader struct {
 	rootPath string
+	// Colour palletes
 	palettes []*Palette
 }
 
@@ -34,8 +38,7 @@ func (rs *ResourceLoader) LoadImage(pth string) (image.Image, error) {
 	return rs.LoadImageWithPalette(pth, meta.PaletteNr)
 }
 
-// LoadImageWithPalette loads an image with a specific palette (rather than the one defined in
-// meta data).
+// LoadImageWithPalette loads an image with a specific colour palette.
 func (rs *ResourceLoader) LoadImageWithPalette(pth string, paletteNr int) (image.Image, error) {
 
 	meta, ok := Images[pth]
@@ -43,12 +46,16 @@ func (rs *ResourceLoader) LoadImageWithPalette(pth string, paletteNr int) (image
 		return nil, ErrImageNotFound
 	}
 
+	if paletteNr >= len(rs.palettes) {
+		return nil, ErrPaletteNotFound
+	}
+
 	imgPath := path.Join(rs.rootPath, pth)
 	tabPath := path.Join(rs.rootPath, meta.TabFile)
 	palette := rs.palettes[paletteNr]
 
 	ext := path.Ext(pth)
-	switch ext {
+	switch strings.ToUpper(ext) {
 	case ".PCK":
 
 		if meta.TabFile != "" {

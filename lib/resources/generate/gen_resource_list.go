@@ -45,6 +45,12 @@ func main() {
 	buf.Comma = ';'
 	buf.Comment = '#'
 
+	// skip header
+	_, err = buf.Read()
+	if err != nil {
+		dieOnError(err)
+	}
+
 	var rows []*csvRow
 
 	// Iterate through the records

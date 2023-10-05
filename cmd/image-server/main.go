@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"context"
+	"embed"
 	"flag"
 	"fmt"
+	"html/template"
 	"image"
 	"image/png"
 	"log"
@@ -12,6 +14,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"sort"
 	"strconv"
 	"time"
 
@@ -30,6 +33,33 @@ var port string // server port
 var root string // root path of game (containing all images and save games)
 
 var loader *resources.ResourceLoader
+
+//go:embed templates/*
+var templates embed.FS
+
+func Index(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("Index")
+
+	var paths []string
+	for pth, _ := range resources.Images {
+		paths = append(paths, pth)
+	}
+	sort.Strings(paths)
+
+	w.Header().Set("Content-Type", "text/html")
+
+	tpl := template.Must(template.New("index.html").ParseFS(templates, "templates/index.html"))
+	err := tpl.Execute(w, struct {
+		Images []string
+	}{
+		paths,
+	})
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
+
+}
 
 func ServeImage(w http.ResponseWriter, r *http.Request) {
 
@@ -88,6 +118,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.PathPrefix("/resource").HandlerFunc(ServeImage)
+	r.PathPrefix("/").HandlerFunc(Index)
 
 	srv := &http.Server{
 		Addr: "0.0.0.0:8080",

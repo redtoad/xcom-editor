@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 )
 
-// LoadSCR load SCR image from path.
+// LoadSCR loads an SCR image from path.
 //
 // These ones are easy, every byte is an uncompressed index into the game's palette.
 // Typically SCR files are used for 320x200 background images (and often stored in greyscale

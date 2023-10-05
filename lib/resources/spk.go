@@ -3,7 +3,8 @@ package resources
 import (
 	"bufio"
 	"encoding/binary"
-	"log"
+	"fmt"
+	"io"
 	"os"
 )
 
@@ -17,6 +18,11 @@ func readInt16(rd *bufio.Reader) (int, error) {
 }
 
 // LoadSPK loads SPK image from path.
+//
+// Another 320 pixels wide x 200 pixels high image format but using compression, primarily used by UFO for
+// background images (eg inventory screens).
+//
+// https://www.ufopaedia.org/index.php/Image_Formats
 func LoadSPK(path string) (*ImageResource, error) {
 
 	fp, err := os.Open(path)
@@ -28,18 +34,13 @@ func LoadSPK(path string) (*ImageResource, error) {
 
 	var spriteData []uint
 
-	pxCount := 0 // count number of pixels rad from file for debugging
-
 	for {
 
 		// Read a 16-bit unsigned integer, call it "a".
 		value, err := readInt16(buf)
 		if err != nil {
-			log.Printf("Pixels read: %d", pxCount)
 			return nil, err
 		}
-
-		pxCount++
 
 		switch value {
 
@@ -51,7 +52,7 @@ func LoadSPK(path string) (*ImageResource, error) {
 				return nil, err
 			}
 			for i := 0; i < pixels*2; i++ {
-				spriteData = append(spriteData, 0)
+				spriteData = append(spriteData, 0) // transparent background
 			}
 
 		// If "a" is 0xFFFE (65534) then the next 16-bit integer*2
@@ -64,7 +65,8 @@ func LoadSPK(path string) (*ImageResource, error) {
 				return nil, err
 			}
 			colors := make([]byte, pixels*2)
-			_, err = buf.Read(colors)
+			_, err = io.ReadFull(buf, colors)
+
 			if err != nil {
 				return nil, err
 			}
@@ -75,10 +77,12 @@ func LoadSPK(path string) (*ImageResource, error) {
 		// If "a" is 0xFFFD (65533) then you are done. This is always the
 		// last code in the file.
 		case 0xfffd:
-			log.Printf("Pixels read: %d", pxCount)
 			return &ImageResource{spriteData, 320}, nil
 
+		default:
+			return nil, fmt.Errorf("unknown header byte %x", value)
 		}
+
 	}
 
 }

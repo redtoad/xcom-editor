@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"gopkg.in/restruct.v1"
+	"github.com/go-restruct/restruct"
 )
 
 // https://www.ufopaedia.org/index.php/SOLDIER.DAT

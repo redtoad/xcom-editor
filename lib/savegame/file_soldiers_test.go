@@ -7,8 +7,8 @@ import (
 	"testing"
 	"unicode"
 
+	"github.com/go-restruct/restruct"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/restruct.v1"
 )
 
 func loadHex(str string) ([]byte, error) {
