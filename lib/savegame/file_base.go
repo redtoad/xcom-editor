@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"gopkg.in/restruct.v1"
+	"github.com/go-restruct/restruct"
 )
 
 type FileBase struct {
@@ -130,6 +130,18 @@ func (f Facility) Tile() string {
 		return " ⌞"
 	case HangarBottomRight:
 		return "⌟ "
+	case LivingQuarters:
+		return "LQ"
+	case SmallRadarSystem:
+		return "SR"
+	case LargeRadarSystem:
+		return "LR"
+	case Workshop:
+		return "WS"
+	case Laboratory:
+		return "LB"
+	case GeneralStores:
+		return "GS"
 	default:
 		return fmt.Sprintf("%#v", f)
 	}

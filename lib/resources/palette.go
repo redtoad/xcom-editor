@@ -6,7 +6,7 @@ import (
 	"image/color"
 	"io/ioutil"
 
-	"gopkg.in/restruct.v1"
+	"github.com/go-restruct/restruct"
 )
 
 // LoadPalettes loads Palettes from path.

@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"gopkg.in/restruct.v1"
+	"github.com/go-restruct/restruct"
 )
 
 func LoadFile(path string, obj interface{}) error {
