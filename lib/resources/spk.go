@@ -17,6 +17,11 @@ func readInt16(rd *bufio.Reader) (int, error) {
 }
 
 // LoadSPK loads SPK image from path.
+//
+// Another 320 pixels wide x 200 pixels high image format but using compression, primarily used by UFO for
+// background images (eg inventory screens).
+//
+// https://www.ufopaedia.org/index.php/Image_Formats
 func LoadSPK(path string) (*ImageResource, error) {
 
 	fp, err := os.Open(path)
@@ -28,14 +33,14 @@ func LoadSPK(path string) (*ImageResource, error) {
 
 	var spriteData []uint
 
-	pxCount := 0 // count number of pixels rad from file for debugging
+	pxCount := 0 // count number of pixels read from file for debugging
 
 	for {
 
 		// Read a 16-bit unsigned integer, call it "a".
 		value, err := readInt16(buf)
 		if err != nil {
-			log.Printf("Pixels read: %d", pxCount)
+			log.Printf("error: %v (%d pixels read)", err, pxCount)
 			return nil, err
 		}
 
@@ -48,11 +53,15 @@ func LoadSPK(path string) (*ImageResource, error) {
 		case 0xffff:
 			pixels, err := readInt16(buf)
 			if err != nil {
+				log.Printf("error: %v (%d pixels read)", err, pxCount)
 				return nil, err
 			}
 			for i := 0; i < pixels*2; i++ {
-				spriteData = append(spriteData, 0)
+				log.Printf("skip %d pixels", pixels*2)
+				spriteData = append(spriteData, 0) // transparent background
 			}
+
+			pxCount += pixels * 2
 
 		// If "a" is 0xFFFE (65534) then the next 16-bit integer*2
 		// specifies the number of pixels you are going to draw.
@@ -61,21 +70,26 @@ func LoadSPK(path string) (*ImageResource, error) {
 		case 0xfffe:
 			pixels, err := readInt16(buf)
 			if err != nil {
+				log.Printf("error: %v (%d pixels read)", err, pxCount)
 				return nil, err
 			}
 			colors := make([]byte, pixels*2)
 			_, err = buf.Read(colors)
 			if err != nil {
+				log.Printf("error: %v (%d pixels read)", err, pxCount)
 				return nil, err
 			}
 			for i := 0; i < len(colors); i++ {
+				log.Printf("draw %d pixels", len(colors))
 				spriteData = append(spriteData, uint(colors[i]))
 			}
+
+			pxCount += len(colors)
 
 		// If "a" is 0xFFFD (65533) then you are done. This is always the
 		// last code in the file.
 		case 0xfffd:
-			log.Printf("Pixels read: %d", pxCount)
+			log.Printf("done (%d pixels read)", pxCount)
 			return &ImageResource{spriteData, 320}, nil
 
 		}
