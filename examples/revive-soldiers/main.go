@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/redtoad/xcom-editor/lib/savegame"
+	"github.com/redtoad/xcom-editor/savegame"
 )
 
 func main() {
@@ -96,6 +96,15 @@ func main() {
 		// increase Elirium-115
 		Elirium115 := 60
 		base.Inventory[Elirium115] = 0xfffe
+
+		for i := 0; i < len(base.DaysToCompletion); i++ {
+			base.DaysToCompletion[i] = 0
+		}
+
+		if err := savegame.SaveFile(pathBasesFile, &bases); err != nil {
+			log.Fatalf("could not save file: %v\n", err)
+		}
+
 	}
 
 	fmt.Printf("Storing %s...\n", pathBasesFile)
