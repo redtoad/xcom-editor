@@ -22,7 +22,7 @@ func main() {
 	}
 
 	fmt.Printf("Loading %s...\n", pathSoldiersFile)
-	var soldiers savegame.FileSoldier
+	var soldiers savegame.SOLDIER_DAT
 	if err := savegame.LoadFile(pathSoldiersFile, &soldiers); err != nil {
 		log.Fatalf("could not load file: %v", err)
 	}
@@ -61,7 +61,7 @@ func main() {
 	}
 
 	fmt.Printf("Loading %s...\n", pathBasesFile)
-	var bases savegame.FileBase
+	var bases savegame.BASE_DAT
 	if err := savegame.LoadFile(pathBasesFile, &bases); err != nil {
 		log.Fatalf("could not load file: %v", err)
 	}

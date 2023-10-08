@@ -7,21 +7,30 @@ import (
 	"github.com/go-restruct/restruct"
 )
 
-type FileBase struct {
+const maxBases = 8
+
+// Each base entry is 292 bytes long.
+const baseByteLength = 292
+
+// BASE_DAT has all of the base layout and contents information, as well as
+// base name info.
+//
+// https://www.ufopaedia.org/index.php/BASE.DAT
+type BASE_DAT struct {
 	Bases []Base
 }
 
-func (s FileBase) SizeOf() int {
-	return 292 * 8
+func (s BASE_DAT) SizeOf() int {
+	return baseByteLength * maxBases
 }
 
-func (s FileBase) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	for i := 0; i < 8; i++ {
+func (s BASE_DAT) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	for i := 0; i < maxBases; i++ {
 		data, err := restruct.Pack(order, &s.Bases[i])
 		if err != nil {
 			return nil, err
 		}
-		offset := i * 292
+		offset := i * baseByteLength
 		for j := 0; j < len(data); j++ {
 			buf[offset+j] = data[j]
 		}
@@ -29,11 +38,11 @@ func (s FileBase) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	return buf, nil
 }
 
-func (s *FileBase) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	s.Bases = make([]Base, 8)
-	for i := 0; i < 8; i++ {
-		offset := i * 292
-		data := buf[offset : offset+292]
+func (s *BASE_DAT) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	s.Bases = make([]Base, maxBases)
+	for i := 0; i < maxBases; i++ {
+		offset := i * baseByteLength
+		data := buf[offset : offset+baseByteLength]
 		if err := restruct.Unpack(data, order, &s.Bases[i]); err != nil {
 			return nil, err
 		}
@@ -41,11 +50,7 @@ func (s *FileBase) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	return buf[s.SizeOf():], nil
 }
 
-// https://www.ufopaedia.org/index.php/BASE.DAT
-
 type Base struct {
-
-	// Each entry is 292 Bytes long
 
 	// 00-0E: Base Name, pretty obvious
 	// 0F: Presumably the Null character if the Base Name uses all 15 characters

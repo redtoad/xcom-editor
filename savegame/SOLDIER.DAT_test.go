@@ -629,7 +629,7 @@ func TestFileSoldier_Pack(t *testing.T) {
 	decoded, err := loadHex(hexDump)
 	assert.NoError(t, err, "could not decode hex dump")
 
-	var file FileSoldier
+	var file SOLDIER_DAT
 	err = restruct.Unpack(decoded, binary.LittleEndian, &file)
 	assert.NoError(t, err, "could not decode data")
 

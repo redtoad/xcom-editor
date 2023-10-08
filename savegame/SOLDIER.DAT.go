@@ -7,23 +7,29 @@ import (
 	"github.com/go-restruct/restruct"
 )
 
-// https://www.ufopaedia.org/index.php/SOLDIER.DAT
+const maxSoldiers = 250
 
-type FileSoldier struct {
+// Each soldier entry is 68 bytes long.
+const soldierByteLength = 68
+
+// SOLDIER_DAT contains all information abot the soldiers.
+//
+// https://www.ufopaedia.org/index.php/SOLDIER.DAT
+type SOLDIER_DAT struct {
 	Soldiers []Soldier
 }
 
-func (s FileSoldier) SizeOf() int {
-	return 250 * 68
+func (s SOLDIER_DAT) SizeOf() int {
+	return maxSoldiers * soldierByteLength
 }
 
-func (s FileSoldier) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	for i := 0; i < 250; i++ {
+func (s SOLDIER_DAT) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	for i := 0; i < maxSoldiers; i++ {
 		data, err := restruct.Pack(order, &s.Soldiers[i])
 		if err != nil {
 			return nil, err
 		}
-		offset := i * 68
+		offset := i * soldierByteLength
 		for j := 0; j < len(data); j++ {
 			buf[offset+j] = data[j]
 		}
@@ -31,11 +37,11 @@ func (s FileSoldier) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	return buf, nil
 }
 
-func (s *FileSoldier) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	s.Soldiers = make([]Soldier, 250)
-	for i := 0; i < 250; i++ {
-		offset := i * 68
-		data := buf[offset : offset+68]
+func (s *SOLDIER_DAT) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	s.Soldiers = make([]Soldier, maxSoldiers)
+	for i := 0; i < maxSoldiers; i++ {
+		offset := i * soldierByteLength
+		data := buf[offset : offset+soldierByteLength]
 		if err := restruct.Unpack(data, order, &s.Soldiers[i]); err != nil {
 			return nil, err
 		}
