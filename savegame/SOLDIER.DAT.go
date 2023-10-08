@@ -64,9 +64,6 @@ type Soldier struct {
 	// 5 Commander (CDR)
 	// 6 Select Squad for
 	// 7 SPACE AVAILABLE>
-
-	/* byte=8bits word=2bytes int=4bytes long=8bytes */
-
 	Rank Rank `struct:"int16"`
 
 	// 2-3 / 02-03 (various, FF): Base the soldier is at, using reference values
@@ -235,6 +232,10 @@ type Soldier struct {
 	Appearance Appearance `struct:"int8"`
 }
 
+func (s *Soldier) GoString() string {
+	return s.String()
+}
+
 func (s *Soldier) String() string {
 	if s.Rank == DeadOrUnused {
 		return "{Soldier <dead or unused>}"
@@ -293,6 +294,15 @@ const (
 	Silacoid
 	Chryssalid
 )
+
+func (a Armor) String() string {
+	return []string{
+		"NoArmor", "PersonalArmor", "PowerSuit",
+		"FlyingSuit", "Sectoid", "Snakeman",
+		"Ethereal", "Muton", "Floater",
+		"Celatid", "Silacoid", "Chryssalid",
+	}[a]
+}
 
 type Gender int
 

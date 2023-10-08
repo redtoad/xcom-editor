@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/redtoad/xcom-editor/savegame"
@@ -16,23 +15,47 @@ func main() {
 	rootPath := flag.String("path", ".", "save game path")
 	flag.Parse()
 
-	pathSoldiersFile := path.Join(*rootPath, "SOLDIER.DAT")
-	if _, err := os.Stat(pathSoldiersFile); os.IsNotExist(err) {
-		log.Fatalf("could not open file: %v", err)
-	}
-
-	fmt.Printf("Loading %s...\n", pathSoldiersFile)
-	var soldiers savegame.SOLDIER_DAT
-	if err := savegame.LoadFile(pathSoldiersFile, &soldiers); err != nil {
+	sg, err := savegame.Load(*rootPath)
+	if err != nil {
 		log.Fatalf("could not load file: %v", err)
 	}
+	fmt.Printf("[%v] [%s]\n", sg.MetaData.Time(), sg.MetaData.Name)
+	fmt.Printf("%v soldiers\n", sg.SoldiersData.Soldiers)
+	fmt.Printf("%v bases\n", sg.BasesData.Bases)
 
-	if err := savegame.SaveFile(pathSoldiersFile+".bak", &soldiers); err != nil {
-		log.Fatalf("could not create backup: %v\n", err)
-	}
+	/*
+			pathSaveinfoFile := path.Join(*rootPath, "SAVEINFO.DAT")
+			if _, err := os.Stat(pathSaveinfoFile); os.IsNotExist(err) {
+				fmt.Println(pathSaveinfoFile)
+				log.Fatalf("could not open file: %v", err)
+			}
+			var info savegame.SAVEINFO_DAT
+			data, err := os.ReadFile(pathSaveinfoFile)
+			if err != nil {
+				log.Fatalf("could not load file: %v", err)
+			}
+			restruct.Unpack(data, binary.LittleEndian, &info)
+			fmt.Printf("[%v] [%s]\n", info.Time(), info.Name)
 
-	for no := 0; no < len(soldiers.Soldiers); no++ {
-		soldier := &soldiers.Soldiers[no]
+			pathSoldiersFile := path.Join(*rootPath, "SOLDIER.DAT")
+		if _, err := os.Stat(pathSoldiersFile); os.IsNotExist(err) {
+			log.Fatalf("could not open file: %v", err)
+		}
+
+		fmt.Printf("Loading %s...\n", pathSoldiersFile)
+		var soldiers savegame.SOLDIER_DAT
+		if err := savegame.LoadFile(pathSoldiersFile, &soldiers); err != nil {
+			log.Fatalf("could not load file: %v", err)
+		}
+
+		if err := savegame.SaveFile(pathSoldiersFile+".bak", &soldiers); err != nil {
+			log.Fatalf("could not create backup: %v\n", err)
+		}
+
+	*/
+
+	for no := 0; no < len(sg.SoldiersData.Soldiers); no++ {
+		soldier := &sg.SoldiersData.Soldiers[no]
 		// resurrect solders
 		if soldier.Rank == savegame.DeadOrUnused && strings.TrimSpace(soldier.Name) != "" {
 			fmt.Printf("Resurrect %s from the dead\n", soldier.Name)
@@ -50,10 +73,15 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Storing %s...\n", pathSoldiersFile)
-	if err := savegame.SaveFile(pathSoldiersFile, &soldiers); err != nil {
-		log.Fatalf("could not save file: %v\n", err)
-	}
+	sg.Save()
+	log.Fatal("")
+
+	/*
+		fmt.Printf("Storing %s...\n", pathSoldiersFile)
+		if err := savegame.SaveFile(pathSoldiersFile, &soldiers); err != nil {
+			log.Fatalf("could not save file: %v\n", err)
+		}
+	*/
 
 	pathBasesFile := *rootPath + string(os.PathSeparator) + "BASE.DAT"
 	if _, err := os.Stat(pathBasesFile); os.IsNotExist(err) {
