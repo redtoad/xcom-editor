@@ -41,8 +41,6 @@ var templates embed.FS
 
 func Index(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("Index")
-
 	var paths []string
 	for pth, _ := range resources.Images {
 		paths = append(paths, pth)
@@ -56,6 +54,22 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		Images []string
 	}{
 		paths,
+	})
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
+
+}
+
+func ResourceDetails(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "text/html")
+
+	tpl := template.Must(template.New("resource.html").ParseFS(templates, "templates/resource.html"))
+	err := tpl.Execute(w, struct {
+		Path string
+	}{
+		r.URL.Path[9:],
 	})
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -139,6 +153,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.PathPrefix("/resource").HandlerFunc(ServeImage)
+	r.PathPrefix("/details").HandlerFunc(ResourceDetails)
 	r.PathPrefix("/").HandlerFunc(Index)
 
 	srv := &http.Server{

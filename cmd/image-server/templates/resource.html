@@ -3,17 +3,9 @@
 <head>
     <style type="text/css">
 
-        #gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            grid-gap: .5rem;
-            justify-items: center;
-            margin: 0;
-            padding: 0;
-        }
-          
         .resource {
-            text-align: center;
+            width: 200%;
+            height: 200%;
         }
           
         .resource img {
@@ -39,18 +31,25 @@
     
 <body>
 
-    <div id="gallery">
+    <div class="resource">
+        <img src="/resource/{{ printf "%s" .Path }}" id="image" />
+        <figcaption>{{ printf "%s" .Path }}</figcaption>
 
-        {{- range .Images }}
-        <figure class="resource">
-            <a href="/details/{{ printf "%s" . }}">
-                <img src="/resource/{{ printf "%s" . }}" loading="lazy" />
-                <figcaption>{{ printf "%s" . }}</figcaption>
-            </a>
-        </figure>
-        {{- end }}
-
+        <label for="palette">palette</label>
+        <input type="range" min="0" max="4" id="palette" />
+        <span for="palette" id="value" />
     </div>
+
+    <script type="text/javascript">
+        var slider = document.getElementById("palette");
+        var value = document.getElementById("value");
+        var image = document.getElementById("image");
+        slider.oninput = function() {
+            value.innerHTML = this.value;
+            image.src = "/resource/{{ printf "%s" .Path }}?palette=" + this.value;
+        }
+    </script>
+
 
 </body>
 
