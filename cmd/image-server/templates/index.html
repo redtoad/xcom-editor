@@ -1,43 +1,7 @@
-<html>
 
-<head>
-    <style type="text/css">
+{{define "title"}}All images{{end}}
 
-        #gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            grid-gap: .5rem;
-            justify-items: center;
-            margin: 0;
-            padding: 0;
-        }
-          
-        .resource {
-            text-align: center;
-        }
-          
-        .resource img {
-            font-size: 1.5rem;
-            max-width: 100%;
-            height: auto;
-            object-fit: cover;
-            transition: opacity 0.25s ease-in-out;
-            background: #eee url('data:image/svg+xml,\
-                <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" fill-opacity=".25" >\
-                    <rect x="200" width="200" height="200" />\
-                    <rect y="200" width="200" height="200" />\
-                </svg>');
-            background-size: 16px 16px;
-        }
-
-        .resource img:hover {
-            opacity: .7;
-        }        
-    </style>
-
-</head>
-    
-<body>
+{{define "main"}}
 
     <div id="gallery">
 
@@ -52,6 +16,4 @@
 
     </div>
 
-</body>
-
-</html>
+{{end}}

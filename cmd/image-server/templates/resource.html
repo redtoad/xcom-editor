@@ -1,43 +1,14 @@
-<html>
+{{ define "title" }}{{ printf "%s" .Path }}{{ end }}
 
-<head>
-    <style type="text/css">
-
-        .resource {
-            width: 200%;
-            height: 200%;
-        }
-          
-        .resource img {
-            font-size: 1.5rem;
-            max-width: 100%;
-            height: auto;
-            object-fit: cover;
-            transition: opacity 0.25s ease-in-out;
-            background: #eee url('data:image/svg+xml,\
-                <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" fill-opacity=".25" >\
-                    <rect x="200" width="200" height="200" />\
-                    <rect y="200" width="200" height="200" />\
-                </svg>');
-            background-size: 16px 16px;
-        }
-
-        .resource img:hover {
-            opacity: .7;
-        }        
-    </style>
-
-</head>
-    
-<body>
+{{ define "main" }}
 
     <div class="resource">
         <img src="/resource/{{ printf "%s" .Path }}" id="image" />
         <figcaption>{{ printf "%s" .Path }}</figcaption>
 
-        <label for="palette">palette</label>
-        <input type="range" min="0" max="4" id="palette" />
-        <span for="palette" id="value" />
+        <label for="palette">palette #<span for="palette" id="value">{{ .Meta.PaletteNr }}</span></label>
+        <input type="range" min="0" max="4" id="palette" value="{{ .Meta.PaletteNr }}"/>
+        
     </div>
 
     <script type="text/javascript">
@@ -50,7 +21,7 @@
         }
     </script>
 
-
+{{ end }}
 </body>
 
 </html>
