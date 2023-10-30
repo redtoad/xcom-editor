@@ -12,8 +12,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path"
+	"runtime"
 	"sort"
 	"strconv"
 	"time"
@@ -97,6 +99,25 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// OpenURL opens the specified URL in the default browser of the user.
+// Shamelessly stolen from https://stackoverflow.com/a/39324149.
+func OpenURL(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
+}
+
 func main() {
 	flag.StringVar(&port, "port", "8080", "port server run on (default: 8080)")
 	flag.Parse()
@@ -135,6 +156,9 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+
+	log.Println("Opening browser...")
+	_ = OpenURL("http://localhost:8080")
 
 	c := make(chan os.Signal, 1)
 	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)

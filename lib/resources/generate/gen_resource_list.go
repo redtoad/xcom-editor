@@ -19,6 +19,7 @@ const resourceFiles = "resource_files.csv"
 type csvRow struct {
 	Path          string
 	Valid         bool
+	Format        string
 	PaletteNr     int
 	Width, Height int
 	TabFile       string
@@ -53,6 +54,12 @@ func main() {
 
 	var rows []*csvRow
 
+	formats := map[string]string{
+		"SCR": "ImageFormatSCR",
+		"SPK": "ImageFormatSPK",
+		"PCK": "ImageFormatPCK",
+	}
+
 	// Iterate through the records
 	for {
 		// Read each record from csv
@@ -65,12 +72,13 @@ func main() {
 		}
 		row := &csvRow{
 			Path:      record[0],
-			PaletteNr: toInt(record[1], -1),
-			Width:     toInt(record[2], -1),
-			Height:    toInt(record[3], -1),
-			TabFile:   record[4],
-			TabOffset: toInt(record[5], -1),
-			Comment:   record[6],
+			Format:    formats[record[1]],
+			PaletteNr: toInt(record[2], -1),
+			Width:     toInt(record[3], -1),
+			Height:    toInt(record[4], -1),
+			TabFile:   record[5],
+			TabOffset: toInt(record[6], -1),
+			Comment:   record[7],
 		}
 		row.Valid = row.PaletteNr != -1
 		if row.Path != "" {
@@ -114,7 +122,7 @@ package resources
 var Images = map[string]ImageEntry{
 {{- range .Rows }}
 	{{- if .Valid }}
-	{{ printf "%q" .Path }}: { {{- .PaletteNr }}, {{ .Width }}, {{ .Height }}, {{ printf "%q" .TabFile }}, {{ .TabOffset -}} },
+	{{ printf "%q" .Path }}: { {{- .Format }}, {{ .PaletteNr }}, {{ .Width }}, {{ .Height }}, {{ printf "%q" .TabFile }}, {{ .TabOffset -}} },
 	{{- if .Comment}} // {{ .Comment }}
 	{{- end }}
 	{{- else }}

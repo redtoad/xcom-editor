@@ -6,7 +6,6 @@ import (
 	"errors"
 	"image"
 	"path"
-	"strings"
 )
 
 // path to main palettes file
@@ -38,6 +37,15 @@ func (rs *ResourceLoader) LoadImage(pth string) (image.Image, error) {
 	return rs.LoadImageWithPalette(pth, meta.PaletteNr)
 }
 
+type ImageFormat int
+
+const (
+	ImageFormatUnknown ImageFormat = iota
+	ImageFormatSPK
+	ImageFormatPCK
+	ImageFormatSCR
+)
+
 // LoadImageWithPalette loads an image with a specific colour palette.
 func (rs *ResourceLoader) LoadImageWithPalette(pth string, paletteNr int) (image.Image, error) {
 
@@ -54,9 +62,8 @@ func (rs *ResourceLoader) LoadImageWithPalette(pth string, paletteNr int) (image
 	tabPath := path.Join(rs.rootPath, meta.TabFile)
 	palette := rs.palettes[paletteNr]
 
-	ext := path.Ext(pth)
-	switch strings.ToUpper(ext) {
-	case ".PCK":
+	switch meta.Format {
+	case ImageFormatPCK:
 
 		if meta.TabFile != "" {
 			tabs, err := LoadTAB(tabPath, meta.TabOffset)
@@ -82,7 +89,7 @@ func (rs *ResourceLoader) LoadImageWithPalette(pth string, paletteNr int) (image
 		}
 		return img.Image(palette), nil
 
-	case ".SPK":
+	case ImageFormatSPK:
 
 		img, err := LoadSPK(imgPath)
 		if err != nil {
@@ -90,7 +97,7 @@ func (rs *ResourceLoader) LoadImageWithPalette(pth string, paletteNr int) (image
 		}
 		return img.Image(palette), nil
 
-	case ".SCR":
+	case ImageFormatSCR:
 
 		img, err := LoadSCR(imgPath, meta.Width)
 		if err != nil {
@@ -119,6 +126,7 @@ func NewResourceLoader(root string) (*ResourceLoader, error) {
 
 // ImageEntry is a resource file for images in formats
 type ImageEntry struct {
+	Format    ImageFormat
 	PaletteNr int
 	Width     int
 	Height    int

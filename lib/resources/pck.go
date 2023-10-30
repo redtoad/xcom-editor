@@ -241,8 +241,8 @@ func (c *ImageCollection) Gallery(numberPerRow int, rowHeight int, palette *Pale
 	for no, sprite := range c.Sprites {
 
 		if sprite.Height() > rowHeight {
-			log.Printf("Warning: sprite %dx%d is bigger than specified in meta data (%dx%d)!\n",
-				sprite.Width(), sprite.Height(), c.SpriteWidth, rowHeight)
+			log.Printf("Warning: sprite #%d is with %dx%d is bigger than specified in meta data (%dx%d)!\n",
+				no, sprite.Width(), sprite.Height(), c.SpriteWidth, rowHeight)
 		}
 
 		dstX := (no % gridWidth) * c.SpriteWidth
