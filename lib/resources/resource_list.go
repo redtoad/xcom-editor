@@ -22,77 +22,77 @@ var Images = map[string]ImageEntry{
 	// GEODATA/SINE.DAT
 	// GEODATA/SMALLSET.DAT
 	// GEODATA/WORLD.DAT
-	"GEOGRAPH/BACK01.SCR":   {0, 320, 200, "", 0},
-	"GEOGRAPH/BACK02.SCR":   {4, 320, 200, "", 0},
-	"GEOGRAPH/BACK03.SCR":   {3, 320, 200, "", 0},
-	"GEOGRAPH/BACK04.SCR":   {4, 320, 200, "", 0},
-	"GEOGRAPH/BACK05.SCR":   {3, 320, 200, "", 0},
-	"GEOGRAPH/BACK06.SCR":   {4, 320, 200, "", 0},
-	"GEOGRAPH/BACK07.SCR":   {4, 320, 200, "", 0},
-	"GEOGRAPH/BACK08.SCR":   {4, 320, 200, "", 0},
-	"GEOGRAPH/BACK09.SCR":   {4, 320, 200, "", 0},
-	"GEOGRAPH/BACK10.SCR":   {0, 320, 200, "", 0},
-	"GEOGRAPH/BACK11.SCR":   {4, 320, 200, "", 0},
-	"GEOGRAPH/BACK12.SCR":   {0, 320, 200, "", 0},
-	"GEOGRAPH/BACK13.SCR":   {3, 320, 200, "", 0},
-	"GEOGRAPH/BACK14.SCR":   {3, 320, 200, "", 0},
-	"GEOGRAPH/BACK15.SCR":   {0, 320, 200, "", 0},
-	"GEOGRAPH/BACK16.SCR":   {0, 320, 200, "", 0},
-	"GEOGRAPH/BACK17.SCR":   {1, 320, 200, "", 0},
-	"GEOGRAPH/BASEBITS.PCK": {1, 32, 40, "GEOGRAPH/BASEBITS.TAB", 2},
+	"GEOGRAPH/BACK01.SCR":   {ImageFormatSCR, 0, 320, 200, "", 0},
+	"GEOGRAPH/BACK02.SCR":   {ImageFormatSCR, 4, 320, 200, "", 0},
+	"GEOGRAPH/BACK03.SCR":   {ImageFormatSCR, 3, 320, 200, "", 0},
+	"GEOGRAPH/BACK04.SCR":   {ImageFormatSCR, 4, 320, 200, "", 0},
+	"GEOGRAPH/BACK05.SCR":   {ImageFormatSCR, 3, 320, 200, "", 0},
+	"GEOGRAPH/BACK06.SCR":   {ImageFormatSCR, 4, 320, 200, "", 0},
+	"GEOGRAPH/BACK07.SCR":   {ImageFormatSCR, 4, 320, 200, "", 0},
+	"GEOGRAPH/BACK08.SCR":   {ImageFormatSCR, 4, 320, 200, "", 0},
+	"GEOGRAPH/BACK09.SCR":   {ImageFormatSCR, 4, 320, 200, "", 0},
+	"GEOGRAPH/BACK10.SCR":   {ImageFormatSCR, 0, 320, 200, "", 0},
+	"GEOGRAPH/BACK11.SCR":   {ImageFormatSCR, 4, 320, 200, "", 0},
+	"GEOGRAPH/BACK12.SCR":   {ImageFormatSCR, 0, 320, 200, "", 0},
+	"GEOGRAPH/BACK13.SCR":   {ImageFormatSCR, 3, 320, 200, "", 0},
+	"GEOGRAPH/BACK14.SCR":   {ImageFormatSCR, 3, 320, 200, "", 0},
+	"GEOGRAPH/BACK15.SCR":   {ImageFormatSCR, 0, 320, 200, "", 0},
+	"GEOGRAPH/BACK16.SCR":   {ImageFormatSCR, 0, 320, 200, "", 0},
+	"GEOGRAPH/BACK17.SCR":   {ImageFormatSCR, 1, 320, 200, "", 0},
+	"GEOGRAPH/BASEBITS.PCK": {ImageFormatPCK, 1, 32, 40, "GEOGRAPH/BASEBITS.TAB", 2},
 	// GEOGRAPH/BASEBITS.TAB
 	// GEOGRAPH/DP_PREFS
-	"GEOGRAPH/GEOBORD.SCR": {0, 320, 200, "", 0},
+	"GEOGRAPH/GEOBORD.SCR": {ImageFormatSCR, 0, 320, 200, "", 0},
 	// GEOGRAPH/GRAPHS.SPK
-	"GEOGRAPH/INTICON.PCK": {0, 32, 40, "GEOGRAPH/INTICON.TAB", 2},
+	"GEOGRAPH/INTICON.PCK": {ImageFormatPCK, 0, 32, 40, "GEOGRAPH/INTICON.TAB", 2},
 	// GEOGRAPH/INTICON.TAB
 	// GEOGRAPH/TEXTURE.DAT
-	"GEOGRAPH/UP001.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP002.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP003.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP004.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP005.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP006.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP007.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP008.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP009.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP010.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP011.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP012.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP013.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP014.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP015.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP016.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP017.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP018.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP019.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP020.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP021.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP022.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP023.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP024.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP025.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP026.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP027.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP028.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP029.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP030.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP031.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP032.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP033.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP034.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP035.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP036.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP037.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP038.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP039.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP040.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP041.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP042.SPK":    {3, 320, 200, "", 0},
-	"GEOGRAPH/UP_BORD1.SPK": {4, 320, 200, "", 0},
-	"GEOGRAPH/UP_BORD2.SCR": {1, 320, 200, "", 0},
-	"GEOGRAPH/UP_BORD2.SPK": {4, 320, 200, "", 0},
-	"GEOGRAPH/UP_BORD3.SPK": {3, 320, 200, "", 0},
+	"GEOGRAPH/UP001.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP002.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP003.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP004.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP005.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP006.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP007.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP008.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP009.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP010.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP011.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP012.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP013.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP014.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP015.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP016.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP017.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP018.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP019.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP020.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP021.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP022.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP023.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP024.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP025.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP026.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP027.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP028.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP029.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP030.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP031.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP032.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP033.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP034.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP035.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP036.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP037.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP038.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP039.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP040.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP041.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP042.SPK":    {ImageFormatSPK, 3, 320, 200, "", 0},
+	"GEOGRAPH/UP_BORD1.SPK": {ImageFormatSPK, 4, 320, 200, "", 0},
+	"GEOGRAPH/UP_BORD2.SCR": {ImageFormatSCR, 1, 320, 200, "", 0},
+	"GEOGRAPH/UP_BORD2.SPK": {ImageFormatSPK, 4, 320, 200, "", 0},
+	"GEOGRAPH/UP_BORD3.SPK": {ImageFormatSPK, 3, 320, 200, "", 0},
 	// GO.BAT
 	// GO.COM
 	// INTR.O
@@ -532,177 +532,177 @@ var Images = map[string]ImageEntry{
 	// SOUND/SOUNDRV.COM
 	// SOUND/VECTOR.COM
 	// TERRAIN/AVENGER.MCD
-	"TERRAIN/AVENGER.PCK": {4, 32, 40, "TERRAIN/AVENGER.TAB", 2},
+	"TERRAIN/AVENGER.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/AVENGER.TAB", 2},
 	// TERRAIN/AVENGER.TAB
 	// TERRAIN/BARN.MCD
-	"TERRAIN/BARN.PCK": {4, 32, 40, "TERRAIN/BARN.TAB", 2},
+	"TERRAIN/BARN.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/BARN.TAB", 2},
 	// TERRAIN/BARN.TAB
 	// TERRAIN/BLANKS.MCD
-	"TERRAIN/BLANKS.PCK": {4, 32, 40, "TERRAIN/BLANKS.TAB", 2},
+	"TERRAIN/BLANKS.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/BLANKS.TAB", 2},
 	// TERRAIN/BLANKS.TAB
 	// TERRAIN/BRAIN.MCD
-	"TERRAIN/BRAIN.PCK": {4, 32, 40, "TERRAIN/BRAIN.TAB", 2},
+	"TERRAIN/BRAIN.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/BRAIN.TAB", 2},
 	// TERRAIN/BRAIN.TAB
 	// TERRAIN/CULTIVAT.MCD
-	"TERRAIN/CULTIVAT.PCK": {4, 32, 40, "TERRAIN/CULTIVAT.TAB", 2},
+	"TERRAIN/CULTIVAT.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/CULTIVAT.TAB", 2},
 	// TERRAIN/CULTIVAT.TAB
 	// TERRAIN/DESERT.MCD
-	"TERRAIN/DESERT.PCK": {4, 32, 40, "TERRAIN/DESERT.TAB", 2},
+	"TERRAIN/DESERT.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/DESERT.TAB", 2},
 	// TERRAIN/DESERT.TAB
 	// TERRAIN/FOREST.MCD
-	"TERRAIN/FOREST.PCK": {4, 32, 40, "TERRAIN/FOREST.TAB", 2},
+	"TERRAIN/FOREST.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/FOREST.TAB", 2},
 	// TERRAIN/FOREST.TAB
 	// TERRAIN/FRNITURE.MCD
-	"TERRAIN/FRNITURE.PCK": {4, 32, 40, "TERRAIN/FRNITURE.TAB", 2},
+	"TERRAIN/FRNITURE.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/FRNITURE.TAB", 2},
 	// TERRAIN/FRNITURE.TAB
 	// TERRAIN/JUNGLE.MCD
-	"TERRAIN/JUNGLE.PCK": {4, 32, 40, "TERRAIN/JUNGLE.TAB", 2},
+	"TERRAIN/JUNGLE.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/JUNGLE.TAB", 2},
 	// TERRAIN/JUNGLE.TAB
 	// TERRAIN/LIGHTNIN.MCD
-	"TERRAIN/LIGHTNIN.PCK": {4, 32, 40, "TERRAIN/LIGHTNIN.TAB", 2},
+	"TERRAIN/LIGHTNIN.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/LIGHTNIN.TAB", 2},
 	// TERRAIN/LIGHTNIN.TAB
 	// TERRAIN/MARS.MCD
-	"TERRAIN/MARS.PCK": {4, 32, 40, "TERRAIN/MARS.TAB", 2},
+	"TERRAIN/MARS.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/MARS.TAB", 2},
 	// TERRAIN/MARS.TAB
 	// TERRAIN/MOUNT.MCD
-	"TERRAIN/MOUNT.PCK": {4, 32, 40, "TERRAIN/MOUNT.TAB", 2},
+	"TERRAIN/MOUNT.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/MOUNT.TAB", 2},
 	// TERRAIN/MOUNT.TAB
 	// TERRAIN/PLANE.MCD
-	"TERRAIN/PLANE.PCK": {4, 32, 40, "TERRAIN/PLANE.TAB", 2},
+	"TERRAIN/PLANE.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/PLANE.TAB", 2},
 	// TERRAIN/PLANE.TAB
 	// TERRAIN/POLAR.MCD
-	"TERRAIN/POLAR.PCK": {4, 32, 40, "TERRAIN/POLAR.TAB", 2},
+	"TERRAIN/POLAR.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/POLAR.TAB", 2},
 	// TERRAIN/POLAR.TAB
 	// TERRAIN/ROADS.MCD
-	"TERRAIN/ROADS.PCK": {4, 32, 40, "TERRAIN/ROADS.TAB", 2},
+	"TERRAIN/ROADS.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/ROADS.TAB", 2},
 	// TERRAIN/ROADS.TAB
 	// TERRAIN/UFO1.MCD
-	"TERRAIN/UFO1.PCK": {4, 32, 40, "TERRAIN/UFO1.TAB", 2},
+	"TERRAIN/UFO1.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/UFO1.TAB", 2},
 	// TERRAIN/UFO1.TAB
 	// TERRAIN/URBAN.MCD
-	"TERRAIN/URBAN.PCK": {4, 32, 40, "TERRAIN/URBAN.TAB", 2},
+	"TERRAIN/URBAN.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/URBAN.TAB", 2},
 	// TERRAIN/URBAN.TAB
 	// TERRAIN/URBITS.MCD
-	"TERRAIN/URBITS.PCK": {4, 32, 40, "TERRAIN/URBITS.TAB", 2},
+	"TERRAIN/URBITS.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/URBITS.TAB", 2},
 	// TERRAIN/URBITS.TAB
 	// TERRAIN/U_BASE.MCD
-	"TERRAIN/U_BASE.PCK": {4, 32, 40, "TERRAIN/U_BASE.TAB", 2},
+	"TERRAIN/U_BASE.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/U_BASE.TAB", 2},
 	// TERRAIN/U_BASE.TAB
 	// TERRAIN/U_BITS.MCD
-	"TERRAIN/U_BITS.PCK": {4, 32, 40, "TERRAIN/U_BITS.TAB", 2},
+	"TERRAIN/U_BITS.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/U_BITS.TAB", 2},
 	// TERRAIN/U_BITS.TAB
 	// TERRAIN/U_DISEC2.MCD
-	"TERRAIN/U_DISEC2.PCK": {4, 32, 40, "TERRAIN/U_DISEC2.TAB", 2},
+	"TERRAIN/U_DISEC2.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/U_DISEC2.TAB", 2},
 	// TERRAIN/U_DISEC2.TAB
 	// TERRAIN/U_EXT02.MCD
-	"TERRAIN/U_EXT02.PCK": {4, 32, 40, "TERRAIN/U_EXT02.TAB", 2},
+	"TERRAIN/U_EXT02.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/U_EXT02.TAB", 2},
 	// TERRAIN/U_EXT02.TAB
 	// TERRAIN/U_OPER2.MCD
-	"TERRAIN/U_OPER2.PCK": {4, 32, 40, "TERRAIN/U_OPER2.TAB", 2},
+	"TERRAIN/U_OPER2.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/U_OPER2.TAB", 2},
 	// TERRAIN/U_OPER2.TAB
 	// TERRAIN/U_PODS.MCD
-	"TERRAIN/U_PODS.PCK": {4, 32, 40, "TERRAIN/U_PODS.TAB", 2},
+	"TERRAIN/U_PODS.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/U_PODS.TAB", 2},
 	// TERRAIN/U_PODS.TAB
 	// TERRAIN/U_WALL02.MCD
-	"TERRAIN/U_WALL02.PCK": {4, 32, 40, "TERRAIN/U_WALL02.TAB", 2},
+	"TERRAIN/U_WALL02.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/U_WALL02.TAB", 2},
 	// TERRAIN/U_WALL02.TAB
 	// TERRAIN/XBASE1.MCD
-	"TERRAIN/XBASE1.PCK": {4, 32, 40, "TERRAIN/XBASE1.TAB", 2},
+	"TERRAIN/XBASE1.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/XBASE1.TAB", 2},
 	// TERRAIN/XBASE1.TAB
 	// TERRAIN/XBASE2.MCD
-	"TERRAIN/XBASE2.PCK": {4, 32, 40, "TERRAIN/XBASE2.TAB", 2},
+	"TERRAIN/XBASE2.PCK": {ImageFormatPCK, 4, 32, 40, "TERRAIN/XBASE2.TAB", 2},
 	// TERRAIN/XBASE2.TAB
 	// UFO/DUM.BIN
 	// UFO2EXE/TACTICAL.EXE
 	// UFOC.D
 	// UFOEXE/BLACK.EXE
 	// UFOEXE/GEOSCAPE.EXE
-	"UFOGRAPH/BIGOB_00.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_01.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_02.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_03.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_04.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_05.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_06.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_07.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_08.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_09.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_10.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_11.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_12.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_13.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_14.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_15.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_16.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_17.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_18.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_19.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_20.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_21.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_22.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_23.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_24.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_25.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_26.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_27.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_28.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_29.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_30.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_31.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_32.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_33.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_34.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_35.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_36.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_37.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_38.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_39.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_40.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_41.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_42.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_43.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_44.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_45.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_46.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_47.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_48.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_49.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_50.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_51.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_52.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_53.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_54.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_55.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/BIGOB_56.PCK": {1, 32, 40, "", 4},
-	"UFOGRAPH/CURSOR.PCK":   {1, 32, 40, "UFOGRAPH/CURSOR.TAB", 2},
+	"UFOGRAPH/BIGOB_00.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_01.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_02.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_03.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_04.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_05.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_06.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_07.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_08.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_09.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_10.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_11.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_12.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_13.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_14.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_15.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_16.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_17.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_18.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_19.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_20.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_21.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_22.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_23.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_24.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_25.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_26.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_27.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_28.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_29.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_30.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_31.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_32.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_33.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_34.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_35.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_36.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_37.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_38.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_39.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_40.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_41.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_42.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_43.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_44.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_45.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_46.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_47.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_48.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_49.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_50.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_51.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_52.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_53.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_54.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_55.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/BIGOB_56.PCK": {ImageFormatPCK, 1, 32, 40, "", 4},
+	"UFOGRAPH/CURSOR.PCK":   {ImageFormatPCK, 1, 32, 40, "UFOGRAPH/CURSOR.TAB", 2},
 	// UFOGRAPH/CURSOR.TAB
 	// UFOGRAPH/DETBLOB.DAT
-	"UFOGRAPH/DETBORD.PCK":  {1, 320, 200, "", 2}, // Broken
-	"UFOGRAPH/DETBORD2.PCK": {1, 320, 200, "", 2}, // Broken
+	"UFOGRAPH/DETBORD.PCK":  {ImageFormatSPK, 1, 320, 200, "", 2},
+	"UFOGRAPH/DETBORD2.PCK": {ImageFormatSPK, 1, 320, 200, "", 2},
 	// UFOGRAPH/DP_PREFS
-	"UFOGRAPH/HIT.PCK": {1, 32, 40, "UFOGRAPH/HIT.TAB", 2},
+	"UFOGRAPH/HIT.PCK": {ImageFormatPCK, 1, 32, 40, "UFOGRAPH/HIT.TAB", 2},
 	// UFOGRAPH/HIT.TAB
-	"UFOGRAPH/ICONS.PCK":   {1, 320, 200, "", 2}, // Broken
-	"UFOGRAPH/INTICON.PCK": {1, 32, 40, "UFOGRAPH/INTICON.TAB", 2},
+	"UFOGRAPH/ICONS.PCK":   {ImageFormatSPK, 1, 320, 200, "", 2},
+	"UFOGRAPH/INTICON.PCK": {ImageFormatPCK, 1, 32, 40, "UFOGRAPH/INTICON.TAB", 2},
 	// UFOGRAPH/INTICON.TAB
-	"UFOGRAPH/MAN_0F0.SPK": {4, 32, 40, "", 4}, // no armour / female / blonde
-	"UFOGRAPH/MAN_0F1.SPK": {4, 32, 40, "", 4}, // no armour / female / brown hair
-	"UFOGRAPH/MAN_0F2.SPK": {4, 32, 40, "", 4}, // no armour / female / oriental
-	"UFOGRAPH/MAN_0F3.SPK": {4, 32, 40, "", 4}, // no armour / female / African
-	"UFOGRAPH/MAN_0M0.SPK": {4, 32, 40, "", 4}, // no armour / male / blonde
-	"UFOGRAPH/MAN_0M1.SPK": {4, 32, 40, "", 4}, // no armour / male / brown hair
-	"UFOGRAPH/MAN_0M2.SPK": {4, 32, 40, "", 4}, // no armour / male / oriental
-	"UFOGRAPH/MAN_0M3.SPK": {4, 32, 40, "", 4}, // no armour / male / African
-	"UFOGRAPH/MAN_1F0.SPK": {4, 32, 40, "", 4}, // body armour / female / blonde
-	"UFOGRAPH/MAN_1F1.SPK": {4, 32, 40, "", 4}, // body armour / female / brown hair
-	"UFOGRAPH/MAN_1F2.SPK": {4, 32, 40, "", 4}, // body armour / female / oriental
-	"UFOGRAPH/MAN_1F3.SPK": {4, 32, 40, "", 4}, // body armour / female / African
-	"UFOGRAPH/MAN_1M0.SPK": {4, 32, 40, "", 4}, // body armour / male / blonde
-	"UFOGRAPH/MAN_1M1.SPK": {4, 32, 40, "", 4}, // body armour / male / brown hair
-	"UFOGRAPH/MAN_1M2.SPK": {4, 32, 40, "", 4}, // body armour / male / oriental
-	"UFOGRAPH/MAN_1M3.SPK": {4, 32, 40, "", 4}, // body armour / male / African
-	"UFOGRAPH/MAN_2.SPK":   {4, 32, 40, "", 4}, // power suit
-	"UFOGRAPH/MAN_3.SPK":   {4, 32, 40, "", 4}, // flying suit
+	"UFOGRAPH/MAN_0F0.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // no armour / female / blonde
+	"UFOGRAPH/MAN_0F1.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // no armour / female / brown hair
+	"UFOGRAPH/MAN_0F2.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // no armour / female / oriental
+	"UFOGRAPH/MAN_0F3.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // no armour / female / African
+	"UFOGRAPH/MAN_0M0.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // no armour / male / blonde
+	"UFOGRAPH/MAN_0M1.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // no armour / male / brown hair
+	"UFOGRAPH/MAN_0M2.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // no armour / male / oriental
+	"UFOGRAPH/MAN_0M3.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // no armour / male / African
+	"UFOGRAPH/MAN_1F0.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // body armour / female / blonde
+	"UFOGRAPH/MAN_1F1.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // body armour / female / brown hair
+	"UFOGRAPH/MAN_1F2.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // body armour / female / oriental
+	"UFOGRAPH/MAN_1F3.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // body armour / female / African
+	"UFOGRAPH/MAN_1M0.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // body armour / male / blonde
+	"UFOGRAPH/MAN_1M1.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // body armour / male / brown hair
+	"UFOGRAPH/MAN_1M2.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // body armour / male / oriental
+	"UFOGRAPH/MAN_1M3.SPK": {ImageFormatSPK, 4, 32, 40, "", 4}, // body armour / male / African
+	"UFOGRAPH/MAN_2.SPK":   {ImageFormatSPK, 4, 32, 40, "", 4}, // power suit
+	"UFOGRAPH/MAN_3.SPK":   {ImageFormatSPK, 4, 32, 40, "", 4}, // flying suit
 	// UFOGRAPH/MEDIBITS.DAT
 	// UFOGRAPH/MEDIBORD.PCK
 	// UFOGRAPH/MOC1.LBM
@@ -726,47 +726,47 @@ var Images = map[string]ImageEntry{
 	// UFOINTRO/PICT7.LBM
 	// UFOINTRO/ROLAND.CAT
 	// UFOINTRO/UFOINT.FLI
-	"UNITS/BIGOBS.PCK": {4, 32, 48, "UNITS/BIGOBS.TAB", 2},
+	"UNITS/BIGOBS.PCK": {ImageFormatPCK, 4, 32, 48, "UNITS/BIGOBS.TAB", 2},
 	// UNITS/BIGOBS.TAB
-	"UNITS/CELATID.PCK": {4, 32, 40, "UNITS/CELATID.TAB", 2},
+	"UNITS/CELATID.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/CELATID.TAB", 2},
 	// UNITS/CELATID.TAB
-	"UNITS/CHRYS.PCK": {4, 32, 40, "UNITS/CHRYS.TAB", 2},
+	"UNITS/CHRYS.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/CHRYS.TAB", 2},
 	// UNITS/CHRYS.TAB
-	"UNITS/CIVF.PCK": {4, 32, 40, "UNITS/CIVF.TAB", 2},
+	"UNITS/CIVF.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/CIVF.TAB", 2},
 	// UNITS/CIVF.TAB
-	"UNITS/CIVM.PCK": {4, 32, 40, "UNITS/CIVM.TAB", 2},
+	"UNITS/CIVM.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/CIVM.TAB", 2},
 	// UNITS/CIVM.TAB
-	"UNITS/CYBER.PCK": {4, 32, 40, "UNITS/CYBER.TAB", 2},
+	"UNITS/CYBER.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/CYBER.TAB", 2},
 	// UNITS/CYBER.TAB
-	"UNITS/ETHEREAL.PCK": {4, 32, 40, "UNITS/ETHEREAL.TAB", 2},
+	"UNITS/ETHEREAL.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/ETHEREAL.TAB", 2},
 	// UNITS/ETHEREAL.TAB
-	"UNITS/FLOATER.PCK": {4, 32, 40, "UNITS/FLOATER.TAB", 2},
+	"UNITS/FLOATER.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/FLOATER.TAB", 2},
 	// UNITS/FLOATER.TAB
-	"UNITS/FLOOROB.PCK": {4, 32, 40, "UNITS/FLOOROB.TAB", 2},
+	"UNITS/FLOOROB.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/FLOOROB.TAB", 2},
 	// UNITS/FLOOROB.TAB
-	"UNITS/HANDOB.PCK": {4, 32, 40, "UNITS/HANDOB.TAB", 2},
+	"UNITS/HANDOB.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/HANDOB.TAB", 2},
 	// UNITS/HANDOB.TAB
-	"UNITS/MUTON.PCK": {4, 32, 40, "UNITS/MUTON.TAB", 2},
+	"UNITS/MUTON.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/MUTON.TAB", 2},
 	// UNITS/MUTON.TAB
-	"UNITS/SECTOID.PCK": {4, 32, 40, "UNITS/SECTOID.TAB", 2},
+	"UNITS/SECTOID.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/SECTOID.TAB", 2},
 	// UNITS/SECTOID.TAB
-	"UNITS/SILACOID.PCK": {4, 32, 40, "UNITS/SILACOID.TAB", 2},
+	"UNITS/SILACOID.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/SILACOID.TAB", 2},
 	// UNITS/SILACOID.TAB
-	"UNITS/SNAKEMAN.PCK": {4, 32, 40, "UNITS/SNAKEMAN.TAB", 2},
+	"UNITS/SNAKEMAN.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/SNAKEMAN.TAB", 2},
 	// UNITS/SNAKEMAN.TAB
-	"UNITS/TANKS.PCK": {4, 32, 40, "UNITS/TANKS.TAB", 2},
+	"UNITS/TANKS.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/TANKS.TAB", 2},
 	// UNITS/TANKS.TAB
-	"UNITS/XCOM_0.PCK": {4, 32, 40, "UNITS/XCOM_0.TAB", 2},
+	"UNITS/XCOM_0.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/XCOM_0.TAB", 2},
 	// UNITS/XCOM_0.TAB
-	"UNITS/XCOM_1.PCK": {4, 32, 40, "UNITS/XCOM_1.TAB", 2},
+	"UNITS/XCOM_1.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/XCOM_1.TAB", 2},
 	// UNITS/XCOM_1.TAB
-	"UNITS/XCOM_2.PCK": {4, 32, 40, "UNITS/XCOM_2.TAB", 2},
+	"UNITS/XCOM_2.PCK": {ImageFormatPCK, 4, 32, 40, "UNITS/XCOM_2.TAB", 2},
 	// UNITS/XCOM_2.TAB
-	"UNITS/X_REAP.PCK": {1, 32, 40, "UNITS/X_REAP.TAB", 2},
+	"UNITS/X_REAP.PCK": {ImageFormatPCK, 1, 32, 40, "UNITS/X_REAP.TAB", 2},
 	// UNITS/X_REAP.TAB
-	"UNITS/X_ROB.PCK": {1, 32, 40, "UNITS/X_ROB.TAB", 2},
+	"UNITS/X_ROB.PCK": {ImageFormatPCK, 1, 32, 40, "UNITS/X_ROB.TAB", 2},
 	// UNITS/X_ROB.TAB
-	"UNITS/ZOMBIE.PCK": {1, 32, 40, "UNITS/ZOMBIE.TAB", 2},
+	"UNITS/ZOMBIE.PCK": {ImageFormatPCK, 1, 32, 40, "UNITS/ZOMBIE.TAB", 2},
 	// UNITS/ZOMBIE.TAB
 	// unins000.dat
 	// unins000.exe
