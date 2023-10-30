@@ -2,7 +2,7 @@
 # (comiled with """"find . -type f | sort | sed 's/^..//' > resource_files.csv"""")
 path;format;paletteNr;width;height;tabFile;tabOffset;comment
 GEODATA/BACKPALS.DAT;;;;;;;
-GEODATA/BIGLETS.DAT;;;;;;;
+GEODATA/BIGLETS.DAT;;;;;;;Font Glyphs for rendering the large text
 GEODATA/COS.DAT;;;;;;;
 GEODATA/ENGLISH.DAT;;;;;;;
 GEODATA/ENGLISH2.DAT;;;;;;;
@@ -18,7 +18,7 @@ GEODATA/OBDATA.DAT;;;;;;;
 GEODATA/PALETTES.DAT;;;;;;;
 GEODATA/SCANG.DAT;;;;;;;
 GEODATA/SINE.DAT;;;;;;;
-GEODATA/SMALLSET.DAT;;;;;;;
+GEODATA/SMALLSET.DAT;;;;;;;Font Glyphs for rendering the small text
 GEODATA/WORLD.DAT;;;;;;;
 GEOGRAPH/BACK01.SCR;SCR;0;320;200;;0;
 GEOGRAPH/BACK02.SCR;SCR;4;320;200;;0;
