@@ -163,13 +163,13 @@ func (i *ImageResource) Paletted(palette *Palette) *image.Paletted {
 	upLeft := image.Point{}
 	lowRight := image.Point{X: i.width, Y: height}
 	img := image.NewPaletted(image.Rectangle{Min: upLeft, Max: lowRight}, *palette.Palette())
-	for idx, col := range i.pixels {
+	for idx, colour := range i.pixels {
 		x := idx % i.width
 		y := idx / i.width
-		if col == 0 {
+		if colour == 0 {
 			img.Set(x, y, image.Transparent)
 		} else {
-			img.Set(x, y, palette.Colors[col])
+			img.Set(x, y, palette.Colors[colour])
 		}
 	}
 	return img
