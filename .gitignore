@@ -2,6 +2,7 @@
 /.idea/
 /.nova/
 /.vscode/
+__debug_*
 
 dist/
 *.png

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"image/color"
+	"image"
 	"image/png"
 	"os"
 
@@ -16,19 +16,37 @@ func main() {
 		panic(err)
 	}
 
-	font, err := resources.LoadFont("../../GAME/GEODATA/BIGLETS.DAT", 16, 16)
-	//font, err := resources.LoadFont("../../GAME/GEODATA/SMALLSET.DAT", 8, 9)
+	xcomFont, err := resources.LoadFont("../../GAME/GEODATA/BIGLETS.DAT", 16, 16)
+	//xcomFont, err := resources.LoadFont("../../GAME/GEODATA/SMALLSET.DAT", 8, 9)
 	if err != nil {
 		panic(err)
 	}
 
-	palette := color.Palette{color.Transparent, color.Gray16{0xfffe}, color.Gray16{0xffcc}, color.Gray16{0xcccc}, color.Gray16{0x9999}, color.Gray16{0x3333}}
-	img, err := resources.Text("Hello world! 11$%/&", font, palette)
+	f, err := os.Create("xcom-font.png")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	err = png.Encode(f, xcomFont.Mask)
 	if err != nil {
 		panic(err)
 	}
 
-	f, _ := os.Create("text.png")
+	//text := "The fox jumps over the lazy alien! 11$%/&?=)(/&%$§\"!^°)"
+	text := "A"
+
+	var img image.Image
+	//palette := color.Palette{color.Transparent, color.Gray16{0xfffe}, color.Gray16{0xffcc}, color.Gray16{0xcccc}, color.Gray16{0x9999}, color.Gray16{0x3333}}
+	img, err = xcomFont.Draw(text, resources.YellowFontPalette)
+	if err != nil {
+		panic(err)
+	}
+
+	f, err = os.Create("text.png")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
 	err = png.Encode(f, img)
 	if err != nil {
 		panic(err)
