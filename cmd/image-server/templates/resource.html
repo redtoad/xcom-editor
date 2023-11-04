@@ -1,0 +1,27 @@
+{{ define "title" }}{{ printf "%s" .Path }}{{ end }}
+
+{{ define "main" }}
+
+    <div class="resource">
+        <img src="/resource/{{ printf "%s" .Path }}" id="image" />
+        <figcaption>{{ printf "%s" .Path }}</figcaption>
+
+        <label for="palette">palette #<span for="palette" id="value">{{ .Meta.PaletteNr }}</span></label>
+        <input type="range" min="0" max="4" id="palette" value="{{ .Meta.PaletteNr }}"/>
+        
+    </div>
+
+    <script type="text/javascript">
+        var slider = document.getElementById("palette");
+        var value = document.getElementById("value");
+        var image = document.getElementById("image");
+        slider.oninput = function() {
+            value.innerHTML = this.value;
+            image.src = "/resource/{{ printf "%s" .Path }}?palette=" + this.value;
+        }
+    </script>
+
+{{ end }}
+</body>
+
+</html>

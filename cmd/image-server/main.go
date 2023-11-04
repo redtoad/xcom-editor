@@ -41,21 +41,57 @@ var templates embed.FS
 
 func Index(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("Index")
-
 	var paths []string
-	for pth, _ := range resources.Images {
+	for pth := range resources.Images {
 		paths = append(paths, pth)
 	}
 	sort.Strings(paths)
 
 	w.Header().Set("Content-Type", "text/html")
 
-	tpl := template.Must(template.New("index.html").ParseFS(templates, "templates/index.html"))
-	err := tpl.Execute(w, struct {
+	files := []string{
+		"templates/base.html",
+		"templates/index.html",
+	}
+	ts, err := template.ParseFS(templates, files...)
+	if err != nil {
+		log.Printf("could not load templates: %s", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", struct {
 		Images []string
 	}{
 		paths,
+	})
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
+
+}
+
+func ResourceDetails(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "text/html")
+
+	files := []string{
+		"templates/base.html",
+		"templates/resource.html",
+	}
+	ts, err := template.ParseFS(templates, files...)
+	if err != nil {
+		log.Printf("could not load templates: %s", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base", struct {
+		Path string
+		Meta resources.ImageEntry
+	}{
+		r.URL.Path[9:],
+		resources.Images[r.URL.Path[9:]],
 	})
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -139,6 +175,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.PathPrefix("/resource").HandlerFunc(ServeImage)
+	r.PathPrefix("/details").HandlerFunc(ResourceDetails)
 	r.PathPrefix("/").HandlerFunc(Index)
 
 	srv := &http.Server{
@@ -164,6 +201,8 @@ func main() {
 	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
 	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
 	signal.Notify(c, os.Interrupt)
+
+	log.Println("Press Ctrl+C to stop.")
 
 	// Block until we receive our signal.
 	<-c
