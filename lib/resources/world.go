@@ -5,11 +5,13 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"os"
+	"path"
 
 	"github.com/go-restruct/restruct"
 )
 
-// WORLD_DAT describes the terrain on the geoscape screen using quadrilateral polygons and triangles
+// WorldData describes the terrain on the geoscape screen using quadrilateral polygons and triangles
 // loaded from GEODATA/WORLD.DAT.
 //
 // The first 16 bytes of file contain the points for the polygon. 4 sets of 2 short (2-byte) integers,
@@ -20,11 +22,11 @@ import (
 // integers as the last 2 bytes in each record are 0.
 //
 // See https://www.ufopaedia.org/index.php/WORLD.DAT for more information.
-type WORLD_DAT struct {
+type WorldData struct {
 	Polygons []Polygon
 }
 
-func (w *WORLD_DAT) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+func (w *WorldData) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 
 	reader := bytes.NewReader(buf)
 	for {
@@ -48,23 +50,37 @@ func (w *WORLD_DAT) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	return []byte{}, nil
 }
 
+// LoadWorldData loads data from WORLD.DATA.
+func LoadWorldData(gameDir string) (WorldData, error) {
+	fp := path.Join(gameDir, "./GEODATA/WORLD.DAT")
+	buf, err := os.ReadFile(fp)
+	if err != nil {
+		return WorldData{}, fmt.Errorf("could not open WORLD.DAT: %w", err)
+	}
+	var world WorldData
+	if err = restruct.Unpack(buf, binary.LittleEndian, &world); err != nil {
+		return WorldData{}, fmt.Errorf("could not parse WORLD.DAT: %w", err)
+	}
+	return world, nil
+}
+
 type Polygon struct {
 
-	// First X coordinate/longitude	0 - 2879
+	// First X coordinate/longitude
 	X0 int `struct:"int16"`
-	// First Y coordinate/latitude	-720 - 720
+	// First Y coordinate/latitude
 	Y0 int `struct:"int16"`
-	// Second X coordinate/longitude	0 - 2879
+	// Second X coordinate/longitude
 	X1 int `struct:"int16"`
-	// Second Y coordinate/latitude	-720 - 720
+	// Second Y coordinate/latitude
 	Y1 int `struct:"int16"`
-	// Third X coordinate/longitude	0 - 2879
+	// Third X coordinate/longitude
 	X2 int `struct:"int16"`
-	// Third Y coordinate/latitude	-720 - 720
+	// Third Y coordinate/latitude
 	Y2 int `struct:"int16"`
-	// Fourth* X coordinate/longitude	0 - 2879
+	// Fourth* X coordinate/longitude
 	X3 int `struct:"int16"`
-	// Fourth* Y coordinate/latitude	-720 - 720
+	// Fourth* Y coordinate/latitude
 	Y3 int `struct:"int16"`
 
 	// Terrain Type/Texture	0-12

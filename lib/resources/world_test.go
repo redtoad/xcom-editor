@@ -29,14 +29,14 @@ func TestWORLD_DAT_Unpack(t *testing.T) {
 			"read one polygon",
 			MustDecode("7Ape/vQKZf4MC17+9gpW/gEAAAA="),
 			[]Polygon{
-				Polygon{2796, -418, 2804, -411, 2828, -418, 2806, -426, 1},
+				{2796, -418, 2804, -411, 2828, -418, 2806, -426, 1},
 			},
 			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			world := &WORLD_DAT{}
+			world := &WorldData{}
 			err := restruct.Unpack(tt.buffer, binary.LittleEndian, &world)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("WORLD_DAT.Unpack() error = %v, wantErr %v", err, tt.wantErr)
