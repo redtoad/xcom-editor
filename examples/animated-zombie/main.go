@@ -5,7 +5,7 @@ import (
 	"image/gif"
 	"os"
 
-	"github.com/redtoad/xcom-editor/lib/resources"
+	"github.com/redtoad/xcom-editor/resources"
 )
 
 func main() {

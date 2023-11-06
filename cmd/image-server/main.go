@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/redtoad/xcom-editor/lib/resources"
+	"github.com/redtoad/xcom-editor/resources"
 )
 
 var (

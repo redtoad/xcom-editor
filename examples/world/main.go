@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/redtoad/xcom-editor/lib/resources"
+	"github.com/redtoad/xcom-editor/resources"
 )
 
 func main() {
