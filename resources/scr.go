@@ -1,8 +1,6 @@
 package resources
 
-import (
-	"io/ioutil"
-)
+import "os"
 
 // LoadSCR loads an SCR image from path.
 //
@@ -12,7 +10,7 @@ import (
 // though the line width tends to vary depending on the specific use to which they are to
 // be put.
 func LoadSCR(path string, width int) (*ImageResource, error) {
-	buf, err := ioutil.ReadFile(path)
+	buf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
