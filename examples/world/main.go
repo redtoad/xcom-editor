@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/redtoad/xcom-editor/resources"
+	resources "github.com/redtoad/xcom-editor/resources/geodata"
 )
 
 func main() {
