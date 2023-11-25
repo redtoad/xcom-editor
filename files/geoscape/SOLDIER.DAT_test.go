@@ -1,40 +1,26 @@
-package savegame
+package geoscape_test
 
 import (
 	"encoding/binary"
-	"encoding/hex"
-	"strings"
 	"testing"
-	"unicode"
 
 	"github.com/go-restruct/restruct"
+	"github.com/redtoad/xcom-editor/files/geoscape"
 	"github.com/stretchr/testify/assert"
 )
-
-func loadHex(str string) ([]byte, error) {
-	txt := strings.Map(func(r rune) rune {
-		if unicode.IsSpace(r) {
-			// if the character is a space, drop it
-			return -1
-		}
-		// else keep it in the string
-		return r
-	}, str)
-	return hex.DecodeString(txt)
-}
 
 func TestUnpackSoldier(t *testing.T) {
 	tests := []struct {
 		hexData  string
-		expected Soldier
+		expected geoscape.Soldier
 	}{
 		{
 			`00000000 0100FFFF 00000000 00001400 47756472
 			756E2055 6E676572 00000000 00000000 00000000
 			00003919 32211635 391A1800 08000000 00000000
 			00000000 00000100`,
-			Soldier{
-				Rank:                        Rookie,
+			geoscape.Soldier{
+				Rank:                        geoscape.Rookie,
 				Base:                        0,
 				Craft:                       1,
 				CraftBefore:                 -1,
@@ -64,12 +50,12 @@ func TestUnpackSoldier(t *testing.T) {
 				ThrowingAccuracyImprovement: 0,
 				MeleeAccuracyImprovement:    0,
 				BraveryImprovement:          0,
-				Armor:                       NoArmor,
+				Armor:                       geoscape.NoArmor,
 				MostRecentPsiLabTraining:    0,
 				InPsiLabTraining:            false,
 				Promotion:                   false,
-				Sex:                         Female,
-				Appearance:                  Blonde,
+				Sex:                         geoscape.Female,
+				Appearance:                  geoscape.Blonde,
 			},
 		},
 	}
@@ -80,7 +66,7 @@ func TestUnpackSoldier(t *testing.T) {
 				t.Errorf("could not convert test data: %v", err)
 			}
 
-			var soldier Soldier
+			var soldier geoscape.Soldier
 			err = restruct.Unpack(data, binary.LittleEndian, &soldier)
 			assert.NoError(t, err, "could not unpack test data: %v", err)
 
@@ -629,7 +615,7 @@ func TestFileSoldier_Pack(t *testing.T) {
 	decoded, err := loadHex(hexDump)
 	assert.NoError(t, err, "could not decode hex dump")
 
-	var file SOLDIER_DAT
+	var file geoscape.SOLDIER_DAT
 	err = restruct.Unpack(decoded, binary.LittleEndian, &file)
 	assert.NoError(t, err, "could not decode data")
 

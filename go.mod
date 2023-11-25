@@ -6,6 +6,7 @@ require (
 	github.com/go-restruct/restruct v1.2.0-alpha
 	github.com/gorilla/mux v1.8.0
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/text v0.14.0
 )
 
 require (

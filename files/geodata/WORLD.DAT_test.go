@@ -3,12 +3,11 @@ package geodata_test
 import (
 	"encoding/base64"
 	"encoding/binary"
-	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/go-restruct/restruct"
-	"github.com/redtoad/xcom-editor/resources/geodata"
+	"github.com/redtoad/xcom-editor/files/geodata"
 )
 
 func MustDecode(txt string) []byte {
@@ -45,43 +44,6 @@ func TestWORLD_DAT_Unpack(t *testing.T) {
 			}
 			if !reflect.DeepEqual(world.Polygons, tt.want) {
 				t.Errorf("WORLD_DAT.Unpack() = %v, want %v", world.Polygons, tt.want)
-			}
-		})
-	}
-}
-
-func TestLongitude(t *testing.T) {
-	tests := []struct {
-		x    int
-		want float32
-	}{
-		{0, 0.0},
-		{2160, 270},
-		{2879, 359.875},
-	}
-	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%d -> %f", tt.x, tt.want), func(t *testing.T) {
-			if got := geodata.Longitude(tt.x); got != tt.want {
-				t.Errorf("Longitude() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestLatitude(t *testing.T) {
-	tests := []struct {
-		y    int
-		want float32
-	}{
-		{0, 0.0},
-		{720, +90.0},
-		{-720, -90.0},
-	}
-
-	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%d -> %f", tt.y, tt.want), func(t *testing.T) {
-			if got := geodata.Latitude(tt.y); got != tt.want {
-				t.Errorf("Latitude() = %v, want %v", got, tt.want)
 			}
 		})
 	}

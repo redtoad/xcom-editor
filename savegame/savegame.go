@@ -3,18 +3,23 @@ package savegame
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/go-restruct/restruct"
+	"github.com/redtoad/xcom-editor/files/geoscape"
 )
 
 type Savegame struct {
-	Path         string
-	MetaData     SAVEINFO_DAT
-	BasesData    BASE_DAT
-	SoldiersData SOLDIER_DAT
+	Path          string
+	MetaData      geoscape.SavegameInfo
+	FinancialData geoscape.LIGLOB_DAT
+	BasesData     geoscape.BASE_DAT
+	SoldierData   geoscape.SOLDIER_DAT
+	TransferData  geoscape.TRANSFER_DAT
 }
 
 // loadFile loads a single data file from disk. name is the path
@@ -59,9 +64,10 @@ func (game Savegame) saveFile(name string, obj interface{}) error {
 // Save saves the entire savegame on disk at its original location.
 func (game Savegame) Save() error {
 	files := map[string]interface{}{
-		"SAVEINFO.DAT": &game.MetaData,
+		"LIGLOB.DAT":   &game.FinancialData,
 		"BASE.DAT":     &game.BasesData,
-		"SOLDIER.DAT":  &game.SoldiersData,
+		"SOLDIER.DAT":  &game.SoldierData,
+		"TRANSFER.DAT": &game.TransferData,
 	}
 	for name, obj := range files {
 		log.Printf("saving %s...\n", name)
@@ -72,14 +78,56 @@ func (game Savegame) Save() error {
 	return nil
 }
 
-// Load loads a savegame from disk. This includeds loading all data files
+// Heal will restore all soldiers back to health.
+func (game Savegame) Heal() {
+	for no := 0; no < len(game.SoldierData.Soldiers); no++ {
+		soldier := &game.SoldierData.Soldiers[no]
+		// resurrect solders
+		if soldier.Rank == geoscape.DeadOrUnused && strings.TrimSpace(soldier.Name) != "" {
+			fmt.Printf("Resurrect %s from the dead\n", soldier.Name)
+			soldier.Rank = geoscape.Squaddie
+		}
+		soldier.RecoveryDays = 0
+		if soldier.Craft == 0xffff {
+			soldier.Craft = soldier.CraftBefore
+			soldier.CraftBefore = 0xffff
+		}
+	}
+}
+
+// SpeedupDelivery will redeuce delivery time for all outstanding deliveries to 1 hour.
+func (game Savegame) SpeedupDelivery() {
+	for no := 0; no < len(game.TransferData.Transfers); no++ {
+		transfer := &game.TransferData.Transfers[no]
+		if transfer.HoursLeft > 0 {
+			transfer.HoursLeft = 1
+		}
+	}
+}
+
+// CompleteConstructions will complete all constructions.
+func (game Savegame) CompleteConstructions() {
+	for b := 0; b < len(game.BasesData.Bases); b++ {
+		base := &game.BasesData.Bases[b]
+		for i := 0; i < len(base.DaysToCompletion); i++ {
+			if base.DaysToCompletion[i] > 0 {
+				log.Printf("Complete construction of %v in %s.\n", base.Grid[i].Tile(), base.Name)
+				base.DaysToCompletion[i] = 0
+			}
+		}
+	}
+}
+
+// Load loads a savegame from disk. This includes loading all data files
 // individually.
 func Load(root string) (Savegame, error) {
 	game := Savegame{Path: root}
 	files := map[string]interface{}{
 		"SAVEINFO.DAT": &game.MetaData,
+		"LIGLOB.DAT":   &game.FinancialData,
 		"BASE.DAT":     &game.BasesData,
-		"SOLDIER.DAT":  &game.SoldiersData,
+		"SOLDIER.DAT":  &game.SoldierData,
+		"TRANSFER.DAT": &game.TransferData,
 	}
 	for name, obj := range files {
 		log.Printf("loading %s...\n", name)

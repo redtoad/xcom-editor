@@ -1,4 +1,4 @@
-package savegame
+package geoscape
 
 import (
 	"encoding/binary"
@@ -151,3 +151,96 @@ func (f Facility) Tile() string {
 		return fmt.Sprintf("%#v", f)
 	}
 }
+
+const (
+	InventoryStingrayLauncher     = 0
+	InventoryAvalancheLauncher    = 1
+	InventoryCannon               = 2
+	InventoryFusionBallLauncher   = 3
+	InventoryLaserCannon          = 4
+	InventoryPlasmaBeam           = 5
+	InventoryStingrayMissile      = 6
+	InventoryAvalancheMissile     = 7
+	InventoryCannonRounds         = 8
+	InventoryFusionBalls          = 9
+	InventoryTankCannon           = 10
+	InventoryTankRocketLauncher   = 11
+	InventoryTankLaserCannon      = 12
+	InventoryHovertankPlasma      = 13
+	InventoryHovertankLauncher    = 14
+	InventoryPistol               = 15
+	InventoryPistolClip           = 16
+	InventoryRifle                = 17
+	InventoryRifleClip            = 18
+	InventoryHeavyCannon          = 19
+	InventoryHCAPAmmo             = 20
+	InventoryHCHEAmmo             = 21
+	InventoryHCINAmmo             = 22
+	InventoryAutoCannon           = 23
+	InventoryACAPAmmo             = 24
+	InventoryACHEAmmo             = 25
+	InventoryACINAmmo             = 26
+	InventoryRocketLauncher       = 27
+	InventorySmallRocket          = 28
+	InventoryLargeRocket          = 29
+	InventoryIncendiaryRocket     = 30
+	InventoryLaserPistol          = 31
+	InventoryLaserRifle           = 32
+	InventoryHeavyLaser           = 33
+	InventoryGrenade              = 34
+	InventorySmokeGrenade         = 35
+	InventoryProximityGrenade     = 36
+	InventoryHighExplosive        = 37
+	InventoryMotionScanner        = 38
+	InventoryMediKit              = 39
+	InventoryPsiAmp               = 40
+	InventoryStunRod              = 41
+	InventoryElectroFlare         = 42
+	InventoryCORPSE               = 46
+	InventoryCORPSE_ARMOUR        = 47
+	InventoryCORPSE_POWERSUIT     = 48
+	InventoryHeavyPlasma          = 49
+	InventoryHeavyPlasmaClip      = 50
+	InventoryPlasmaRifle          = 51
+	InventoryPlasmaRifleClip      = 52
+	InventoryPlasmaPistol         = 53
+	InventoryPlasmaPistolClip     = 54
+	InventoryBlasterLauncher      = 55
+	InventoryBlasterBomb          = 56
+	InventorySmallLauncher        = 57
+	InventoryStunBomb             = 58
+	InventoryAlienGrenade         = 59
+	InventoryElerium115           = 60
+	InventoryMindProbe            = 61
+	InventorySectoidCorpse        = 65
+	InventorySnakemanCorpse       = 66
+	InventoryEtherealCorpse       = 67
+	InventoryMutonCorpse          = 68
+	InventoryFloaterCorpse        = 69
+	InventoryCelatidCorpse        = 70
+	InventorySilacoidCorpse       = 71
+	InventoryChryssalidCorpse     = 72
+	InventoryReaperCorpse         = 73
+	InventorySectopodCorpse       = 74
+	InventoryCyberdiscCorpse      = 75
+	InventoryHovertankCorpse      = 76
+	InventoryTankCorpse           = 77
+	InventoryMaleCivilianCorpse   = 78
+	InventoryFemaleCivilianCorpse = 79
+	InventoryUFOPowerSource       = 80
+	InventoryUFONavigation        = 81
+	InventoryUFOConstruction      = 82
+	InventoryAlienFood            = 83
+	InventoryAlienReproduction    = 84
+	InventoryAlienEntertainment   = 85
+	InventoryAlienSurgery         = 86
+	InventoryExaminationRoom      = 87
+	InventoryAlienAlloys          = 88
+	InventoryAlienHabitat         = 89
+	InventoryPersonalArmour       = 90
+	InventoryPowerSuit            = 91
+	InventoryFlyingSuit           = 92
+	InventoryHWPCannonShell       = 93
+	InventoryHWPRockets           = 94
+	InventoryHWPFusionBomb        = 95
+)

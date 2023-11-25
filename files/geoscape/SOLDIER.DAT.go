@@ -1,4 +1,4 @@
-package savegame
+package geoscape
 
 import (
 	"encoding/binary"
@@ -280,7 +280,7 @@ type Armor int
 
 const (
 	NoArmor Armor = iota
-	PersonalArmor
+	PersonalArmour
 	PowerSuit
 	FlyingSuit
 
@@ -297,7 +297,7 @@ const (
 
 func (a Armor) String() string {
 	return []string{
-		"NoArmor", "PersonalArmor", "PowerSuit",
+		"NoArmor", "PersonalArmour", "PowerSuit",
 		"FlyingSuit", "Sectoid", "Snakeman",
 		"Ethereal", "Muton", "Floater",
 		"Celatid", "Silacoid", "Chryssalid",

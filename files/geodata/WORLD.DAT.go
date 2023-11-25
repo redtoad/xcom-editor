@@ -5,8 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"os"
-	"path"
 
 	"github.com/go-restruct/restruct"
 )
@@ -48,20 +46,6 @@ func (w *WorldData) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 		w.Polygons = append(w.Polygons, poly)
 	}
 	return []byte{}, nil
-}
-
-// LoadWorldData loads data from WORLD.DATA.
-func LoadWorldData(gameDir string) (WorldData, error) {
-	fp := path.Join(gameDir, "./GEODATA/WORLD.DAT")
-	buf, err := os.ReadFile(fp)
-	if err != nil {
-		return WorldData{}, fmt.Errorf("could not open WORLD.DAT: %w", err)
-	}
-	var world WorldData
-	if err = restruct.Unpack(buf, binary.LittleEndian, &world); err != nil {
-		return WorldData{}, fmt.Errorf("could not parse WORLD.DAT: %w", err)
-	}
-	return world, nil
 }
 
 type Polygon struct {
@@ -109,38 +93,3 @@ const (
 	Triangle PolygonType = iota
 	QuadrilateralPolygon
 )
-
-// Longitude converts an X coordinate to longitude east.
-//
-// The X coordinate starts with X = 0 at 0° longitude (the Prime Meridian or Greenwich Meridian) and
-// increases going eastward. Unlike real-world longitude, there is only "East" longitude, from 0°E
-// to 359.875°E. This is the result of forcing the coordinate system to be positive-only, for
-// algorithmic purposes. So, for example, the equivalent of 90°W longitude would be "270°E longitude",
-// with a game X coordinate of 270 x 8 = 2160.
-func Longitude(x int) float32 {
-	return float32(x) / (2880.0 / 360.0)
-}
-
-// Latitude converts a Y coordinate to latitude.
-//
-// A Y coordinate value of 720 corresponds to 90.0 "90° S" latitude (the South Pole); a Y coordinate
-// value of -720 corresponds to "90° N" latitude (the North Pole).
-func Latitude(y int) float32 {
-	return float32(y) / (720.0 / 90.0)
-}
-
-var TerrainHexColorsXCom = []string{
-	"#7FFE11", // Forest / Jungle
-	"#6CD911", // Farm
-	"#5AB411", // Farm
-	"#478F11", // Farm
-	"#356A11", // Farm
-	"#224511", // Mountain
-	"#464645", // Forest / Jungle
-	"#6B6B45", // Desert
-	"#909045", // Desert
-	"#B5B545", // Polar Ice
-	"#DADA45", // Forest / Jungle
-	"#FFFF45", // Forest / Jungle
-	"#FFFFFF", // Polar Seas w/Icebergs
-}
