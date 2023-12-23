@@ -1,4 +1,4 @@
-package files
+package internal
 
 import (
 	"encoding/binary"

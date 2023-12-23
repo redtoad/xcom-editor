@@ -5,22 +5,30 @@ import (
 	"math"
 )
 
-// Location is a real-world GPS coordinate.
-type Location struct {
+// Coord is a real-world GPS coordinate.
+type Coord struct {
 	// Horizontal coordinates or longitude
 	Lon float32
 	// Vertical coordinates or latitude
 	Lat float32
 }
 
-func NewLocation(x int, y int) Location {
-	return Location{
-		Lon: 180.0 - Longitude(x),
-		Lat: 180.0 - Latitude(y),
+func NewCoord(x int, y int) Coord {
+	return Coord{
+		// The X coordinate starts with X = 0 at 0° longitude (the Prime Meridian or Greenwich
+		// Meridian) and increases going eastward. Unlike real-world longitude, there is only
+		// "East" longitude, from 0°E to 359.875°E. This is the result of forcing the
+		// coordinate system to be positive-only, for algorithmic purposes. So, for example,
+		// the equivalent of 90°W longitude would be "270°E longitude", with a game X
+		// coordinate of 270 x 8 = 2160.
+		Lon: float32(x) / (2880.0 / 360.0),
+		// A Y coordinate value of 720 corresponds to 90.0 "90° S" latitude (the South Pole);
+		// a Y coordinate value of -720 corresponds to "90° N" latitude (the North Pole).
+		Lat: float32(y) / (720.0 / 90.0),
 	}
 }
 
-func (l Location) String() string {
+func (l Coord) String() string {
 	latDir := "N"
 	if l.Lat < 0 {
 		latDir = "S"
@@ -34,25 +42,6 @@ func (l Location) String() string {
 		math.Abs(float64(l.Lon)), lonDir,
 		math.Abs(float64(l.Lat)), latDir,
 	)
-}
-
-// Longitude converts an X coordinate to longitude east.
-//
-// The X coordinate starts with X = 0 at 0° longitude (the Prime Meridian or Greenwich Meridian) and
-// increases going eastward. Unlike real-world longitude, there is only "East" longitude, from 0°E
-// to 359.875°E. This is the result of forcing the coordinate system to be positive-only, for
-// algorithmic purposes. So, for example, the equivalent of 90°W longitude would be "270°E longitude",
-// with a game X coordinate of 270 x 8 = 2160.
-func Longitude(x int) float32 {
-	return float32(x) / (2880.0 / 360.0)
-}
-
-// Latitude converts a Y coordinate to latitude.
-//
-// A Y coordinate value of 720 corresponds to 90.0 "90° S" latitude (the South Pole); a Y coordinate
-// value of -720 corresponds to "90° N" latitude (the North Pole).
-func Latitude(y int) float32 {
-	return float32(y) / (720.0 / 90.0)
 }
 
 // TerrainHexColorsXCom stores a color map for the world terrain types

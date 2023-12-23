@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/redtoad/xcom-editor/files/geoscape"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/redtoad/xcom-editor/savegame"
 )
 

@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-restruct/restruct"
-	"github.com/redtoad/xcom-editor/files/geoscape"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 )
 
 type Savegame struct {

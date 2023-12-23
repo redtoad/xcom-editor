@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/go-restruct/restruct"
-	"github.com/redtoad/xcom-editor/files/geoscape"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/stretchr/testify/assert"
 )
 

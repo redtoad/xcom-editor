@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/go-restruct/restruct"
-	"github.com/redtoad/xcom-editor/files/geodata"
+	"github.com/redtoad/xcom-editor/internal/geodata"
 )
 
 func MustDecode(txt string) []byte {

@@ -1,9 +1,9 @@
-package files_test
+package internal_test
 
 import (
 	"testing"
 
-	"github.com/redtoad/xcom-editor/files"
+	"github.com/redtoad/xcom-editor/internal"
 )
 
 func TestLoadDATFile(t *testing.T) {
@@ -22,7 +22,7 @@ func TestLoadDATFile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := files.LoadDATFile(tt.path, &tt.obj); (err != nil) != tt.wantErr {
+			if err := internal.LoadDATFile(tt.path, &tt.obj); (err != nil) != tt.wantErr {
 				t.Errorf("LoadDATFile() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
