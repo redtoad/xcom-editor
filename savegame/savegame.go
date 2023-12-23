@@ -56,7 +56,7 @@ func (game Savegame) saveFile(name string, obj interface{}) error {
 		return nil
 	}
 	if err = os.WriteFile(fp, saveData, os.ModePerm); err != nil {
-		return err
+		return fmt.Errorf("could not save file %s: %w", fp, err)
 	}
 	return nil
 }
@@ -95,7 +95,7 @@ func (game Savegame) Heal() {
 	}
 }
 
-// SpeedupDelivery will redeuce delivery time for all outstanding deliveries to 1 hour.
+// SpeedupDelivery will reducce delivery time for all outstanding deliveries to 1 hour.
 func (game Savegame) SpeedupDelivery() {
 	for no := 0; no < len(game.TransferData.Transfers); no++ {
 		transfer := &game.TransferData.Transfers[no]
@@ -105,7 +105,7 @@ func (game Savegame) SpeedupDelivery() {
 	}
 }
 
-// CompleteConstructions will complete all constructions.
+// CompleteConstructions will complete all ongoing constructions in all bases.
 func (game Savegame) CompleteConstructions() {
 	for b := 0; b < len(game.BasesData.Bases); b++ {
 		base := &game.BasesData.Bases[b]
@@ -118,8 +118,8 @@ func (game Savegame) CompleteConstructions() {
 	}
 }
 
-// Load loads a savegame from disk. This includes loading all data files
-// individually.
+// Load loads a savegame from disk. This includes loading all required data files
+// one by one.
 func Load(root string) (Savegame, error) {
 	game := Savegame{Path: root}
 	files := map[string]interface{}{
@@ -132,12 +132,13 @@ func Load(root string) (Savegame, error) {
 	for name, obj := range files {
 		log.Printf("loading %s...\n", name)
 		if err := game.loadFile(name, obj); err != nil {
-			return game, err
+			return game, fmt.Errorf("could not load file %s: %w", name, err)
 		}
 	}
 	return game, nil
 }
 
+// LoadFile will load a data file into a struct.
 // Deprecated: This will be replaced with savegame.Load()
 func LoadFile(path string, obj interface{}) error {
 	buf, err := os.ReadFile(path)
@@ -150,6 +151,7 @@ func LoadFile(path string, obj interface{}) error {
 	return nil
 }
 
+// SaveFile will save a strct into a data file.
 // Deprecated: This will be replaced with savegame.Savegame.Save()
 func SaveFile(path string, obj interface{}) error {
 	buf, err := restruct.Pack(binary.LittleEndian, &obj)
