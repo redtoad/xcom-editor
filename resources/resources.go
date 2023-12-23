@@ -1,6 +1,6 @@
 package resources
 
-//go:generate go run github.com/redtoad/xcom-editor/resources/generate
+//go:generate go run gen_resource_list.go
 
 import (
 	"errors"
