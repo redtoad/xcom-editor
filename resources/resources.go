@@ -1,3 +1,4 @@
+// Contains functions to load X-COM resource files like images.
 package resources
 
 //go:generate go run gen_resource_list.go
