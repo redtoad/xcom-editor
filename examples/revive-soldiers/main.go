@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/redtoad/xcom-editor/savegame"
@@ -83,7 +82,6 @@ func main() {
 	sg.BasesData.Bases[0].Inventory[geoscape.InventoryPlasmaBeam] = 4
 
 	sg.Save()
-	log.Fatal("")
 
 	/*
 		fmt.Printf("Storing %s...\n", pathSoldiersFile)
@@ -92,61 +90,63 @@ func main() {
 		}
 	*/
 
-	pathBasesFile := *rootPath + string(os.PathSeparator) + "BASE.DAT"
-	if _, err := os.Stat(pathBasesFile); os.IsNotExist(err) {
-		log.Fatalf("could not open file: %v", err)
-	}
-
-	fmt.Printf("Loading %s...\n", pathBasesFile)
-	var bases geoscape.BASE_DAT
-	if err := savegame.LoadFile(pathBasesFile, &bases); err != nil {
-		log.Fatalf("could not load file: %v", err)
-	}
-
-	if err := savegame.SaveFile(pathBasesFile+".bak", &bases); err != nil {
-		log.Fatalf("could not create backup: %v\n", err)
-	}
-
-	for no := 0; no < len(bases.Bases); no++ {
-		base := &bases.Bases[no]
-		fmt.Printf("%d  %s (%v)\n", no, base.Name, base.Active)
-		if !base.Active {
-			continue
+	/*
+		pathBasesFile := *rootPath + string(os.PathSeparator) + "BASE.DAT"
+		if _, err := os.Stat(pathBasesFile); os.IsNotExist(err) {
+			log.Fatalf("could not open file: %v", err)
 		}
-		for no, cell := range base.Grid {
-			if no%6 == 0 {
-				println()
+
+		fmt.Printf("Loading %s...\n", pathBasesFile)
+		var bases geoscape.BASE_DAT
+		if err := savegame.LoadFile(pathBasesFile, &bases); err != nil {
+			log.Fatalf("could not load file: %v", err)
+		}
+
+		if err := savegame.SaveFile(pathBasesFile+".bak", &bases); err != nil {
+			log.Fatalf("could not create backup: %v\n", err)
+		}
+
+		for no := 0; no < len(bases.Bases); no++ {
+			base := &bases.Bases[no]
+			fmt.Printf("%d  %s (%v)\n", no, base.Name, base.Active)
+			if !base.Active {
+				continue
 			}
-			fmt.Print(cell.Tile())
-		}
-		println()
-		fmt.Printf("%v\n", base.Grid)
-		fmt.Printf("%v\n", base.DaysToCompletion)
+			for no, cell := range base.Grid {
+				if no%6 == 0 {
+					println()
+				}
+				fmt.Print(cell.Tile())
+			}
+			println()
+			fmt.Printf("%v\n", base.Grid)
+			fmt.Printf("%v\n", base.DaysToCompletion)
 
-		// complete constructions in progress
-		for i := 0; i < len(base.Grid); i++ {
-			if base.Grid[i] != geoscape.Empty && base.DaysToCompletion[i] > 0 {
+			// complete constructions in progress
+			for i := 0; i < len(base.Grid); i++ {
+				if base.Grid[i] != geoscape.Empty && base.DaysToCompletion[i] > 0 {
+					base.DaysToCompletion[i] = 0
+				}
+			}
+
+			// increase Elirium-115
+			Elirium115 := 60
+			base.Inventory[Elirium115] = 0xfffe
+
+			for i := 0; i < len(base.DaysToCompletion); i++ {
 				base.DaysToCompletion[i] = 0
 			}
+
+			if err := savegame.SaveFile(pathBasesFile, &bases); err != nil {
+				log.Fatalf("could not save file: %v\n", err)
+			}
+
 		}
 
-		// increase Elirium-115
-		Elirium115 := 60
-		base.Inventory[Elirium115] = 0xfffe
-
-		for i := 0; i < len(base.DaysToCompletion); i++ {
-			base.DaysToCompletion[i] = 0
-		}
-
+		fmt.Printf("Storing %s...\n", pathBasesFile)
 		if err := savegame.SaveFile(pathBasesFile, &bases); err != nil {
 			log.Fatalf("could not save file: %v\n", err)
 		}
-
-	}
-
-	fmt.Printf("Storing %s...\n", pathBasesFile)
-	if err := savegame.SaveFile(pathBasesFile, &bases); err != nil {
-		log.Fatalf("could not save file: %v\n", err)
-	}
+	*/
 
 }

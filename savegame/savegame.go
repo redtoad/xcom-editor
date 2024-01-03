@@ -1,14 +1,11 @@
 package savegame
 
 import (
-	"encoding/binary"
 	"fmt"
 	"log"
-	"os"
 	"path"
 	"strings"
 
-	"github.com/go-restruct/restruct"
 	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 )
@@ -100,30 +97,4 @@ func Load(root string) (Savegame, error) {
 		}
 	}
 	return game, nil
-}
-
-// LoadFile will load a data file into a struct.
-// Deprecated: This will be replaced with savegame.Load()
-func LoadFile(path string, obj interface{}) error {
-	buf, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	if err = restruct.Unpack(buf, binary.LittleEndian, obj); err != nil {
-		return err
-	}
-	return nil
-}
-
-// SaveFile will save a strct into a data file.
-// Deprecated: This will be replaced with savegame.Savegame.Save()
-func SaveFile(path string, obj interface{}) error {
-	buf, err := restruct.Pack(binary.LittleEndian, &obj)
-	if err != nil {
-		return err
-	}
-	if err = os.WriteFile(path, buf, os.ModePerm); err != nil {
-		return err
-	}
-	return nil
 }

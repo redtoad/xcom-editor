@@ -28,22 +28,12 @@ func main() {
 	}
 
 	sg, _ := savegame.Load(*rootPath + string(os.PathSeparator))
-	curr := currency.USD.Amount(sg.FinancialData.CurrentBalance)
+	curr := currency.USD.Amount(sg.Financials.CurrentBalance)
 	p := message.NewPrinter(language.AmericanEnglish)
 	p.Printf("%v\n", curr)
 
-	fmt.Printf("Loading %s...\n", pathBasesFile)
-	var bases geoscape.BASE_DAT
-	if err := savegame.LoadFile(pathBasesFile, &bases); err != nil {
-		log.Fatalf("could not load file: %v", err)
-	}
-
-	if err := savegame.SaveFile(pathBasesFile+".bak", &bases); err != nil {
-		log.Fatalf("could not create backup: %v\n", err)
-	}
-
-	for no := 0; no < len(bases.Bases); no++ {
-		base := &bases.Bases[no]
+	for no := 0; no < len(sg.BasesData.Bases); no++ {
+		base := &sg.BasesData.Bases[no]
 		fmt.Printf("%d  %s (%v)\n", no, base.Name, base.Active)
 		if !base.Active {
 			continue
@@ -74,9 +64,9 @@ func main() {
 
 	}
 
-	fmt.Printf("Storing %s...\n", pathBasesFile)
-	if err := savegame.SaveFile(pathBasesFile, &bases); err != nil {
-		log.Fatalf("could not save file: %v\n", err)
+	fmt.Printf("Storing %s...\n", sg.Path)
+	if err := sg.Save(); err != nil {
+		log.Fatalf("could not save game: %v\n", err)
 	}
 
 }
