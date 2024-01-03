@@ -17,7 +17,15 @@ func LoadDATFile(path string, obj interface{}) error {
 	if err != nil {
 		return fmt.Errorf("could not open file %s: %w", path, err)
 	}
-	if err = restruct.Unpack(buf, DefaultByteOrder, obj); err != nil {
+	if err = Unmarshall(buf, obj); err != nil {
+		return fmt.Errorf("could not unpack data: %w", err)
+	}
+	return nil
+}
+
+// Unmarshall decodes binary data from a buffer into a struct.
+func Unmarshall(buffer []byte, obj interface{}) error {
+	if err := restruct.Unpack(buffer, DefaultByteOrder, obj); err != nil {
 		return fmt.Errorf("could not unpack data: %w", err)
 	}
 	return nil
@@ -27,9 +35,9 @@ func LoadDATFile(path string, obj interface{}) error {
 // if the content has changed. name is the path inside the game directory.
 func SaveDATFile(path string, obj interface{}) error {
 
-	saveData, err := restruct.Pack(binary.LittleEndian, obj)
+	saveData, err := Marshall(obj)
 	if err != nil {
-		return fmt.Errorf("could not pack data for file %s: %w", path, err)
+		return fmt.Errorf("could load data from file %s: %w", path, err)
 	}
 
 	original, err := os.ReadFile(path)
@@ -44,4 +52,13 @@ func SaveDATFile(path string, obj interface{}) error {
 		return fmt.Errorf("could not save file %s: %w", path, err)
 	}
 	return nil
+}
+
+// Marshall encodes a struct into binary data.
+func Marshall(obj interface{}) ([]byte, error) {
+	buffer, err := restruct.Pack(binary.LittleEndian, obj)
+	if err != nil {
+		return nil, fmt.Errorf("could not pack data: %w", err)
+	}
+	return buffer, nil
 }
