@@ -12,14 +12,14 @@ import (
 func TestUnpackSoldier(t *testing.T) {
 	tests := []struct {
 		hexData  string
-		expected geoscape.Soldier
+		expected geoscape.SoldierData
 	}{
 		{
 			`00000000 0100FFFF 00000000 00001400 47756472
 			756E2055 6E676572 00000000 00000000 00000000
 			00003919 32211635 391A1800 08000000 00000000
 			00000000 00000100`,
-			geoscape.Soldier{
+			geoscape.SoldierData{
 				Rank:                        geoscape.Rookie,
 				Base:                        0,
 				Craft:                       1,
@@ -66,7 +66,7 @@ func TestUnpackSoldier(t *testing.T) {
 				t.Errorf("could not convert test data: %v", err)
 			}
 
-			var soldier geoscape.Soldier
+			var soldier geoscape.SoldierData
 			err = restruct.Unpack(data, binary.LittleEndian, &soldier)
 			assert.NoError(t, err, "could not unpack test data: %v", err)
 
@@ -615,7 +615,7 @@ func TestFileSoldier_Pack(t *testing.T) {
 	decoded, err := loadHex(hexDump)
 	assert.NoError(t, err, "could not decode hex dump")
 
-	var file geoscape.SOLDIER_DAT
+	var file geoscape.SoldierFile
 	err = restruct.Unpack(decoded, binary.LittleEndian, &file)
 	assert.NoError(t, err, "could not decode data")
 
