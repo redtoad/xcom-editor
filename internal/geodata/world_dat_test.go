@@ -36,7 +36,7 @@ func TestWORLD_DAT_Unpack(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			world := &geodata.WorldData{}
+			world := &geodata.WorldFile{}
 			err := restruct.Unpack(tt.buffer, binary.LittleEndian, &world)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("WORLD_DAT.Unpack() error = %v, wantErr %v", err, tt.wantErr)

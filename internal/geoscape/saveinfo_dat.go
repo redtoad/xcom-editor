@@ -5,9 +5,9 @@ package geoscape
 
 import "time"
 
-// SavegameInfo contains name and game time of the saved game.
+// SaveinfoFile contains name and game time of the saved game.
 // This file is 40 bytes long, no separate entries.
-type SavegameInfo struct {
+type SaveinfoFile struct {
 
 	// 0-1	0x00-0x01	Ignore this if the file is not in the missdat folder. If 0, then this is a savegame made on the beginning of a new battlescape game. If 1, then check DIRECT.DAT to see where which save slot to load from.
 	_ bool `struct:"int16"`
@@ -35,11 +35,11 @@ type SavegameInfo struct {
 }
 
 // SizeOf imlements restruct.Sizer
-func (s SavegameInfo) SizeOf() int {
+func (s SaveinfoFile) SizeOf() int {
 	return 40
 }
 
-func (s SavegameInfo) Time() time.Time {
+func (s SaveinfoFile) Time() time.Time {
 	return time.Date(
 		s.Year, time.Month(s.Month+1), s.DayOfMonth,
 		s.Hour, s.Minute, 0, 0,

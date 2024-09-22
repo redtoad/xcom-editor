@@ -14,7 +14,7 @@ import (
 )
 
 func Test_CRAFT_DAT_Unpack(t *testing.T) {
-	var obj geoscape.CRAFT_DAT
+	var obj geoscape.CraftFile
 	data := loadCRAFT_DAT()
 	err := restruct.Unpack(data, binary.LittleEndian, &obj)
 	require.NoError(t, err)
@@ -40,7 +40,7 @@ func loadCRAFT_DAT() []byte {
 	return data
 }
 
-// base64 -b 80 -i GAME_1/CRAFT.DAT
+// base64 -b 80 -i GAME_1/CRAFT.DAT | pbcopy
 const testCRAFTfile = `
 AP8AAAH/AAD//wAAAQD4AgoA//+I/4r/1QUAAJH/k/+V/5f/mf+c/57/AQAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAODgAIAAAAAwAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/6D/4/8DBWAAAQVgAP//AAABADQI
