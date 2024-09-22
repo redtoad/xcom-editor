@@ -9,7 +9,7 @@ import (
 	"github.com/go-restruct/restruct"
 )
 
-// WorldData describes the terrain on the geoscape screen using quadrilateral polygons and triangles
+// WorldFile describes the terrain on the geoscape screen using quadrilateral polygons and triangles
 // loaded from GEODATA/WORLD.DAT.
 //
 // The first 16 bytes of file contain the points for the polygon. 4 sets of 2 short (2-byte) integers,
@@ -20,11 +20,11 @@ import (
 // integers as the last 2 bytes in each record are 0.
 //
 // See https://www.ufopaedia.org/index.php/WORLD.DAT for more information.
-type WorldData struct {
+type WorldFile struct {
 	Polygons []Polygon
 }
 
-func (w *WorldData) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+func (w *WorldFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 
 	reader := bytes.NewReader(buf)
 	for {

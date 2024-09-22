@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSavegameInfo_Time(t *testing.T) {
+func TestSaveinfoFile_Time(t *testing.T) {
 	tests := []struct {
 		hex  string
 		want time.Time
@@ -29,7 +29,7 @@ func TestSavegameInfo_Time(t *testing.T) {
 			data, err := loadHex(tt.hex)
 			assert.NoError(t, err)
 
-			var info geoscape.SavegameInfo
+			var info geoscape.SaveinfoFile
 			err = restruct.Unpack(data, binary.LittleEndian, &info)
 			assert.NoError(t, err, "could not unpack test data: %v", err)
 
