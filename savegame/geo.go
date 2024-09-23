@@ -7,25 +7,32 @@ import (
 
 // Coord is a real-world GPS coordinate.
 type Coord struct {
-	// Horizontal coordinates or longitude
-	Lon float32
 	// Vertical coordinates or latitude
 	Lat float32
+	// Horizontal coordinates or longitude
+	Lon float32
 }
 
 func NewCoord(x int, y int) Coord {
-	return Coord{
-		// The X coordinate starts with X = 0 at 0° longitude (the Prime Meridian or Greenwich
-		// Meridian) and increases going eastward. Unlike real-world longitude, there is only
-		// "East" longitude, from 0°E to 359.875°E. This is the result of forcing the
-		// coordinate system to be positive-only, for algorithmic purposes. So, for example,
-		// the equivalent of 90°W longitude would be "270°E longitude", with a game X
-		// coordinate of 270 x 8 = 2160.
-		Lon: float32(x) / (2880.0 / 360.0),
-		// A Y coordinate value of 720 corresponds to 90.0 "90° S" latitude (the South Pole);
-		// a Y coordinate value of -720 corresponds to "90° N" latitude (the North Pole).
-		Lat: float32(y) / (720.0 / 90.0),
+	// A Y coordinate value of 720 corresponds to 90.0 "90° S" latitude (the South Pole);
+	// a Y coordinate value of -720 corresponds to "90° N" latitude (the North Pole).
+	lat := float32(y) / (720.0 / -90.0)
+
+	// The X coordinate starts with X = 0 at 0° longitude (the Prime Meridian or Greenwich
+	// Meridian) and increases going eastward. Unlike real-world longitude, there is only
+	// "East" longitude, from 0°E to 359.875°E. This is the result of forcing the
+	// coordinate system to be positive-only, for algorithmic purposes. So, for example,
+	// the equivalent of 90°W longitude would be "270°E longitude", with a game X
+	// coordinate of 270 x 8 = 2160.
+	lon := float32(x) / (2880.0 / 360.0)
+	for lon > 180.0 {
+		lon = lon - 360.0
 	}
+	for lon < -180.0 {
+		lon = lon + 360.0
+	}
+
+	return Coord{Lat: lat, Lon: lon}
 }
 
 func (l Coord) String() string {
@@ -39,8 +46,8 @@ func (l Coord) String() string {
 	}
 	return fmt.Sprintf(
 		"%.5f° %s %.5f° %s",
-		math.Abs(float64(l.Lon)), lonDir,
 		math.Abs(float64(l.Lat)), latDir,
+		math.Abs(float64(l.Lon)), lonDir,
 	)
 }
 
