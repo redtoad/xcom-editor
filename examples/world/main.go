@@ -20,12 +20,12 @@ func main() {
 	flag.Parse()
 
 	fmt.Print("Loading WORLD.DAT...\n")
-	world := geodata.WorldData{}
+	world := geodata.WorldFile{}
 	if err := internal.LoadDATFile(path.Join(*pth, "..", "GEODATA", "WORLD.DAT"), &world); err != nil {
 		log.Fatalf("could not open WORLD.DAT: %s", err)
 	}
 
-	locations := geoscape.LOC_DAT{}
+	locations := geoscape.LocFile{}
 	if err := internal.LoadDATFile(path.Join(*pth, "LOC.DAT"), &locations); err != nil {
 		log.Fatalf("could not read data from LOC.DAT: %s", err)
 	}
@@ -43,7 +43,7 @@ func main() {
 		x, y := float64(coord.Lat), float64(coord.Lon)
 		switch loc.Type {
 		case geoscape.XCOMBase:
-			log.Printf("Base: %s", coord)
+			log.Printf("BaseData: %s", coord)
 			//g.DrawDot(x, y, 0.1, globe.Color(green))
 		case geoscape.XCOMShip:
 			log.Printf("Ship: %s", coord)

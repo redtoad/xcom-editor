@@ -1,100 +1,53 @@
 package savegame
 
 import (
-	"fmt"
-	"log"
-	"path"
-	"strings"
-
-	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 )
 
 type Savegame struct {
 	Path          string
-	MetaData      geoscape.SavegameInfo
-	FinancialData geoscape.LIGLOB_DAT
-	BasesData     geoscape.BASE_DAT
-	SoldierData   geoscape.SOLDIER_DAT
-	TransferData  geoscape.TRANSFER_DAT
+	meta          geoscape.SaveinfoFile
+	FinancialData geoscape.LiglobFile
+	baseFile      geoscape.BaseFile
+	locationFile  geoscape.LocFile
+	soldierFile   geoscape.SoldierFile
+	transferFile  geoscape.TransferFile
+	craftsFile    geoscape.CraftFile
+}
+
+type loadOrSaveFunc func() error
+
+// Load loads a savegame from disk. This includes loading all required data files
+// one by one.
+func Load(root string) (*Savegame, error) {
+	game := &Savegame{Path: root}
+	for _, fnc := range []loadOrSaveFunc{
+		game.loadMetadata, // read-only
+		game.loadSoldiers,
+		game.loadBases,
+		game.loadTransfers,
+		game.loadCrafts,
+		game.loadLocations,
+	} {
+		if err := fnc(); err != nil {
+			return nil, err
+		}
+	}
+	return game, nil
 }
 
 // Save saves the entire savegame on disk at its original location.
-func (game Savegame) Save() error {
-	files := map[string]interface{}{
-		"LIGLOB.DAT":   &game.FinancialData,
-		"BASE.DAT":     &game.BasesData,
-		"SOLDIER.DAT":  &game.SoldierData,
-		"TRANSFER.DAT": &game.TransferData,
-	}
-	for name, obj := range files {
-		log.Printf("saving %s...\n", name)
-		filePath := path.Join(game.Path, name)
-		if err := internal.SaveDATFile(filePath, obj); err != nil {
+func (game *Savegame) Save() error {
+	for _, fnc := range []loadOrSaveFunc{
+		game.saveSoldiers,
+		//game.saveBases,
+		//game.saveTransfers,
+		//game.saveCrafts,
+		//game.savelocations,
+	} {
+		if err := fnc(); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// Heal will restore all soldiers back to health.
-func (game Savegame) Heal() {
-	for no := 0; no < len(game.SoldierData.Soldiers); no++ {
-		soldier := &game.SoldierData.Soldiers[no]
-		// resurrect solders
-		if soldier.Rank == geoscape.DeadOrUnused && strings.TrimSpace(soldier.Name) != "" {
-			fmt.Printf("Resurrect %s from the dead\n", soldier.Name)
-			soldier.Rank = geoscape.Squaddie
-		}
-		soldier.RecoveryDays = 0
-		if soldier.Craft == 0xffff {
-			soldier.Craft = soldier.CraftBefore
-			soldier.CraftBefore = 0xffff
-		}
-	}
-}
-
-// SpeedupDelivery will reducce delivery time for all outstanding deliveries to 1 hour.
-func (game Savegame) SpeedupDelivery() {
-	for no := 0; no < len(game.TransferData.Transfers); no++ {
-		transfer := &game.TransferData.Transfers[no]
-		if transfer.HoursLeft > 0 {
-			transfer.HoursLeft = 1
-		}
-	}
-}
-
-// CompleteConstructions will complete all ongoing constructions in all bases.
-func (game Savegame) CompleteConstructions() {
-	for b := 0; b < len(game.BasesData.Bases); b++ {
-		base := &game.BasesData.Bases[b]
-		for i := 0; i < len(base.DaysToCompletion); i++ {
-			if base.DaysToCompletion[i] > 0 {
-				log.Printf("Complete construction of %v in %s.\n", base.Grid[i].Tile(), base.Name)
-				base.DaysToCompletion[i] = 0
-			}
-		}
-	}
-}
-
-// Load loads a savegame from disk. This includes loading all required data files
-// one by one.
-func Load(root string) (Savegame, error) {
-	game := Savegame{Path: root}
-	files := map[string]interface{}{
-		"SAVEINFO.DAT": &game.MetaData,
-		"LIGLOB.DAT":   &game.FinancialData,
-		"BASE.DAT":     &game.BasesData,
-		"SOLDIER.DAT":  &game.SoldierData,
-		"TRANSFER.DAT": &game.TransferData,
-	}
-	for name, obj := range files {
-		filePath := path.Join(game.Path, name)
-		log.Printf("loading %s...\n", filePath)
-		err := internal.LoadDATFile(filePath, obj)
-		if err != nil {
-			return game, fmt.Errorf("could not laod file %s: %w", filePath, err)
-		}
-	}
-	return game, nil
 }
