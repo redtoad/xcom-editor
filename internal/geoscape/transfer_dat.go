@@ -47,10 +47,10 @@ func (tf *TransferFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, erro
 
 type TransferData struct {
 
-    // BaseData the item is coming from (as indexed in LOC.DAT). 255 if the item is purchased and thus no base of origin
+	// BaseData the item is coming from (as indexed in LOC.DAT). 255 if the item is purchased and thus no base of origin
 	Origin int `struct:"int8"`
 
-    // Destination the item is going to (again from LOC.DAT). 255 should not be used here
+	// Destination the item is going to (again from LOC.DAT). 255 should not be used here
 	Destination int `struct:"int8"`
 
 	// HoursLeft in transit. NOTE: Setting this to 0 will make the game think it has been completed already
