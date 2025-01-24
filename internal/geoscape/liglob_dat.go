@@ -9,12 +9,12 @@ package geoscape
 //
 // https://www.ufopaedia.org/index.php/LIGLOB.DAT
 type LiglobFile struct {
-    // Current balance
-    CurrentBalance int32 `struct:"int32"`
-    // Expenditure for the last 12 months
-    Expenditure []int32 `struct:"[12]int32"`
-    // Maintenance costs for the last 12 months
-    Maintenance []int32 `struct:"[12]int32"`
-    // Balance for the last 12 months
-    Balance []int32 `struct:"[12]int32"`
+	// Current balance
+	CurrentBalance int32 `struct:"int32"`
+	// Expenditure for the last 12 months
+	Expenditure []int32 `struct:"[12]int32"`
+	// Maintenance costs for the last 12 months
+	Maintenance []int32 `struct:"[12]int32"`
+	// Balance for the last 12 months
+	Balance []int32 `struct:"[12]int32"`
 }

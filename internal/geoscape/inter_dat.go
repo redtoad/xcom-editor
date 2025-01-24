@@ -1,8 +1,8 @@
 package geoscape
 
 import (
-    "encoding/binary"
-    "github.com/go-restruct/restruct"
+	"encoding/binary"
+	"github.com/go-restruct/restruct"
 )
 
 type InterceptionData struct {
@@ -55,25 +55,25 @@ type InterceptionData struct {
 }
 
 func (id InterceptionData) SizeOf() int {
-    return 142
+	return 142
 }
 
 // InterFile details the specifics of any interceptions
 // currently occurring on the Geoscape.
 type InterFile struct {
-    Interceptions []InterceptionData
+	Interceptions []InterceptionData
 }
 
 func (if_ InterFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-    for i := 0; i < maxCrafts; i++ {
-        data, err := restruct.Pack(order, &if_.Interceptions[i])
-        if err != nil {
-            return nil, err
-        }
-        offset := i * craftByteLength
-        for j := 0; j < len(data); j++ {
-            buf[offset+j] = data[j]
-        }
-    }
-    return buf, nil
+	for i := 0; i < maxCrafts; i++ {
+		data, err := restruct.Pack(order, &if_.Interceptions[i])
+		if err != nil {
+			return nil, err
+		}
+		offset := i * craftByteLength
+		for j := 0; j < len(data); j++ {
+			buf[offset+j] = data[j]
+		}
+	}
+	return buf, nil
 }
