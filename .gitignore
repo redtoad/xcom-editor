@@ -15,3 +15,8 @@ debug.log
 GOG_Galaxy_X-Com_UFO_Defense.exe
 
 dist/
+examples/world/node_modules/
+examples/world/.cache/
+
+cmd/editor/editor
+bin/revive-soldiers
