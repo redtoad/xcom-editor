@@ -6,4 +6,9 @@
 dist/
 *.png
 
+examples/world/node_modules/
+examples/world/.cache/
+
 GAME/
+cmd/editor/editor
+bin/revive-soldiers

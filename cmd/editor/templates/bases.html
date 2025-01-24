@@ -1,0 +1,215 @@
+{{ define "empty" }}
+    <td />
+{{ end }}
+
+{{ define "construction-box" }}
+    <td class="base-tile base-shell-box-construction"/>
+{{ end }}
+{{ define "construction-cross" }}
+    <td class="base-tile base-shell-cross-construction"/>
+{{ end }}
+{{ define "construction-round" }}
+    <td class="base-tile base-shell-round-construction"/>
+{{ end }}
+{{ define "construction-hangar-tl" }}
+    <td class="base-tile base-hangar-top-left-construction"/>
+{{ end }}
+{{ define "construction-hangar-tr" }}
+    <td class="base-tile base-hangar-top-right-construction"/>
+{{ end }}
+{{ define "construction-hangar-bl" }}
+    <td class="base-tile base-hangar-bottom-left-construction"/>
+{{ end }}
+{{ define "construction-hangar-br" }}
+    <td class="base-tile base-hangar-bottom-right-construction"/>
+{{ end }}
+
+{{ define "hangar-tl" }}
+    <td class="base-tile base-hangar-top-left" title="Hangar"/>
+{{ end }}
+{{ define "hangar-tr" }}
+    <td class="base-tile base-hangar-top-right" title="Hangar"/>
+{{ end }}
+{{ define "hangar-bl" }}
+    <td class="base-tile base-hangar-bottom-left" title="Hangar"/>
+{{ end }}
+{{ define "hangar-br" }}
+    <td class="base-tile base-hangar-bottom-right" title="Hangar"/>
+{{ end }}
+
+
+{{ define "quarters" }}
+<td>
+    <div class="base-tile base-shell-box"/>
+    <div class="base-tile base-quarters"/>
+</td>
+{{ end }}
+{{ define "workshop" }}
+<td>
+    <div class="base-tile base-shell-box"/>
+    <div class="base-tile base-workshop"/>
+</td>
+{{ end }}
+{{ define "general-stores" }}
+<td>
+    <div class="base-tile base-shell-box"/>
+    <div class="base-tile base-general-stores"/>
+</td>
+{{ end }}
+{{ define "alien-containment" }}
+<td>
+    <div class="base-tile base-shell-box"/>
+    <div class="base-tile base-alien-containment"/>
+</td>
+{{ end }}
+{{ define "laboratory" }}
+<td>
+    <div class="base-tile base-shell-box"/>
+    <div class="base-tile base-laboratory"/>
+</td>
+{{ end }}
+{{ define "psyonic-laboratory" }}
+<td>
+    <div class="base-tile base-shell-box"/>
+    <div class="base-tile base-psyonic-laboratory"/>
+</td>
+{{ end }}
+{{ define "radar-small" }}
+<td>
+    <div class="base-tile base-shell-round"/>
+    <div class="base-tile base-radar-small"/>
+</td>
+{{ end }}
+{{ define "radar-big" }}
+    <td>
+    <div class="base-tile base-shell-box"/>
+    <div class="base-tile base-radar-big"/>
+</td>
+{{ end }}
+{{ define "hyperwave-decoder" }}
+    <td>
+    <div class="base-tile base-shell-box"/>
+    <div class="base-tile base-hyperwave-decoder"/>
+</td>
+{{ end }}
+{{ define "access-lift" }}
+    <td>
+    <div class="base-tile base-shell-round"/>
+    <div class="base-tile base-access-lift"/>
+</td>
+{{ end }}
+{{ define "mind-shield" }}
+<td>
+    <div class="base-tile base-shell-round"/>
+    <div class="base-tile base-mind-shield"/>
+</td>
+{{ end }}
+{{ define "missile-defenses" }}
+<td title="Missile Defenses">
+    <div class="base-tile base-shell-round"/>
+    <div class="base-tile base-missile-defenses"/>
+</td>
+{{ end }}
+{{ define "laser-defenses" }}
+<td>
+    <div class="base-tile base-shell-cross"/>
+    <div class="base-tile base-laser-defenses"/>
+</td>
+{{ end }}
+{{ define "plasma-defenses" }}
+<td>
+    <div class="base-tile base-shell-cross"/>
+    <div class="base-tile base-plasma-defenses"/>
+</td>
+{{ end }}
+{{ define "fusions-ball-defenses" }}
+<td>
+    <div class="base-tile base-shell-cross"/>
+    <div class="base-tile base-fusion-ball-defenses"/>
+</td>
+{{ end }}
+{{ define "grav-shield" }}
+<td>
+    <div class="base-tile base-shell-round"/>
+    <div class="base-tile base-grav-shield"/>
+</td>
+{{ end }}
+
+{{ define "bases" }}
+<style type="text/css">
+    .base-tiles {
+        border-spacing: 0;
+        border-collapse: 0;
+    }
+
+    .base-tiles tr {
+        height: 32px;
+        padding: 0;
+        background: url("/resource/GEOGRAPH/BASEBITS.PCK") 0 0;
+        background-repeat: repeat-x;
+    }
+    .base-tiles td, .base-tiles td div {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+    }
+
+    .base-empty {                            background: url("/resource/GEOGRAPH/BASEBITS.PCK") 0           0; }
+    .base-shell-box {                        background: url("/resource/GEOGRAPH/BASEBITS.PCK") -32px       0; }
+    .base-shell-round {                      background: url("/resource/GEOGRAPH/BASEBITS.PCK") -64px       0; }
+    .base-shell-cross {                      background: url("/resource/GEOGRAPH/BASEBITS.PCK") -96px       0; }
+    .base-shell-box-construction {           background: url("/resource/GEOGRAPH/BASEBITS.PCK") -128px      0; }
+    .base-shell-round-construction {         background: url("/resource/GEOGRAPH/BASEBITS.PCK") -160px      0; }
+    .base-shell-cross-construction {         background: url("/resource/GEOGRAPH/BASEBITS.PCK") -192px      0; }
+    .base-hangar-top-left {                  background: url("/resource/GEOGRAPH/BASEBITS.PCK") -288px      0; }
+
+    .base-hangar-top-right {                 background: url("/resource/GEOGRAPH/BASEBITS.PCK") 0       -40px; }
+    .base-hangar-bottom-left {               background: url("/resource/GEOGRAPH/BASEBITS.PCK") -32px   -40px; }
+    .base-hangar-bottom-right {              background: url("/resource/GEOGRAPH/BASEBITS.PCK") -64px   -40px; }
+    .base-hangar-top-left-construction {     background: url("/resource/GEOGRAPH/BASEBITS.PCK") -96px   -40px; }
+    .base-hangar-top-right-construction {    background: url("/resource/GEOGRAPH/BASEBITS.PCK") -128px  -40px; }
+    .base-hangar-bottom-left-construction {  background: url("/resource/GEOGRAPH/BASEBITS.PCK") -160px  -40px; }
+    .base-hangar-bottom-right-construction { background: url("/resource/GEOGRAPH/BASEBITS.PCK") -192px  -40px; }
+    .base-access-lift {                      background: url("/resource/GEOGRAPH/BASEBITS.PCK") -224px  -40px; }
+    .base-quarters {                         background: url("/resource/GEOGRAPH/BASEBITS.PCK") -256px  -40px; }
+    .base-laboratory {                       background: url("/resource/GEOGRAPH/BASEBITS.PCK") -288px  -40px; }
+
+    .base-workshop {                         background: url("/resource/GEOGRAPH/BASEBITS.PCK") 0       -80px;  }
+    .base-radar-small {                      background: url("/resource/GEOGRAPH/BASEBITS.PCK") -32px   -80px;  }
+    .base-radar-big {                        background: url("/resource/GEOGRAPH/BASEBITS.PCK") -64px   -80px;  }
+    .base-missile-defenses {                 background: url("/resource/GEOGRAPH/BASEBITS.PCK") -96px   -80px;  }
+    .base-general-stores {                   background: url("/resource/GEOGRAPH/BASEBITS.PCK") -128px  -80px;  }
+    .base-alien-containment {                background: url("/resource/GEOGRAPH/BASEBITS.PCK") -160px  -80px;  }
+    .base-laser-defenses {                   background: url("/resource/GEOGRAPH/BASEBITS.PCK") -192px  -80px;  }
+    .base-plasma-defenses {                  background: url("/resource/GEOGRAPH/BASEBITS.PCK") -224px  -80px;  }
+    .base-fusion-ball-defenses {             background: url("/resource/GEOGRAPH/BASEBITS.PCK") -256px  -80px;  }
+    .base-grav-shield {                      background: url("/resource/GEOGRAPH/BASEBITS.PCK") -288px  -80px;  }
+
+    .base-mind-shield {                      background: url("/resource/GEOGRAPH/BASEBITS.PCK") 0      -120px;  }
+    .base-psyonic-laboratory {               background: url("/resource/GEOGRAPH/BASEBITS.PCK") -32px  -120px;  }
+    .base-hyperwave-decoder {                background: url("/resource/GEOGRAPH/BASEBITS.PCK") -64px  -120px;  }
+    .base-craft-skyranger {                  background: url("/resource/GEOGRAPH/BASEBITS.PCK") -96px  -123px;  }
+    .base-craft-lightning {                  background: url("/resource/GEOGRAPH/BASEBITS.PCK") -128px -124px;  }
+    .base-craft-avenger {                    background: url("/resource/GEOGRAPH/BASEBITS.PCK") -160px -124px;  }
+    .base-craft-interceptor {                background: url("/resource/GEOGRAPH/BASEBITS.PCK") -192px -125px;  }
+    .base-craft-firestorm {                  background: url("/resource/GEOGRAPH/BASEBITS.PCK") -224px -124px;  }
+
+</style>
+
+{{ range $base := . }}
+{{ $base.Name }}
+
+<table class="base-tiles">
+<tr>
+{{ range $index, $tile := $base.Tiles }}
+    {{ tile $tile.Type }}
+    {{ if mod $index 6 5 }}
+    </tr><tr>
+    {{ end }}
+{{ end }}
+</tr>
+</table>
+
+{{ end }}
+
+{{ end }}

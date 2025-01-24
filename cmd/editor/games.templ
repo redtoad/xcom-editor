@@ -1,0 +1,66 @@
+package main
+
+import "fmt"
+import "github.com/redtoad/xcom-editor/savegame"
+
+templ page(title string) {
+		<html>
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title }</title>
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/1.0.2/css/bulma.min.css" integrity="sha512-RpeJZX3aH5oZN3U3JhE7Sd+HG8XQsqmP3clIbu4G28p668yNsRNj3zMASKe1ATjl/W80wuEtCx2dFA8xaebG5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+			<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png"/>
+			<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png"/>
+			<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png"/>
+			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+			<script src="/assets/js/htmx.min.js"></script>
+		</head>
+		<body class="bg-gray-100">
+			<header class="hero is-primary">
+				<div class="hero-body">
+					<div class="container">
+						<h1 class="title">{ title }</h1>
+					</div>
+				</div>
+			</header>
+			<section class="section">
+				<div class="container">
+					<div class="columns is-centered">
+						<div class="column is-half">
+							{ children... }
+						</div>
+					</div>
+				</div>
+			</section>
+		</body>
+	</html>
+}
+
+templ GamesList(games []*savegame.Savegame) {
+	@page("Games") {
+	<table class="table">
+	<thead>
+		<tr>
+			<th><abbr title="Game number">#</abbr></th>
+			<th>Title</th>
+			<th>Game Time</th>
+		</tr>
+	</thead>
+	<tbody>
+	  for idx, game := range games {
+		<tr>
+		<td>{ fmt.Sprintf("%d", idx+1) }</td>
+		if game != nil {
+			<td>{ game.Title()}</td>
+			<td>{ game.Time().String()}</td>
+		} else {
+			<td><i>empty</i></td>
+			<td/>
+		}
+		</tr>
+	  }
+	</tbody>
+	</table>
+	}
+}

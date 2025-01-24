@@ -1,0 +1,160 @@
+<!--
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js"></script>
+<script src="https://d3js.org/d3-queue.v3.min.js"></script>
+-->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+
+<!--
+<div id="content">
+<canvas id="world1" width="650" height="650"></canvas>
+<canvas id="world2" width="650" height="650"></canvas>
+</div>
+
+<script type="text/javascript">
+let context = d3.select('#world1')
+.node()
+.getContext('2d');
+
+let projection = d3.geoOrthographic()
+.center([35, 10])
+.scale(300)
+.rotate([220, 0]);
+
+let geoGenerator = d3.geoPath()
+.projection(projection)
+.context(context);
+
+function update(geojson) {
+context.lineWidth = 0.8;
+context.strokeStyle = '#333';
+
+context.beginPath();
+geoGenerator({type: 'FeatureCollection', features: geojson.features})
+context.stroke();
+
+// Graticule
+let graticule = d3.geoGraticule();
+context.beginPath();
+context.strokeStyle = '#ccc';
+geoGenerator(graticule());
+context.stroke();
+
+d3.json("http://localhost:8080/locations")
+.then(function (json) {
+json.forEach((loc) => {
+let circle = d3.geoCircle().center(loc).radius(1);
+context.beginPath();
+context.lineWidth = 2.8;
+context.strokeStyle = 'red';
+geoGenerator(circle());
+context.stroke();
+});
+});
+}
+
+// REQUEST DATA
+d3.json('https://gist.githubusercontent.com/d3indepth/f28e1c3a99ea6d84986f35ac8646fac7/raw/c58cede8dab4673c91a3db702d50f7447b373d98/ne_110m_land.json')
+.then(function (json) {
+update(json)
+});
+
+
+</script>
+
+
+-->
+<svg id="globe"/>
+
+<script type="application/javascript">
+	const width = 750;
+	const height = 750;
+	const config = {
+		speed: 0.01,
+		verticalTilt: -12,
+		horizontalTilt: 0
+	};
+	const sensitivity = 75;
+	let locations = [];
+	const svg = d3.select('svg').attr('width', width).attr('height', height);
+	const markerGroup = svg.append('g');
+	const projection = d3.geoOrthographic().translate([width / 2, height / 2]);
+	const initialScale = projection.scale();
+	let path = d3.geoPath().projection(projection);
+	const center = [width / 2, height / 2];
+
+	drawGlobe();
+	drawGraticule();
+	enableRotation();
+
+	function drawGlobe() {
+		d3.queue()
+			.defer(d3.json, '/static/world-110m.json')
+			.defer(d3.json, '/locations')
+			.await((error, worldData, locationData) => {
+				svg.selectAll('.segment')
+					.data(topojson.feature(worldData, worldData.objects.countries).features)
+					.enter().append('path')
+					.attr('class', 'segment')
+					.attr('d', path)
+					.style('stroke', '#888')
+					.style('stroke-width', '1px')
+					.style('fill', (d, i) => '#e5e5e5')
+					.style('opacity', '.6');
+				locations = locationData;
+				drawMarkers();
+			});
+	}
+
+	function drawGraticule() {
+		const graticule = d3.geoGraticule()
+			.step([10, 10]);
+
+		svg.append('path')
+			.datum(graticule)
+			.attr('class', 'graticule')
+			.attr('d', path)
+			.style('fill', '#fff')
+			.style('stroke', '#ccc');
+	}
+
+	function enableRotation() {
+		d3.timer(function (elapsed) {
+			projection.rotate([config.speed * elapsed - 10, config.verticalTilt, config.horizontalTilt]);
+			svg.selectAll('path').attr('d', path);
+			drawMarkers();
+		});
+	}
+
+	function drawMarkers() {
+		const markers = markerGroup.selectAll('circle')
+			.data(locations);
+
+		markers.enter()
+			.append('circle')
+			.merge(markers)
+			.attr('cx', d => projection([d.longitude, d.latitude])[0])
+			.attr('cy', d => projection([d.longitude, d.latitude])[1])
+			.attr('fill', d => {
+				const coordinate = [d.longitude, d.latitude];
+				const gdistance = d3.geoDistance(coordinate, projection.invert(center));
+				return gdistance > 1.5 ? 'none' : 'red';
+			})
+			.attr('stroke', d => {
+				const coordinate = [d.longitude, d.latitude];
+				const gdistance = d3.geoDistance(coordinate, projection.invert(center));
+				return gdistance > 1.5 ? 'none' : 'white';
+			})
+			.attr('r', 4);
+
+		markerGroup.each(function () {
+			this.parentNode.appendChild(this);
+		});
+	}
+
+	svg.append('circle').attr('cx', 535).attr('cy', 600).attr('r', 6).style('fill', 'red');
+	svg.append('text').attr('x', 545).attr('y', 600).text('X-COM Base').style('font-size', '11px').attr('alignment-baseline', 'middle');
+</script>
