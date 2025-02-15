@@ -13,7 +13,7 @@ const maxBases = 8
 // Each base entry is 292 bytes long.
 const baseByteLength = 292
 
-// BaseFile has all of the base layout and contents information, as well as
+// BaseFile (BASE.DAT) has all of the base layout and contents information, as well as
 // base name info.
 //
 // https://www.ufopaedia.org/index.php/BASE.DAT
@@ -21,10 +21,12 @@ type BaseFile struct {
 	Bases []BaseData
 }
 
+// SizeOf implemtents the restruct.Sizer interface.
 func (s BaseFile) SizeOf() int {
 	return baseByteLength * maxBases
 }
 
+// Pack implements the restruct.Packer interface.
 func (s BaseFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	for i := 0; i < maxBases; i++ {
 		data, err := restruct.Pack(order, &s.Bases[i])
@@ -39,6 +41,7 @@ func (s BaseFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	return buf, nil
 }
 
+// Unpack implements the restruct.Unpacker interface.
 func (s *BaseFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	s.Bases = make([]BaseData, maxBases)
 	for i := 0; i < maxBases; i++ {
@@ -59,15 +62,13 @@ type BaseData struct {
 
 	// Logical values for the detection capabilities:
 	//
-	//10 short, 0 long: This base has small radar(s) only.
+	// 10 short, 0 long: This base has small radar(s) only.
+	// 20 short, 20 long: This base has large radar(s) only.
+	// 30 short, 20 long: This base has small and large radar(s).
+	// 100 hyperwave: This base has a hyperwave decoder(s).
 	//
-	//20 short, 20 long: This base has large radar(s) only.
-	//
-	//30 short, 20 long: This base has small and large radar(s).
-	//
-	//100 hyperwave: This base has a hyperwave decoder(s).
-	//
-	//The radar values can be set to 100 for perfect short range detection (presumably -- it definitely makes UFOs appear more often), but these reset to the correct values any time you complete a build in that base.
+	// The radar values can be set to 100 for perfect short range detection (presumably -- it definitely makes
+	// UFOs appear more often), but these reset to the correct values any time you complete a build in that base.
 
 	// 10-11: BaseData's short range detection capability.
 	ShortRange int `struct:"int16"`
@@ -84,7 +85,10 @@ type BaseData struct {
 	// 3A-5D: The next offsets represent the days until a facility is completed. They're set up the same way:
 	DaysToCompletion [36]uint `struct:"[36]uint8"`
 
-	Engineers  int `struct:"int8"`
+	// Number of engineers in the base.
+	Engineers int `struct:"int8"`
+
+	// Number of scientists in the base.
 	Scientists int `struct:"int8"`
 
 	// 60-11E inventory

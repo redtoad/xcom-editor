@@ -10,6 +10,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestSaveinfo_Unpack(t *testing.T) {
+	buf := MustLoadFromBase64(testFile_SAVEINFO_DAT)
+	var bf geoscape.SaveinfoFile
+	err := restruct.Unpack(buf, binary.LittleEndian, &bf)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestSaveinfoFile_Time(t *testing.T) {
 	tests := []struct {
 		hex  string
@@ -26,14 +35,18 @@ func TestSaveinfoFile_Time(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.hex, func(t *testing.T) {
-			data, err := loadHex(tt.hex)
-			assert.NoError(t, err)
+			data := MustLoadFromHex(tt.hex)
 
 			var info geoscape.SaveinfoFile
-			err = restruct.Unpack(data, binary.LittleEndian, &info)
+			err := restruct.Unpack(data, binary.LittleEndian, &info)
 			assert.NoError(t, err, "could not unpack test data: %v", err)
 
 			assert.Equal(t, tt.want, info.Time())
 		})
 	}
 }
+
+// base64 -i GAME_1/SAVEINFO.DAT -b 120 | pbcopy
+const testFile_SAVEINFO_DAT = `
+AQBUZXN0AACgExwAaAEBAEYCAAC2+hkAAAAAAM8HBwANAA8AJAAAAA==
+`

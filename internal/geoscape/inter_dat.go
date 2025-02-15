@@ -2,8 +2,53 @@ package geoscape
 
 import (
 	"encoding/binary"
+
 	"github.com/go-restruct/restruct"
 )
+
+const (
+	maxInterceptions       = 4
+	interceptionByteLength = 142
+)
+
+// InterFile details the specifics of any interceptions
+// currently occurring on the Geoscape.
+type InterFile struct {
+	Interceptions []InterceptionData
+}
+
+// Pack implements the restruct.Packer interface.
+func (if_ InterFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	for i := 0; i < maxCrafts; i++ {
+		data, err := restruct.Pack(order, &if_.Interceptions[i])
+		if err != nil {
+			return nil, err
+		}
+		offset := i * craftByteLength
+		for j := 0; j < len(data); j++ {
+			buf[offset+j] = data[j]
+		}
+	}
+	return buf, nil
+}
+
+// Unpack implements the restruct.Unpacker interface.
+func (s *InterFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	s.Interceptions = make([]InterceptionData, maxInterceptions)
+	for i := 0; i < maxInterceptions; i++ {
+		offset := i * interceptionByteLength
+		data := buf[offset : offset+interceptionByteLength]
+		if err := restruct.Unpack(data, order, &s.Interceptions[i]); err != nil {
+			return nil, err
+		}
+	}
+	return buf[s.SizeOf():], nil
+}
+
+// SizeOf implemtents the restruct.Sizer interface.
+func (if_ InterFile) SizeOf() int {
+	return maxInterceptions * interceptionByteLength
+}
 
 type InterceptionData struct {
 
@@ -54,26 +99,7 @@ type InterceptionData struct {
 	// 0x8A (dword): pointer to UFO stats offset
 }
 
+// SizeOf implemtents the restruct.Sizer interface.
 func (id InterceptionData) SizeOf() int {
 	return 142
-}
-
-// InterFile details the specifics of any interceptions
-// currently occurring on the Geoscape.
-type InterFile struct {
-	Interceptions []InterceptionData
-}
-
-func (if_ InterFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	for i := 0; i < maxCrafts; i++ {
-		data, err := restruct.Pack(order, &if_.Interceptions[i])
-		if err != nil {
-			return nil, err
-		}
-		offset := i * craftByteLength
-		for j := 0; j < len(data); j++ {
-			buf[offset+j] = data[j]
-		}
-	}
-	return buf, nil
 }
