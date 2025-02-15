@@ -2,7 +2,12 @@ package geoscape
 
 //go:generate stringer -type=LocationType -output=loc_dat_string.go -linecomment
 
-import "fmt"
+import (
+	"encoding/binary"
+	"fmt"
+
+	"github.com/go-restruct/restruct"
+)
 
 // LocFile provides location Data for bases and crafts
 //
@@ -12,6 +17,15 @@ import "fmt"
 // https://www.ufopaedia.org/index.php/LOC.DAT
 type LocFile struct {
 	Objects [50]LocationData
+}
+
+// Unpack implements the restruct.Unpacker interface.
+func (lf *LocFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	size, err := restruct.SizeOf(lf)
+	if err != nil {
+		return nil, err
+	}
+	return buf[size:], nil
 }
 
 type LocationData struct {
@@ -64,17 +78,17 @@ func (o LocationData) String() string {
 	return fmt.Sprintf("{%v %v}", o.Type, o.TableReference)
 }
 
-// LocationType is the the type of object for which a location is stored.
+// LocationType is the the type of object for which a location is stored in file LOC.DAT.
 type LocationType uint
 
 const (
-	Unused    LocationType = iota
-	AlienShip              // Alien Ship
-	XCOMShip               // X-COM Ship
-	XCOMBase               // X-COM Base
-	AlienBase              // Alien Base
-	CrashSite              // Crash Site
-	LandedUFO              // Landed UFO
-	Waypoint
-	TerrorSite
+	Unused     LocationType = iota
+	AlienShip               // Alien Ship
+	XCOMShip                // X-COM Ship
+	XCOMBase                // X-COM Base
+	AlienBase               // Alien Base
+	CrashSite               // Crash Site
+	LandedUFO               // Landed UFO
+	Waypoint                // Waypoint
+	TerrorSite              // Terror Site
 )
