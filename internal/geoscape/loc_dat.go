@@ -3,10 +3,7 @@ package geoscape
 //go:generate stringer -type=LocationType -output=loc_dat_string.go -linecomment
 
 import (
-	"encoding/binary"
 	"fmt"
-
-	"github.com/go-restruct/restruct"
 )
 
 // LocFile provides location Data for bases and crafts
@@ -17,15 +14,6 @@ import (
 // https://www.ufopaedia.org/index.php/LOC.DAT
 type LocFile struct {
 	Objects [50]LocationData
-}
-
-// Unpack implements the restruct.Unpacker interface.
-func (lf *LocFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	size, err := restruct.SizeOf(lf)
-	if err != nil {
-		return nil, err
-	}
-	return buf[size:], nil
 }
 
 type LocationData struct {

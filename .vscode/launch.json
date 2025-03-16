@@ -37,6 +37,19 @@
                 "group": "tools",
                 "order": 1
             }
+        },
+        {
+            "name": "world GAME_1",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/examples/world/main.go",
+            "args": ["-path", "${workspaceFolder}/GAME/GAME_1/"],
+            "presentation": {
+                "hidden": false,
+                "group": "tools",
+                "order": 1
+            }
         }
     ]
 }

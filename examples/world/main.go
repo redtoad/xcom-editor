@@ -32,36 +32,44 @@ func main() {
 
 	//green := color.NRGBA{0x00, 0x64, 0x3c, 192}
 	red := color.NRGBA{0xff, 0x0, 0x0, 192}
-	blue := color.NRGBA{0x0, 0x0, 0xff, 192}
+	//blue := color.NRGBA{0x0, 0x0, 0xff, 192}
+	green := color.NRGBA{0x0, 0xff, 0x0, 192}
 
 	g := globe.New()
 	g.DrawGraticule(10.0)
 	g.DrawLandBoundaries()
 
-	for _, loc := range locations.Objects {
+	for idx, loc := range locations.Objects {
 		coord := savegame.NewCoord(loc.X, loc.Y)
 		x, y := float64(coord.Lat), float64(coord.Lon)
+		log.Printf("%d: %v -> x=%v y=%v\n", idx, coord, x, y)
 		switch loc.Type {
 		case geoscape.XCOMBase:
 			log.Printf("BaseData: %s", coord)
-			//g.DrawDot(x, y, 0.1, globe.Color(green))
-		case geoscape.XCOMShip:
-			log.Printf("Ship: %s", coord)
-			g.DrawDot(x, y, 0.1, globe.Color(blue))
-		case geoscape.AlienShip:
-			log.Printf("UFO: %s", coord)
-			g.DrawDot(x, y, 0.05, globe.Color(red))
-		case geoscape.CrashSite:
-			log.Printf("Crash site: %s", coord)
-			g.DrawDot(x, y, 0.5, globe.Color(red))
+			g.DrawDot(x, y, 0.1, globe.Color(green))
+			/*
+				case geoscape.XCOMShip:
+					log.Printf("Ship: %s", coord)
+					g.DrawDot(x, y, 0.1, globe.Color(blue))
+				case geoscape.AlienShip:
+					log.Printf("UFO: %s", coord)
+					g.DrawDot(x, y, 0.05, globe.Color(red))
+				case geoscape.CrashSite:
+					log.Printf("Crash site: %s", coord)
+					g.DrawDot(x, y, 0.5, globe.Color(red))
+			*/
+
 		case geoscape.AlienBase:
 			log.Printf("Alien base: %s", coord)
-			g.DrawDot(x, y, 0.5, globe.Color(red))
-		case geoscape.LandedUFO:
-			log.Printf("UFO landed: %s", coord)
-		case geoscape.Waypoint:
-			log.Printf("Waypoint: %s", coord)
-
+			g.DrawDot(x, y, 0.1, globe.Color(red))
+			/*
+				case geoscape.LandedUFO:
+					log.Printf("UFO landed: %s", coord)
+				case geoscape.Waypoint:
+					log.Printf("Waypoint: %s", coord)
+			*/
+		default:
+			continue
 		}
 	}
 

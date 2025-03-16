@@ -19,9 +19,9 @@ func _() {
 	_ = x[TerrorSite-8]
 }
 
-const _LocationType_name = "UnusedAlien ShipX-COM ShipX-COM BaseAlien BaseCrash SiteLanded UFOWaypointTerrorSite"
+const _LocationType_name = "UnusedAlien ShipX-COM ShipX-COM BaseAlien BaseCrash SiteLanded UFOWaypointTerror Site"
 
-var _LocationType_index = [...]uint8{0, 6, 16, 26, 36, 46, 56, 66, 74, 84}
+var _LocationType_index = [...]uint8{0, 6, 16, 26, 36, 46, 56, 66, 74, 85}
 
 func (i LocationType) String() string {
 	if i >= LocationType(len(_LocationType_index)-1) {
