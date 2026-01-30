@@ -51,6 +51,46 @@ func (game *Savegame) saveCrafts() error {
 	return internal.SaveDATFile(filePath, game.craftsFile)
 }
 
+// Crafts returns all active craft (skipping EntryNotUsed slots).
+func (game *Savegame) Crafts() []*Craft {
+	crafts := make([]*Craft, 0)
+	for idx, data := range game.craftsFile.Crafts {
+		if data.Type == geoscape.EntryNotUsed {
+			continue
+		}
+		crafts = append(crafts, &Craft{
+			offset: idx,
+			game:   game,
+		})
+	}
+	return crafts
+}
+
+// Index returns the craft's index in CRAFT.DAT.
+func (c *Craft) Index() int {
+	return c.offset
+}
+
+// Type returns the craft type.
+func (c *Craft) Type() geoscape.CraftType {
+	return c.game.craftsFile.Crafts[c.offset].Type
+}
+
+// Status returns the craft status.
+func (c *Craft) Status() geoscape.CraftStatus {
+	return c.game.craftsFile.Crafts[c.offset].Status
+}
+
+// Damage returns the current damage amount.
+func (c *Craft) Damage() int {
+	return c.game.craftsFile.Crafts[c.offset].Damage
+}
+
+// Fuel returns the remaining fuel amount.
+func (c *Craft) Fuel() int {
+	return c.game.craftsFile.Crafts[c.offset].FuelAmountRemaining
+}
+
 func (game *Savegame) Craft(offset int) *Craft {
 	craft := game.craftsFile.Crafts[offset]
 	if craft.Type == geoscape.EntryNotUsed {

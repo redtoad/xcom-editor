@@ -13,6 +13,31 @@ type Base struct {
 	game   *Savegame
 }
 
+// Index returns the base's index in BASE.DAT.
+func (b *Base) Index() int {
+	return b.offset
+}
+
+// Active returns whether the base is active.
+func (b *Base) Active() bool {
+	return b.game.BasesData.Bases[b.offset].Active
+}
+
+// Engineers returns the number of engineers at this base.
+func (b *Base) Engineers() int {
+	return b.game.BasesData.Bases[b.offset].Engineers
+}
+
+// Scientists returns the number of scientists at this base.
+func (b *Base) Scientists() int {
+	return b.game.BasesData.Bases[b.offset].Scientists
+}
+
+// Inventory returns the inventory quantities for this base.
+func (b *Base) Inventory() [96]int {
+	return b.game.BasesData.Bases[b.offset].Inventory
+}
+
 func (b *Base) Name() string {
 	return b.game.BasesData.Bases[b.offset].Name.String()
 }

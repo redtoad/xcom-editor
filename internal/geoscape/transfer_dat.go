@@ -57,13 +57,13 @@ type TransferData struct {
 	HoursLeft int `struct:"int8"`
 
 	// Offset 3 (1 Byte) - Item Type. This also affects what can be used in the next offset. Possible/observed values:
-	Type int `stuct:"int8"`
+	Type int `struct:"int8"`
 
 	// Offset 4-5 (2 Bytes) - Reference number. The meaning of this value depends on the above Item Type value.
-	ReferenceNumber int `stuct:"int16"`
+	ReferenceNumber int `struct:"int16"`
 
 	// Offset 6 (1 Byte) - Quantity. Also the entry is ignored if this value is 0, thus there can be invalid data in the other entries but they will always have this byte set to 0.
-	Quantity int `stuct:"int8"`
+	Quantity int `struct:"int8"`
 }
 
 // SizeOf implements restruct.Sizer

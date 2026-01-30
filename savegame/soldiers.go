@@ -16,8 +16,102 @@ type Soldier struct {
 	offset int // offset in file SOLDIER.DAT
 }
 
+// Index returns the soldier's index in SOLDIER.DAT.
+func (s *Soldier) Index() int {
+	return s.offset
+}
+
 func (s *Soldier) Name() string {
 	return s.game.soldierFile.Soldiers[s.offset].Name.String()
+}
+
+// Data returns a pointer to the underlying soldier data for direct access.
+func (s *Soldier) Data() *geoscape.SoldierData {
+	return &s.game.soldierFile.Soldiers[s.offset]
+}
+
+// Missions returns the number of missions completed.
+func (s *Soldier) Missions() int {
+	return s.game.soldierFile.Soldiers[s.offset].Missions
+}
+
+// Kills returns the number of kills.
+func (s *Soldier) Kills() int {
+	return s.game.soldierFile.Soldiers[s.offset].Kills
+}
+
+// RecoveryDays returns the number of wound recovery days remaining.
+func (s *Soldier) RecoveryDays() int {
+	return s.game.soldierFile.Soldiers[s.offset].RecoveryDays
+}
+
+// TimeUnits returns total time units (initial + improvement).
+func (s *Soldier) TimeUnits() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return d.InitialTimeUnits + d.TimeUnitImprovement
+}
+
+// Health returns total health (initial + improvement).
+func (s *Soldier) Health() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return d.InitialHealth + d.HealthImprovement
+}
+
+// Energy returns total energy/stamina (initial + improvement).
+func (s *Soldier) Energy() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return d.InitialEnergy + d.EnergyImprovement
+}
+
+// Reactions returns total reactions (initial + improvement).
+func (s *Soldier) Reactions() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return d.InitialReactions + d.ReactionsImprovement
+}
+
+// Strength returns total strength (initial + improvement).
+func (s *Soldier) Strength() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return d.InitialStrength + d.StrengthImprovement
+}
+
+// FiringAccuracy returns total firing accuracy (initial + improvement).
+func (s *Soldier) FiringAccuracy() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return d.InitialFiringAccuracy + d.FiringAccuracyImprovement
+}
+
+// ThrowingAccuracy returns total throwing accuracy (initial + improvement).
+func (s *Soldier) ThrowingAccuracy() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return d.InitialThrowingAccuracy + d.ThrowingAccuracyImprovement
+}
+
+// MeleeAccuracy returns total melee accuracy (initial + improvement).
+func (s *Soldier) MeleeAccuracy() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return d.InitialMeleeAccuracy + d.MeleeAccuracyImprovement
+}
+
+// PsionicStrength returns psionic strength (never changes).
+func (s *Soldier) PsionicStrength() int {
+	return s.game.soldierFile.Soldiers[s.offset].InitialPsionicStrength
+}
+
+// PsionicSkill returns current psionic skill.
+func (s *Soldier) PsionicSkill() int {
+	return s.game.soldierFile.Soldiers[s.offset].InitialPsionicSkill
+}
+
+// Bravery returns bravery value (110 - 10*(initial - improvement)).
+func (s *Soldier) Bravery() int {
+	d := s.game.soldierFile.Soldiers[s.offset]
+	return 110 - 10*(d.InitialBravery-d.BraveryImprovement)
+}
+
+// Armor returns the soldier's current armor type.
+func (s *Soldier) Armor() geoscape.Armor {
+	return s.game.soldierFile.Soldiers[s.offset].Armor
 }
 
 type Rank int
