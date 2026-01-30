@@ -3,7 +3,11 @@
 /.nova/
 /.vscode/
 
-dist/
+/dist/
 *.png
 
+cmd/savegame-editor/frontend/node_modules/
+
 GAME/
+debug.log
+GOG_Galaxy_X-Com_UFO_Defense.exe

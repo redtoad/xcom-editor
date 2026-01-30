@@ -30,6 +30,11 @@ func (s *Soldier) Data() *geoscape.SoldierData {
 	return &s.game.soldierFile.Soldiers[s.offset]
 }
 
+// SetName sets the soldier's name.
+func (s *Soldier) SetName(name string) {
+	s.game.soldierFile.Soldiers[s.offset].Name = internal.NullString(name)
+}
+
 // Missions returns the number of missions completed.
 func (s *Soldier) Missions() int {
 	return s.game.soldierFile.Soldiers[s.offset].Missions
