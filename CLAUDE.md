@@ -2,7 +2,7 @@
 
 ## Branching
 
-- When starting a new task, always create a new branch with prefix `feature/` for new features and `fix/` for bugfixes.
+- When starting a new task, always create a new branch with prefix `feature/` for new features and `fix/` for bugfixes. Only create a new branch when working on `main` or `master`.
 
 ## Commits
 
