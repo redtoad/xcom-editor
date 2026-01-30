@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 
 	"github.com/go-restruct/restruct"
+	"github.com/redtoad/xcom-editor/internal"
 )
 
 const maxBases = 8
@@ -55,7 +56,7 @@ type BaseData struct {
 
     // 00-0E: BaseData Name, pretty obvious
     // 0F: Presumably the Null character if the BaseData Name uses all 15 characters
-	Name string `struct:"[16]byte"`
+	Name internal.NullString `struct:"[16]byte"`
 
 	// Logical values for the detection capabilities:
 	//
@@ -90,10 +91,12 @@ type BaseData struct {
 	// 60-11E inventory
 	Inventory [96]int `struct:"[96]int16"`
 
-    // 0120: Active/Inactive BaseData. Inactive entries have a value of 1. Active entries have a value of 0. Creating a new base will overwrite the first inactive entry. If a base is dismantled, the only change to the record is this value so it is possible to restore a dismantled base (Access lift removed) by restoring this value to 0. --SeulDragon 12:24, 11 July 2008 (PDT)
-	Active bool `struct:"int8,invertedbool"`
-
-	// 0121~0123: 0120 is stored as an integer. These fields are the unused portion of that integer.
+    // 0120-0123: Active/Inactive BaseData, stored as a 4-byte integer.
+	// Inactive entries have a value of 1. Active entries have a value of 0.
+	// Creating a new base will overwrite the first inactive entry. If a base is
+	// dismantled, the only change to the record is this value so it is possible
+	// to restore a dismantled base (Access lift removed) by restoring this value to 0.
+	Active bool `struct:"int32,invertedbool"`
 }
 
 

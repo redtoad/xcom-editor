@@ -37,3 +37,52 @@ func TestSaveinfoFile_Time(t *testing.T) {
 		})
 	}
 }
+
+func TestSaveinfoFile_Name(t *testing.T) {
+	tests := []struct {
+		hex  string
+		want string
+	}{
+		{
+			"01005465737400000000000000000000000000000000000000000000cf0703000d00040014000000",
+			"Test",
+		},
+		{
+			"010057656c6c206f6e20746865207761790000000000000000000000cf0703000e0002002f000000",
+			"Well on the way",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.hex, func(t *testing.T) {
+			data, err := loadHex(tt.hex)
+			assert.NoError(t, err)
+
+			var info geoscape.SaveinfoFile
+			err = restruct.Unpack(data, binary.LittleEndian, &info)
+			assert.NoError(t, err, "could not unpack test data: %v", err)
+
+			assert.Equal(t, tt.want, info.Name.String())
+		})
+	}
+}
+
+func TestSaveinfoFile_RoundTrip(t *testing.T) {
+	tests := []string{
+		"01005465737400000000000000000000000000000000000000000000cf0703000d00040014000000",
+		"010057656c6c206f6e20746865207761790000000000000000000000cf0703000e0002002f000000",
+	}
+	for _, hex := range tests {
+		t.Run(hex, func(t *testing.T) {
+			data, err := loadHex(hex)
+			assert.NoError(t, err)
+
+			var info geoscape.SaveinfoFile
+			err = restruct.Unpack(data, binary.LittleEndian, &info)
+			assert.NoError(t, err, "could not unpack test data: %v", err)
+
+			encoded, err := restruct.Pack(binary.LittleEndian, &info)
+			assert.NoError(t, err, "could not pack test data: %v", err)
+			assert.Equal(t, data, encoded)
+		})
+	}
+}

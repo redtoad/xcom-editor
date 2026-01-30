@@ -17,7 +17,7 @@ type Soldier struct {
 }
 
 func (s *Soldier) Name() string {
-	return s.game.soldierFile.Soldiers[s.offset].Name
+	return s.game.soldierFile.Soldiers[s.offset].Name.String()
 }
 
 type Rank int
@@ -65,7 +65,7 @@ func (s *Soldier) Craft() *Craft {
 
 func (s *Soldier) IsDead() bool {
 	data := s.game.soldierFile.Soldiers[s.offset]
-	return data.Rank == geoscape.DeadOrUnused && strings.TrimSpace(data.Name) != ""
+	return data.Rank == geoscape.DeadOrUnused && strings.TrimSpace(data.Name.String()) != ""
 }
 
 func (s *Soldier) IsWounded() bool {
@@ -106,7 +106,7 @@ func (game *Savegame) Soldiers() []*Soldier {
 		// When soldiers die, their Rank is set to geoscape.DeadOrUnused any can
 		// be overwritten. Therefore we assume that any non empty name marks a
 		// soldier's entry.
-		if data.Name == "" {
+		if data.Name.String() == "" {
 			continue
 		}
 		soldiers = append(soldiers, &Soldier{

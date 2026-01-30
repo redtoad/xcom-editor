@@ -70,6 +70,9 @@ func TestUnpackSoldier(t *testing.T) {
 			err = restruct.Unpack(data, binary.LittleEndian, &soldier)
 			assert.NoError(t, err, "could not unpack test data: %v", err)
 
+			assert.Equal(t, tt.expected.Name.String(), soldier.Name.String())
+			// Name carries null padding from binary data; normalize before struct comparison.
+			soldier.Name = tt.expected.Name
 			assert.Equal(t, tt.expected, soldier)
 
 		})

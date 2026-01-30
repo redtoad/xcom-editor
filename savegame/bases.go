@@ -14,7 +14,7 @@ type Base struct {
 }
 
 func (b *Base) Name() string {
-	return b.game.baseFile.Bases[b.offset].Name
+	return b.game.baseFile.Bases[b.offset].Name.String()
 }
 
 func (b *Base) Coord() Coord {
@@ -81,7 +81,7 @@ func (game *Savegame) CompleteConstructions() {
 
 func (game *Savegame) Base(offset int) *Base {
 	base := game.baseFile.Bases[offset]
-	if len(base.Name) > 0 {
+	if base.Name.String() != "" {
 		return &Base{
 			offset: offset,
 			game:   game,
@@ -93,7 +93,7 @@ func (game *Savegame) Base(offset int) *Base {
 func (game *Savegame) Bases() []*Base {
 	bases := make([]*Base, 0)
 	for idx, base := range game.baseFile.Bases {
-		if len(base.Name) > 0 {
+		if base.Name.String() != "" {
 			bases = append(bases, game.Base(idx))
 		}
 	}

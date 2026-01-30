@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/go-restruct/restruct"
+	"github.com/redtoad/xcom-editor/internal"
 )
 
 const maxSoldiers = 250
@@ -115,7 +116,7 @@ type SoldierData struct {
 	// stored directly instead of going through Windows objects. The end of the current
 	// name is a null byte; garbage can be present after that (ends of longer previous
 	// names, etc.).
-	Name string `struct:"[25]byte"`
+	Name internal.NullString `struct:"[25]byte"`
 
 	// 41 / 29 (various): Always 0 except for existing soldiers being transferred, in
 	// which case it equals the LOC.DAT value for destination base. New recruits on

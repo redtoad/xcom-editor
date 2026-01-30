@@ -1,17 +1,18 @@
 package internal
 
 import (
-	"encoding/binary"
 	"strings"
 )
 
-// NullString is a null byte terminated string.
+// NullString is a null byte terminated string. When read from binary data via
+// restruct, the full fixed-size byte field (including null bytes) is stored.
+// Use String() to get the value truncated at the first null byte.
 type NullString string
 
-// Unpack implements the restruct.Unpacker interface.
-func (s *NullString) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	str := string(buf)
-	nul := strings.IndexByte(str, 0x0)
-	*s = NullString(str[0:nul])
-	return []byte{}, nil
+// String returns the string value, truncated at the first null byte.
+func (s NullString) String() string {
+	if nul := strings.IndexByte(string(s), 0x0); nul >= 0 {
+		return string(s[:nul])
+	}
+	return string(s)
 }
