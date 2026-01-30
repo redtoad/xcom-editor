@@ -7,8 +7,8 @@ import (
 type Savegame struct {
 	Path          string
 	meta          geoscape.SaveinfoFile
-	FinancialData geoscape.LiglobFile
-	baseFile      geoscape.BaseFile
+	Financials    geoscape.LiglobFile
+	BasesData     geoscape.BaseFile
 	locationFile  geoscape.LocFile
 	soldierFile   geoscape.SoldierFile
 	transferFile  geoscape.TransferFile

@@ -6,11 +6,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/redtoad/xcom-editor/internal/geoscape"
-	"github.com/redtoad/xcom-editor/savegame"
 	"golang.org/x/text/currency"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+
+	"github.com/redtoad/xcom-editor/internal/geoscape"
+	"github.com/redtoad/xcom-editor/savegame"
 )
 
 func FinishAllConstructions(path string) {
@@ -42,7 +43,7 @@ func main() {
 			if no%6 == 0 {
 				println()
 			}
-			fmt.Print(cell.Tile())
+			fmt.Print(cell.String())
 		}
 		println()
 		fmt.Printf("%v\n", base.Grid)

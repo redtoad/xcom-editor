@@ -14,7 +14,7 @@ type Base struct {
 }
 
 func (b *Base) Name() string {
-	return b.game.baseFile.Bases[b.offset].Name.String()
+	return b.game.BasesData.Bases[b.offset].Name.String()
 }
 
 func (b *Base) Coord() Coord {
@@ -28,7 +28,7 @@ func (b *Base) Coord() Coord {
 }
 
 func (b *Base) Tiles() []BaseTile {
-	data := b.game.baseFile.Bases[b.offset]
+	data := b.game.BasesData.Bases[b.offset]
 	tiles := make([]BaseTile, 36)
 	for i := 0; i < 36; i++ {
 		tiles[i] = BaseTile{
@@ -40,7 +40,7 @@ func (b *Base) Tiles() []BaseTile {
 }
 
 func (b *Base) TileAt(x, y int) BaseTile {
-	data := b.game.baseFile.Bases[b.offset]
+	data := b.game.BasesData.Bases[b.offset]
 	tileNo := x + y*6
 	return BaseTile{
 		Type:             data.Grid[tileNo],
@@ -55,7 +55,7 @@ type BaseTile struct {
 
 func (game *Savegame) loadBases() error {
 	filePath := path.Join(game.Path, "BASE.DAT")
-	if err := internal.LoadDATFile(filePath, &game.baseFile); err != nil {
+	if err := internal.LoadDATFile(filePath, &game.BasesData); err != nil {
 		return fmt.Errorf("could not load BASE.DAT: %w", err)
 	}
 	return nil
@@ -63,13 +63,13 @@ func (game *Savegame) loadBases() error {
 
 func (game *Savegame) saveBases() error {
 	filePath := path.Join(game.Path, "BASE.DAT")
-	return internal.SaveDATFile(filePath, game.baseFile)
+	return internal.SaveDATFile(filePath, game.BasesData)
 }
 
-// CompleteConstructions will complete all ongoing constructions in all baseFile.
+// CompleteConstructions will complete all ongoing constructions in all BasesData.
 func (game *Savegame) CompleteConstructions() {
-	for b := 0; b < len(game.baseFile.Bases); b++ {
-		base := &game.baseFile.Bases[b]
+	for b := 0; b < len(game.BasesData.Bases); b++ {
+		base := &game.BasesData.Bases[b]
 		for i := 0; i < len(base.DaysToCompletion); i++ {
 			if base.DaysToCompletion[i] > 0 {
 				log.Printf("Complete construction of %v in %s.\n", base.Grid[i].String(), base.Name)
@@ -80,7 +80,7 @@ func (game *Savegame) CompleteConstructions() {
 }
 
 func (game *Savegame) Base(offset int) *Base {
-	base := game.baseFile.Bases[offset]
+	base := game.BasesData.Bases[offset]
 	if base.Name.String() != "" {
 		return &Base{
 			offset: offset,
@@ -92,7 +92,7 @@ func (game *Savegame) Base(offset int) *Base {
 
 func (game *Savegame) Bases() []*Base {
 	bases := make([]*Base, 0)
-	for idx, base := range game.baseFile.Bases {
+	for idx, base := range game.BasesData.Bases {
 		if base.Name.String() != "" {
 			bases = append(bases, game.Base(idx))
 		}
