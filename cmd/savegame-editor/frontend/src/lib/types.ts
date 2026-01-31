@@ -117,3 +117,10 @@ export interface Financials {
   maintenance: number[];
   balance: number[];
 }
+
+export interface GlobeLocation {
+  type: string;
+  typeCode: number;
+  name: string;
+  coord: { lat: number; lon: number };
+}

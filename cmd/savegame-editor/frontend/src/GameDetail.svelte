@@ -7,6 +7,7 @@
   import CraftList from './CraftList.svelte';
   import TransferList from './TransferList.svelte';
   import FinancialView from './FinancialView.svelte';
+  import GlobeView from './GlobeView.svelte';
 
   // Svelte reserves "slot" as a keyword, use a different prop name
   export let slot: string;
@@ -22,6 +23,7 @@
     { id: 'craft', label: 'Crafts' },
     { id: 'transfers', label: 'Transfers' },
     { id: 'financials', label: 'Financials' },
+    { id: 'globe', label: 'Globe' },
   ];
 
   async function load() {
@@ -81,6 +83,8 @@
       <TransferList gameSlot={slot} />
     {:else if activeTab === 'financials'}
       <FinancialView gameSlot={slot} />
+    {:else if activeTab === 'globe'}
+      <GlobeView gameSlot={slot} />
     {/if}
   </div>
 
