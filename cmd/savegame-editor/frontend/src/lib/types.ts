@@ -99,6 +99,7 @@ export interface CraftSummary {
   status: string;
   damage: number;
   fuel: number;
+  baseName: string;
 }
 
 export interface TransferSummary {

@@ -19,7 +19,7 @@
   const tabs = [
     { id: 'soldiers', label: 'Soldiers' },
     { id: 'bases', label: 'Bases' },
-    { id: 'craft', label: 'Craft' },
+    { id: 'craft', label: 'Crafts' },
     { id: 'transfers', label: 'Transfers' },
     { id: 'financials', label: 'Financials' },
   ];

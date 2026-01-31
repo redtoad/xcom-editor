@@ -92,6 +92,12 @@ func (c *Craft) Fuel() int {
 	return c.game.craftsFile.Crafts[c.offset].FuelAmountRemaining
 }
 
+// Base returns the base this craft is stationed at.
+func (c *Craft) Base() *Base {
+	baseRef := int(c.game.craftsFile.Crafts[c.offset].BaseReference)
+	return c.game.Base(baseRef)
+}
+
 func (game *Savegame) Craft(offset int) *Craft {
 	craft := game.craftsFile.Crafts[offset]
 	if craft.Type == geoscape.EntryNotUsed {

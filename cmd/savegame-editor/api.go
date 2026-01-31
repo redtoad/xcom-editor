@@ -442,23 +442,29 @@ func handleListCraft(w http.ResponseWriter, r *http.Request) {
 	sg := entry.sg
 
 	type craftSummary struct {
-		Index  int    `json:"index"`
-		Name   string `json:"name"`
-		Type   string `json:"type"`
-		Status string `json:"status"`
-		Damage int    `json:"damage"`
-		Fuel   int    `json:"fuel"`
+		Index    int    `json:"index"`
+		Name     string `json:"name"`
+		Type     string `json:"type"`
+		Status   string `json:"status"`
+		Damage   int    `json:"damage"`
+		Fuel     int    `json:"fuel"`
+		BaseName string `json:"baseName"`
 	}
 
 	result := make([]craftSummary, 0)
 	for _, c := range sg.Crafts() {
+		baseName := ""
+		if b := c.Base(); b != nil {
+			baseName = b.Name()
+		}
 		result = append(result, craftSummary{
-			Index:  c.Index(),
-			Name:   c.Name(),
-			Type:   c.Type().String(),
-			Status: c.Status().String(),
-			Damage: c.Damage(),
-			Fuel:   c.Fuel(),
+			Index:    c.Index(),
+			Name:     c.Name(),
+			Type:     c.Type().String(),
+			Status:   c.Status().String(),
+			Damage:   c.Damage(),
+			Fuel:     c.Fuel(),
+			BaseName: baseName,
 		})
 	}
 	writeJSON(w, result)

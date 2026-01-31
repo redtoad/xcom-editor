@@ -33,6 +33,7 @@
       <tr>
         <th>Name</th>
         <th>Type</th>
+        <th>Base</th>
         <th>Status</th>
         <th>Damage</th>
         <th>Fuel</th>
@@ -43,6 +44,7 @@
         <tr>
           <td class="name">{c.name}</td>
           <td>{c.type}</td>
+          <td>{c.baseName}</td>
           <td>
             <span class="badge" class:ready={c.status === 'Ready'}
               class:out={c.status === 'Out'}>{c.status}</span>
