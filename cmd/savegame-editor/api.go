@@ -13,6 +13,25 @@ import (
 	"github.com/redtoad/xcom-editor/savegame"
 )
 
+// armorToString converts a geoscape.Armor value to a display string.
+// NoArmor is mapped to "None" to match the frontend select options.
+var armorToString = map[geoscape.Armor]string{
+	geoscape.NoArmor:        "None",
+	geoscape.PersonalArmour: "Personal Armour",
+	geoscape.PowerSuit:      "Power Suit",
+	geoscape.FlyingSuit:     "Flying Suit",
+}
+
+// armorFromString converts a display string to a geoscape.Armor value.
+// Accepts both "None" and "NoArmor" for the no-armor case.
+var armorFromString = map[string]geoscape.Armor{
+	"None":            geoscape.NoArmor,
+	"NoArmor":         geoscape.NoArmor,
+	"Personal Armour": geoscape.PersonalArmour,
+	"Power Suit":      geoscape.PowerSuit,
+	"Flying Suit":     geoscape.FlyingSuit,
+}
+
 func writeJSON(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(v); err != nil {
@@ -169,7 +188,7 @@ func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
 				"psionicStrength":  s.PsionicStrength(),
 				"psionicSkill":     s.PsionicSkill(),
 				"bravery":          s.Bravery(),
-				"armor":            d.Armor.String(),
+				"armor":            armorToString[d.Armor],
 				"gender":           d.Sex.String(),
 				"appearance":       d.Appearance.String(),
 				// Initial stats for editing
@@ -246,14 +265,10 @@ func handleUpdateSoldier(w http.ResponseWriter, r *http.Request) {
 				d.InitialPsionicSkill = int(v.(float64))
 			}
 			if v, ok := updates["armor"]; ok {
-				armorMap := map[string]geoscape.Armor{
-					"None":            geoscape.NoArmor,
-					"Personal Armour": geoscape.PersonalArmour,
-					"Power Suit":      geoscape.PowerSuit,
-					"Flying Suit":     geoscape.FlyingSuit,
-				}
-				if a, found := armorMap[v.(string)]; found {
-					d.Armor = a
+				if s, isStr := v.(string); isStr {
+					if a, found := armorFromString[s]; found {
+						d.Armor = a
+					}
 				}
 			}
 			writeJSON(w, map[string]string{"status": "ok"})
