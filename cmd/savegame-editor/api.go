@@ -10,7 +10,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
-	"github.com/redtoad/xcom-editor/savegame"
 )
 
 // armorToString converts a geoscape.Armor value to a display string.
@@ -45,14 +44,14 @@ func writeError(w http.ResponseWriter, status int, msg string) {
 	json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
-func getGame(w http.ResponseWriter, r *http.Request) *savegame.Savegame {
+func getGameEntry(w http.ResponseWriter, r *http.Request) *gameEntry {
 	slot := mux.Vars(r)["slot"]
-	sg, ok := games[slot]
+	entry, ok := games[slot]
 	if !ok {
 		writeError(w, http.StatusNotFound, fmt.Sprintf("game %s not found", slot))
 		return nil
 	}
-	return sg
+	return entry
 }
 
 // GET /api/games
@@ -67,15 +66,17 @@ func handleListGames(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var result []gameSummary
-	for slot, sg := range games {
+	for slot, entry := range games {
+		entry.mu.RLock()
 		result = append(result, gameSummary{
 			Slot:         slot,
-			Title:        sg.Title(),
-			Time:         sg.Time().Format("2006-01-02 15:04"),
-			SoldierCount: len(sg.Soldiers()),
-			BaseCount:    len(sg.Bases()),
-			CraftCount:   len(sg.Crafts()),
+			Title:        entry.sg.Title(),
+			Time:         entry.sg.Time().Format("2006-01-02 15:04"),
+			SoldierCount: len(entry.sg.Soldiers()),
+			BaseCount:    len(entry.sg.Bases()),
+			CraftCount:   len(entry.sg.Crafts()),
 		})
+		entry.mu.RUnlock()
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].Slot < result[j].Slot })
 	writeJSON(w, result)
@@ -83,10 +84,13 @@ func handleListGames(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/games/{slot}
 func handleGetGame(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	sg := entry.sg
 	writeJSON(w, map[string]interface{}{
 		"slot":         mux.Vars(r)["slot"],
 		"title":        sg.Title(),
@@ -100,10 +104,13 @@ func handleGetGame(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/games/{slot}/soldiers
 func handleListSoldiers(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	sg := entry.sg
 
 	type soldierSummary struct {
 		Index     int    `json:"index"`
@@ -144,8 +151,8 @@ func handleListSoldiers(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/games/{slot}/soldiers/{idx}
 func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
 	idx, err := strconv.Atoi(mux.Vars(r)["idx"])
@@ -154,8 +161,11 @@ func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+
 	// Find soldier by index
-	for _, s := range sg.Soldiers() {
+	for _, s := range entry.sg.Soldiers() {
 		if s.Index() == idx {
 			baseName := ""
 			if b := s.Base(); b != nil {
@@ -226,8 +236,8 @@ type soldierUpdateRequest struct {
 
 // PUT /api/games/{slot}/soldiers/{idx}
 func handleUpdateSoldier(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
 	idx, err := strconv.Atoi(mux.Vars(r)["idx"])
@@ -242,7 +252,10 @@ func handleUpdateSoldier(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, s := range sg.Soldiers() {
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+
+	for _, s := range entry.sg.Soldiers() {
 		if s.Index() == idx {
 			if req.Name != nil {
 				s.SetName(*req.Name)
@@ -291,10 +304,13 @@ func handleUpdateSoldier(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/games/{slot}/bases
 func handleListBases(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	sg := entry.sg
 
 	type baseSummary struct {
 		Index      int    `json:"index"`
@@ -321,8 +337,8 @@ func handleListBases(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/games/{slot}/bases/{idx}
 func handleGetBase(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
 	idx, err := strconv.Atoi(mux.Vars(r)["idx"])
@@ -331,7 +347,10 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b := sg.Base(idx)
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+
+	b := entry.sg.Base(idx)
 	if b == nil {
 		writeError(w, http.StatusNotFound, "base not found")
 		return
@@ -377,8 +396,8 @@ type baseUpdateRequest struct {
 
 // PUT /api/games/{slot}/bases/{idx}
 func handleUpdateBase(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
 	idx, err := strconv.Atoi(mux.Vars(r)["idx"])
@@ -387,7 +406,10 @@ func handleUpdateBase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if idx < 0 || idx >= len(sg.BasesData.Bases) {
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+
+	if idx < 0 || idx >= len(entry.sg.BasesData.Bases) {
 		writeError(w, http.StatusNotFound, "base not found")
 		return
 	}
@@ -398,7 +420,7 @@ func handleUpdateBase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	base := &sg.BasesData.Bases[idx]
+	base := &entry.sg.BasesData.Bases[idx]
 	if req.Engineers != nil {
 		base.Engineers = *req.Engineers
 	}
@@ -411,10 +433,13 @@ func handleUpdateBase(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/games/{slot}/craft
 func handleListCraft(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	sg := entry.sg
 
 	type craftSummary struct {
 		Index  int    `json:"index"`
@@ -441,10 +466,13 @@ func handleListCraft(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/games/{slot}/transfers
 func handleListTransfers(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	sg := entry.sg
 
 	type transferSummary struct {
 		Index       int `json:"index"`
@@ -471,10 +499,13 @@ func handleListTransfers(w http.ResponseWriter, r *http.Request) {
 
 // GET /api/games/{slot}/financials
 func handleGetFinancials(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	sg := entry.sg
 	writeJSON(w, map[string]interface{}{
 		"currentBalance": sg.Financials.CurrentBalance,
 		"expenditure":    sg.Financials.Expenditure,
@@ -489,8 +520,8 @@ type financialsUpdateRequest struct {
 
 // PUT /api/games/{slot}/financials
 func handleUpdateFinancials(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
 	var req financialsUpdateRequest
@@ -498,49 +529,61 @@ func handleUpdateFinancials(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
+
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+
 	if req.CurrentBalance != nil {
-		sg.Financials.CurrentBalance = *req.CurrentBalance
+		entry.sg.Financials.CurrentBalance = *req.CurrentBalance
 	}
 	writeJSON(w, map[string]string{"status": "ok"})
 }
 
 // POST /api/games/{slot}/actions/heal-all
 func handleHealAll(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
-	sg.HealAllSoldiers()
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	entry.sg.HealAllSoldiers()
 	writeJSON(w, map[string]string{"status": "ok"})
 }
 
 // POST /api/games/{slot}/actions/complete-constructions
 func handleCompleteConstructions(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
-	sg.CompleteConstructions()
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	entry.sg.CompleteConstructions()
 	writeJSON(w, map[string]string{"status": "ok"})
 }
 
 // POST /api/games/{slot}/actions/speedup-deliveries
 func handleSpeedupDeliveries(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
-	sg.SpeedupDelivery()
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	entry.sg.SpeedupDelivery()
 	writeJSON(w, map[string]string{"status": "ok"})
 }
 
 // POST /api/games/{slot}/save
 func handleSave(w http.ResponseWriter, r *http.Request) {
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
-	if err := sg.Save(); err != nil {
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	if err := entry.sg.Save(); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -551,11 +594,13 @@ func handleSave(w http.ResponseWriter, r *http.Request) {
 // POST /api/games/{slot}/reload
 func handleReload(w http.ResponseWriter, r *http.Request) {
 	slot := mux.Vars(r)["slot"]
-	sg := getGame(w, r)
-	if sg == nil {
+	entry := getGameEntry(w, r)
+	if entry == nil {
 		return
 	}
-	if err := sg.Reload(); err != nil {
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	if err := entry.sg.Reload(); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

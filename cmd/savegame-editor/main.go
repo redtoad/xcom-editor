@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -31,8 +32,14 @@ var (
 //go:embed frontend/dist
 var frontendFS embed.FS
 
+// gameEntry holds a savegame and its synchronization mutex.
+type gameEntry struct {
+	sg *savegame.Savegame
+	mu sync.RWMutex
+}
+
 // games holds all loaded savegames indexed by slot name (e.g. "GAME_1").
-var games map[string]*savegame.Savegame
+var games map[string]*gameEntry
 
 // OpenURL opens the specified URL in the default browser.
 func OpenURL(url string) error {
@@ -68,7 +75,7 @@ func main() {
 	log.Printf("Savegame root: %s", root)
 
 	// Scan for GAME_1 through GAME_10
-	games = make(map[string]*savegame.Savegame)
+	games = make(map[string]*gameEntry)
 	for i := 1; i <= 10; i++ {
 		slot := fmt.Sprintf("GAME_%d", i)
 		gamePath := filepath.Join(root, slot)
@@ -80,7 +87,7 @@ func main() {
 			log.Printf("Warning: could not load %s: %v", slot, err)
 			continue
 		}
-		games[slot] = sg
+		games[slot] = &gameEntry{sg: sg}
 		log.Printf("Loaded %s: %s", slot, sg.Title())
 	}
 
