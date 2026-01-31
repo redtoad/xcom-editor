@@ -25,8 +25,8 @@ func (s *Soldier) Name() string {
 	return s.game.soldierFile.Soldiers[s.offset].Name.String()
 }
 
-// Data returns a pointer to the underlying soldier data for direct access.
-func (s *Soldier) Data() *geoscape.SoldierData {
+// data returns a pointer to the underlying soldier data for direct access.
+func (s *Soldier) data() *geoscape.SoldierData {
 	return &s.game.soldierFile.Soldiers[s.offset]
 }
 
@@ -118,6 +118,84 @@ func (s *Soldier) Bravery() int {
 func (s *Soldier) Armor() geoscape.Armor {
 	return s.game.soldierFile.Soldiers[s.offset].Armor
 }
+
+// SetArmor sets the soldier's armor type.
+func (s *Soldier) SetArmor(armor geoscape.Armor) {
+	s.game.soldierFile.Soldiers[s.offset].Armor = armor
+}
+
+// Gender returns the soldier's gender.
+func (s *Soldier) Gender() string {
+	return s.data().Sex.String()
+}
+
+// Appearance returns the soldier's appearance.
+func (s *Soldier) Appearance() string {
+	return s.data().Appearance.String()
+}
+
+// InitialTimeUnits returns the soldier's initial time units (before improvements).
+func (s *Soldier) InitialTimeUnits() int { return s.data().InitialTimeUnits }
+
+// InitialHealth returns the soldier's initial health (before improvements).
+func (s *Soldier) InitialHealth() int { return s.data().InitialHealth }
+
+// InitialEnergy returns the soldier's initial energy (before improvements).
+func (s *Soldier) InitialEnergy() int { return s.data().InitialEnergy }
+
+// InitialReactions returns the soldier's initial reactions (before improvements).
+func (s *Soldier) InitialReactions() int { return s.data().InitialReactions }
+
+// InitialStrength returns the soldier's initial strength (before improvements).
+func (s *Soldier) InitialStrength() int { return s.data().InitialStrength }
+
+// InitialFiringAccuracy returns the soldier's initial firing accuracy (before improvements).
+func (s *Soldier) InitialFiringAccuracy() int { return s.data().InitialFiringAccuracy }
+
+// InitialThrowingAccuracy returns the soldier's initial throwing accuracy (before improvements).
+func (s *Soldier) InitialThrowingAccuracy() int { return s.data().InitialThrowingAccuracy }
+
+// InitialMeleeAccuracy returns the soldier's initial melee accuracy (before improvements).
+func (s *Soldier) InitialMeleeAccuracy() int { return s.data().InitialMeleeAccuracy }
+
+// InitialPsionicStrength returns the soldier's initial psionic strength.
+func (s *Soldier) InitialPsionicStrength() int { return s.data().InitialPsionicStrength }
+
+// InitialPsionicSkill returns the soldier's initial psionic skill.
+func (s *Soldier) InitialPsionicSkill() int { return s.data().InitialPsionicSkill }
+
+// InitialBravery returns the soldier's initial bravery value.
+func (s *Soldier) InitialBravery() int { return s.data().InitialBravery }
+
+// SetInitialTimeUnits sets the soldier's initial time units.
+func (s *Soldier) SetInitialTimeUnits(v int) { s.data().InitialTimeUnits = v }
+
+// SetInitialHealth sets the soldier's initial health.
+func (s *Soldier) SetInitialHealth(v int) { s.data().InitialHealth = v }
+
+// SetInitialEnergy sets the soldier's initial energy.
+func (s *Soldier) SetInitialEnergy(v int) { s.data().InitialEnergy = v }
+
+// SetInitialReactions sets the soldier's initial reactions.
+func (s *Soldier) SetInitialReactions(v int) { s.data().InitialReactions = v }
+
+// SetInitialStrength sets the soldier's initial strength.
+func (s *Soldier) SetInitialStrength(v int) { s.data().InitialStrength = v }
+
+// SetInitialFiringAccuracy sets the soldier's initial firing accuracy.
+func (s *Soldier) SetInitialFiringAccuracy(v int) { s.data().InitialFiringAccuracy = v }
+
+// SetInitialThrowingAccuracy sets the soldier's initial throwing accuracy.
+func (s *Soldier) SetInitialThrowingAccuracy(v int) { s.data().InitialThrowingAccuracy = v }
+
+// SetInitialMeleeAccuracy sets the soldier's initial melee accuracy.
+func (s *Soldier) SetInitialMeleeAccuracy(v int) { s.data().InitialMeleeAccuracy = v }
+
+// SetInitialPsionicStrength sets the soldier's initial psionic strength.
+func (s *Soldier) SetInitialPsionicStrength(v int) { s.data().InitialPsionicStrength = v }
+
+// SetInitialPsionicSkill sets the soldier's initial psionic skill.
+func (s *Soldier) SetInitialPsionicSkill(v int) { s.data().InitialPsionicSkill = v }
 
 type Rank int
 

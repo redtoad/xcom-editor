@@ -165,7 +165,6 @@ func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
 			if c := s.Craft(); c != nil {
 				craftName = c.Name()
 			}
-			d := s.Data()
 			writeJSON(w, map[string]interface{}{
 				"index":            s.Index(),
 				"name":             s.Name(),
@@ -188,26 +187,41 @@ func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
 				"psionicStrength":  s.PsionicStrength(),
 				"psionicSkill":     s.PsionicSkill(),
 				"bravery":          s.Bravery(),
-				"armor":            armorToString[d.Armor],
-				"gender":           d.Sex.String(),
-				"appearance":       d.Appearance.String(),
+				"armor":            armorToString[s.Armor()],
+				"gender":           s.Gender(),
+				"appearance":       s.Appearance(),
 				// Initial stats for editing
-				"initialTimeUnits":        d.InitialTimeUnits,
-				"initialHealth":           d.InitialHealth,
-				"initialEnergy":           d.InitialEnergy,
-				"initialReactions":        d.InitialReactions,
-				"initialStrength":         d.InitialStrength,
-				"initialFiringAccuracy":   d.InitialFiringAccuracy,
-				"initialThrowingAccuracy": d.InitialThrowingAccuracy,
-				"initialMeleeAccuracy":    d.InitialMeleeAccuracy,
-				"initialPsionicStrength":  d.InitialPsionicStrength,
-				"initialPsionicSkill":     d.InitialPsionicSkill,
-				"initialBravery":          d.InitialBravery,
+				"initialTimeUnits":        s.InitialTimeUnits(),
+				"initialHealth":           s.InitialHealth(),
+				"initialEnergy":           s.InitialEnergy(),
+				"initialReactions":        s.InitialReactions(),
+				"initialStrength":         s.InitialStrength(),
+				"initialFiringAccuracy":   s.InitialFiringAccuracy(),
+				"initialThrowingAccuracy": s.InitialThrowingAccuracy(),
+				"initialMeleeAccuracy":    s.InitialMeleeAccuracy(),
+				"initialPsionicStrength":  s.InitialPsionicStrength(),
+				"initialPsionicSkill":     s.InitialPsionicSkill(),
+				"initialBravery":          s.InitialBravery(),
 			})
 			return
 		}
 	}
 	writeError(w, http.StatusNotFound, "soldier not found")
+}
+
+type soldierUpdateRequest struct {
+	Name                    *string `json:"name"`
+	InitialTimeUnits        *int    `json:"initialTimeUnits"`
+	InitialHealth           *int    `json:"initialHealth"`
+	InitialEnergy           *int    `json:"initialEnergy"`
+	InitialReactions        *int    `json:"initialReactions"`
+	InitialStrength         *int    `json:"initialStrength"`
+	InitialFiringAccuracy   *int    `json:"initialFiringAccuracy"`
+	InitialThrowingAccuracy *int    `json:"initialThrowingAccuracy"`
+	InitialMeleeAccuracy    *int    `json:"initialMeleeAccuracy"`
+	InitialPsionicStrength  *int    `json:"initialPsionicStrength"`
+	InitialPsionicSkill     *int    `json:"initialPsionicSkill"`
+	Armor                   *string `json:"armor"`
 }
 
 // PUT /api/games/{slot}/soldiers/{idx}
@@ -222,53 +236,50 @@ func handleUpdateSoldier(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var updates map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
+	var req soldierUpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
 
 	for _, s := range sg.Soldiers() {
 		if s.Index() == idx {
-			d := s.Data()
-			if v, ok := updates["name"]; ok {
-				s.SetName(v.(string))
+			if req.Name != nil {
+				s.SetName(*req.Name)
 			}
-			if v, ok := updates["initialTimeUnits"]; ok {
-				d.InitialTimeUnits = int(v.(float64))
+			if req.InitialTimeUnits != nil {
+				s.SetInitialTimeUnits(*req.InitialTimeUnits)
 			}
-			if v, ok := updates["initialHealth"]; ok {
-				d.InitialHealth = int(v.(float64))
+			if req.InitialHealth != nil {
+				s.SetInitialHealth(*req.InitialHealth)
 			}
-			if v, ok := updates["initialEnergy"]; ok {
-				d.InitialEnergy = int(v.(float64))
+			if req.InitialEnergy != nil {
+				s.SetInitialEnergy(*req.InitialEnergy)
 			}
-			if v, ok := updates["initialReactions"]; ok {
-				d.InitialReactions = int(v.(float64))
+			if req.InitialReactions != nil {
+				s.SetInitialReactions(*req.InitialReactions)
 			}
-			if v, ok := updates["initialStrength"]; ok {
-				d.InitialStrength = int(v.(float64))
+			if req.InitialStrength != nil {
+				s.SetInitialStrength(*req.InitialStrength)
 			}
-			if v, ok := updates["initialFiringAccuracy"]; ok {
-				d.InitialFiringAccuracy = int(v.(float64))
+			if req.InitialFiringAccuracy != nil {
+				s.SetInitialFiringAccuracy(*req.InitialFiringAccuracy)
 			}
-			if v, ok := updates["initialThrowingAccuracy"]; ok {
-				d.InitialThrowingAccuracy = int(v.(float64))
+			if req.InitialThrowingAccuracy != nil {
+				s.SetInitialThrowingAccuracy(*req.InitialThrowingAccuracy)
 			}
-			if v, ok := updates["initialMeleeAccuracy"]; ok {
-				d.InitialMeleeAccuracy = int(v.(float64))
+			if req.InitialMeleeAccuracy != nil {
+				s.SetInitialMeleeAccuracy(*req.InitialMeleeAccuracy)
 			}
-			if v, ok := updates["initialPsionicStrength"]; ok {
-				d.InitialPsionicStrength = int(v.(float64))
+			if req.InitialPsionicStrength != nil {
+				s.SetInitialPsionicStrength(*req.InitialPsionicStrength)
 			}
-			if v, ok := updates["initialPsionicSkill"]; ok {
-				d.InitialPsionicSkill = int(v.(float64))
+			if req.InitialPsionicSkill != nil {
+				s.SetInitialPsionicSkill(*req.InitialPsionicSkill)
 			}
-			if v, ok := updates["armor"]; ok {
-				if s, isStr := v.(string); isStr {
-					if a, found := armorFromString[s]; found {
-						d.Armor = a
-					}
+			if req.Armor != nil {
+				if a, found := armorFromString[*req.Armor]; found {
+					s.SetArmor(a)
 				}
 			}
 			writeJSON(w, map[string]string{"status": "ok"})
@@ -359,6 +370,11 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+type baseUpdateRequest struct {
+	Engineers  *int `json:"engineers"`
+	Scientists *int `json:"scientists"`
+}
+
 // PUT /api/games/{slot}/bases/{idx}
 func handleUpdateBase(w http.ResponseWriter, r *http.Request) {
 	sg := getGame(w, r)
@@ -376,18 +392,18 @@ func handleUpdateBase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var updates map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
+	var req baseUpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
 
 	base := &sg.BasesData.Bases[idx]
-	if v, ok := updates["engineers"]; ok {
-		base.Engineers = int(v.(float64))
+	if req.Engineers != nil {
+		base.Engineers = *req.Engineers
 	}
-	if v, ok := updates["scientists"]; ok {
-		base.Scientists = int(v.(float64))
+	if req.Scientists != nil {
+		base.Scientists = *req.Scientists
 	}
 
 	writeJSON(w, map[string]string{"status": "ok"})
@@ -467,19 +483,23 @@ func handleGetFinancials(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+type financialsUpdateRequest struct {
+	CurrentBalance *int32 `json:"currentBalance"`
+}
+
 // PUT /api/games/{slot}/financials
 func handleUpdateFinancials(w http.ResponseWriter, r *http.Request) {
 	sg := getGame(w, r)
 	if sg == nil {
 		return
 	}
-	var updates map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
+	var req financialsUpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
-	if v, ok := updates["currentBalance"]; ok {
-		sg.Financials.CurrentBalance = int32(v.(float64))
+	if req.CurrentBalance != nil {
+		sg.Financials.CurrentBalance = *req.CurrentBalance
 	}
 	writeJSON(w, map[string]string{"status": "ok"})
 }
