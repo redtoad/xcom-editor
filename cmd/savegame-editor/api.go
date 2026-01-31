@@ -597,6 +597,76 @@ func handleSave(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]string{"status": "ok"})
 }
 
+// GET /api/games/{slot}/locations
+func handleListLocations(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	sg := entry.sg
+
+	type coordJS struct {
+		Lat float32 `json:"lat"`
+		Lon float32 `json:"lon"`
+	}
+	type locationSummary struct {
+		Type     string  `json:"type"`
+		TypeCode int     `json:"typeCode"`
+		Name     string  `json:"name"`
+		Coord    coordJS `json:"coord"`
+	}
+
+	result := make([]locationSummary, 0)
+	for _, loc := range sg.Locations() {
+		var name string
+		switch loc.Type {
+		case geoscape.XCOMBase:
+			if b := sg.Base(loc.TableReference); b != nil {
+				name = b.Name()
+			} else {
+				name = "X-COM Base"
+			}
+		case geoscape.XCOMShip:
+			if c := sg.Craft(loc.TableReference); c != nil {
+				name = c.Name()
+			} else {
+				name = fmt.Sprintf("CRAFT-%d", loc.CountSuffix)
+			}
+		case geoscape.AlienShip:
+			craftDetail := ""
+			if c := sg.Craft(loc.TableReference); c != nil {
+				craftDetail = c.Type().String()
+			}
+			if craftDetail != "" {
+				name = fmt.Sprintf("UFO-%d (%s)", loc.CountSuffix, craftDetail)
+			} else {
+				name = fmt.Sprintf("UFO-%d", loc.CountSuffix)
+			}
+		case geoscape.AlienBase:
+			name = "Alien Base"
+		case geoscape.CrashSite:
+			name = fmt.Sprintf("Crash Site-%d", loc.CountSuffix)
+		case geoscape.LandedUFO:
+			name = fmt.Sprintf("Landed UFO-%d", loc.CountSuffix)
+		case geoscape.TerrorSite:
+			name = fmt.Sprintf("Terror Site-%d", loc.CountSuffix)
+		default:
+			name = loc.Type.String()
+		}
+
+		c := loc.Coord()
+		result = append(result, locationSummary{
+			Type:     loc.Type.String(),
+			TypeCode: int(loc.Type),
+			Name:     name,
+			Coord:    coordJS{Lat: c.Lat, Lon: c.Lon},
+		})
+	}
+	writeJSON(w, result)
+}
+
 // POST /api/games/{slot}/reload
 func handleReload(w http.ResponseWriter, r *http.Request) {
 	slot := mux.Vars(r)["slot"]

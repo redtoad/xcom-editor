@@ -41,3 +41,34 @@ func (game *Savegame) locationsForType(type_ geoscape.LocationType) []*LocationR
 	}
 	return data
 }
+
+// Location holds exported data for a single location entry from LOC.DAT.
+type Location struct {
+	Type           geoscape.LocationType
+	TableReference int
+	X, Y           int
+	CountSuffix    int
+}
+
+// Coord converts the location's game coordinates to GPS coordinates.
+func (loc *Location) Coord() Coord {
+	return NewCoord(loc.X, loc.Y)
+}
+
+// Locations returns all active locations, skipping Unused and Waypoint entries.
+func (game *Savegame) Locations() []Location {
+	locs := make([]Location, 0)
+	for _, obj := range game.locationFile.Objects {
+		if obj.Type == geoscape.Unused || obj.Type == geoscape.Waypoint {
+			continue
+		}
+		locs = append(locs, Location{
+			Type:           obj.Type,
+			TableReference: int(obj.TableReference),
+			X:              obj.X,
+			Y:              obj.Y,
+			CountSuffix:    obj.CountSuffix,
+		})
+	}
+	return locs
+}
