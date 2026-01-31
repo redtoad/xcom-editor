@@ -47,23 +47,23 @@ func (tf *TransferFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, erro
 
 type TransferData struct {
 
-    // BaseData the item is coming from (as indexed in LOC.DAT). 255 if the item is purchased and thus no base of origin
-	Origin int `struct:"int8"`
+    // BaseData the item is coming from (as indexed in LOC.DAT). 255 if the item is purchased and thus no base of origin.
+	Origin uint8 `struct:"uint8"`
 
-    // Destination the item is going to (again from LOC.DAT). 255 should not be used here
-	Destination int `struct:"int8"`
+    // Destination the item is going to (again from LOC.DAT). 255 should not be used here.
+	Destination uint8 `struct:"uint8"`
 
-	// HoursLeft in transit. NOTE: Setting this to 0 will make the game think it has been completed already
-	HoursLeft int `struct:"int8"`
+	// HoursLeft in transit. NOTE: Setting this to 0 will make the game think it has been completed already.
+	HoursLeft uint8 `struct:"uint8"`
 
-	// Offset 3 (1 Byte) - Item Type. This also affects what can be used in the next offset. Possible/observed values:
-	Type int `struct:"int8"`
+	// Offset 3 (1 Byte) - Item Type. This also affects what can be used in the next offset.
+	Type uint8 `struct:"uint8"`
 
 	// Offset 4-5 (2 Bytes) - Reference number. The meaning of this value depends on the above Item Type value.
 	ReferenceNumber int `struct:"int16"`
 
 	// Offset 6 (1 Byte) - Quantity. Also the entry is ignored if this value is 0, thus there can be invalid data in the other entries but they will always have this byte set to 0.
-	Quantity int `struct:"int8"`
+	Quantity uint8 `struct:"uint8"`
 }
 
 // SizeOf implements restruct.Sizer

@@ -20,22 +20,22 @@ func (t *Transfer) Index() int {
 
 // Origin returns the base index the item is coming from (255 = purchased).
 func (t *Transfer) Origin() int {
-	return t.game.transferFile.Transfers[t.offset].Origin
+	return int(t.game.transferFile.Transfers[t.offset].Origin)
 }
 
 // Destination returns the destination base index.
 func (t *Transfer) Destination() int {
-	return t.game.transferFile.Transfers[t.offset].Destination
+	return int(t.game.transferFile.Transfers[t.offset].Destination)
 }
 
 // HoursLeft returns the number of hours until delivery.
 func (t *Transfer) HoursLeft() int {
-	return t.game.transferFile.Transfers[t.offset].HoursLeft
+	return int(t.game.transferFile.Transfers[t.offset].HoursLeft)
 }
 
 // Type returns the item type being transferred.
 func (t *Transfer) Type() int {
-	return t.game.transferFile.Transfers[t.offset].Type
+	return int(t.game.transferFile.Transfers[t.offset].Type)
 }
 
 // ReferenceNumber returns the reference number (meaning depends on Type).
@@ -45,7 +45,7 @@ func (t *Transfer) ReferenceNumber() int {
 
 // Quantity returns the number of items being transferred.
 func (t *Transfer) Quantity() int {
-	return t.game.transferFile.Transfers[t.offset].Quantity
+	return int(t.game.transferFile.Transfers[t.offset].Quantity)
 }
 
 // Transfers returns all active transfers (where Quantity > 0).
