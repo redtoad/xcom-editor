@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -117,8 +118,8 @@ func main() {
 	fileServer := http.FileServer(http.FS(frontendContent))
 	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// If the path has no extension, serve index.html (SPA routing)
-		path := r.URL.Path
-		if path != "/" && !strings.Contains(filepath.Base(path), ".") {
+		p := r.URL.Path
+		if p != "/" && !strings.Contains(path.Base(p), ".") {
 			r.URL.Path = "/"
 		}
 		fileServer.ServeHTTP(w, r)
