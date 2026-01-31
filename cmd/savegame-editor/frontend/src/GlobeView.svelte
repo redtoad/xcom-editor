@@ -12,7 +12,7 @@
   let container: HTMLDivElement;
   let globe: ReturnType<typeof Globe> | null = null;
 
-  const EARTH_NIGHT_IMG = 'https://unpkg.com/globe.gl/example/img/earth-night.jpg';
+  const EARTH_NIGHT_IMG = '/earth-night.jpg';
 
   const colorMap: Record<number, string> = {
     3: '#00ff41', // X-COM Base
