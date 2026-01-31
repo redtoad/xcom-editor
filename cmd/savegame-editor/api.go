@@ -65,7 +65,7 @@ func handleListGames(w http.ResponseWriter, r *http.Request) {
 		CraftCount   int    `json:"craftCount"`
 	}
 
-	var result []gameSummary
+	result := make([]gameSummary, 0)
 	for slot, entry := range games {
 		entry.mu.RLock()
 		result = append(result, gameSummary{
@@ -124,7 +124,7 @@ func handleListSoldiers(w http.ResponseWriter, r *http.Request) {
 		Kills     int    `json:"kills"`
 	}
 
-	var result []soldierSummary
+	result := make([]soldierSummary, 0)
 	for _, s := range sg.Soldiers() {
 		baseName := ""
 		if b := s.Base(); b != nil {
@@ -321,7 +321,7 @@ func handleListBases(w http.ResponseWriter, r *http.Request) {
 		Coord      string `json:"coord"`
 	}
 
-	var result []baseSummary
+	result := make([]baseSummary, 0)
 	for _, b := range sg.Bases() {
 		result = append(result, baseSummary{
 			Index:      b.Index(),
@@ -450,7 +450,7 @@ func handleListCraft(w http.ResponseWriter, r *http.Request) {
 		Fuel   int    `json:"fuel"`
 	}
 
-	var result []craftSummary
+	result := make([]craftSummary, 0)
 	for _, c := range sg.Crafts() {
 		result = append(result, craftSummary{
 			Index:  c.Index(),
@@ -483,7 +483,7 @@ func handleListTransfers(w http.ResponseWriter, r *http.Request) {
 		Quantity    int `json:"quantity"`
 	}
 
-	var result []transferSummary
+	result := make([]transferSummary, 0)
 	for _, t := range sg.Transfers() {
 		result = append(result, transferSummary{
 			Index:       t.Index(),
