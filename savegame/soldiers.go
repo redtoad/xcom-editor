@@ -148,7 +148,7 @@ func (s *Soldier) Base() *Base {
 	return s.game.Base(baseNo)
 }
 
-const NoCraft = 0xffff
+const NoCraft = -1 //0xffff
 
 func (s *Soldier) Craft() *Craft {
 	currCraftNo := s.game.soldierFile.Soldiers[s.offset].Craft

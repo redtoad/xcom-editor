@@ -5,11 +5,23 @@ before:
   hooks:
     - go mod tidy
     - go generate ./...
+    - npm --prefix cmd/savegame-editor/frontend install
+    - npm --prefix cmd/savegame-editor/frontend run build
 
 builds:
   - id: "image-server"
     main: ./cmd/image-server/
     binary: image-server
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+
+  - id: "savegame-editor"
+    main: ./cmd/savegame-editor/
+    binary: savegame-editor
     env:
       - CGO_ENABLED=0
     goos:

@@ -2,9 +2,10 @@ package savegame
 
 import (
 	"fmt"
+	"path"
+
 	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
-	"path"
 )
 
 type Craft struct {
