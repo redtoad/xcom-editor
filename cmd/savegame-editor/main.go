@@ -61,12 +61,14 @@ func OpenURL(url string) error {
 
 func main() {
 	var port string
+	var host string
 	flag.StringVar(&port, "port", "8080", "port to run server on")
+	flag.StringVar(&host, "host", "127.0.0.1", "host address to bind to")
 	flag.Parse()
 
 	root := flag.Arg(0)
 	if root == "" {
-		fmt.Fprintln(os.Stderr, "Usage: savegame-editor [-port PORT] <savegame-root-folder>")
+		fmt.Fprintln(os.Stderr, "Usage: savegame-editor [-port PORT] [-host HOST] <savegame-root-folder>")
 		os.Exit(1)
 	}
 
@@ -133,7 +135,7 @@ func main() {
 	})
 
 	srv := &http.Server{
-		Addr:         "0.0.0.0:" + port,
+		Addr:         host + ":" + port,
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
