@@ -612,10 +612,11 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 		Lon float32 `json:"lon"`
 	}
 	type locationSummary struct {
-		Type     string  `json:"type"`
-		TypeCode int     `json:"typeCode"`
-		Name     string  `json:"name"`
-		Coord    coordJS `json:"coord"`
+		Type      string   `json:"type"`
+		TypeCode  int      `json:"typeCode"`
+		Name      string   `json:"name"`
+		Coord     coordJS  `json:"coord"`
+		DestCoord *coordJS `json:"destCoord,omitempty"`
 	}
 
 	result := make([]locationSummary, 0)
@@ -657,12 +658,22 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 		}
 
 		c := loc.Coord()
-		result = append(result, locationSummary{
+		summary := locationSummary{
 			Type:     loc.Type.String(),
 			TypeCode: int(loc.Type),
 			Name:     name,
 			Coord:    coordJS{Lat: c.Lat, Lon: c.Lon},
-		})
+		}
+
+		if loc.Type == geoscape.XCOMShip || loc.Type == geoscape.AlienShip {
+			if craft := sg.Craft(loc.TableReference); craft != nil {
+				if dest := craft.Destination(); dest != nil {
+					summary.DestCoord = &coordJS{Lat: dest.Lat, Lon: dest.Lon}
+				}
+			}
+		}
+
+		result = append(result, summary)
 	}
 	writeJSON(w, result)
 }

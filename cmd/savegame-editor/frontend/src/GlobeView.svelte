@@ -55,6 +55,7 @@
       error = '';
       if (globe) {
         globe.pointsData(locations);
+        globe.arcsData(locations.filter(d => d.destCoord));
       }
     } catch (e: any) {
       error = e.message;
@@ -92,7 +93,18 @@
       .pointColor(pointColor as any)
       .pointRadius(pointRadius as any)
       .pointAltitude(0.01)
-      .pointLabel(pointLabel as any);
+      .pointLabel(pointLabel as any)
+      .arcsData(locations.filter(d => d.destCoord))
+      .arcStartLat((d: any) => d.coord.lat)
+      .arcStartLng((d: any) => d.coord.lon)
+      .arcEndLat((d: any) => d.destCoord.lat)
+      .arcEndLng((d: any) => d.destCoord.lon)
+      .arcColor(pointColor as any)
+      .arcStroke(0.5)
+      .arcDashLength(0.4)
+      .arcDashGap(0.2)
+      .arcDashAnimateTime(1500)
+      .arcLabel(pointLabel as any);
 
     // Add a translucent inner sphere for the back-side visibility
     const scene = globe.scene();

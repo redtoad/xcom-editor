@@ -98,6 +98,27 @@ func (c *Craft) Base() *Base {
 	return c.game.Base(baseRef)
 }
 
+// Speed returns the craft's current speed.
+func (c *Craft) Speed() int {
+	return c.game.craftsFile.Crafts[c.offset].Speed
+}
+
+// Destination returns the GPS coordinate of the craft's destination,
+// or nil if the craft is stationary (speed 0 or no destination set).
+func (c *Craft) Destination() *Coord {
+	data := c.game.craftsFile.Crafts[c.offset]
+	if data.Speed == 0 || data.FlightMode == geoscape.NoDestination {
+		return nil
+	}
+	idx := data.Destination
+	if idx < 0 || idx >= len(c.game.locationFile.Objects) {
+		return nil
+	}
+	dest := c.game.locationFile.Objects[idx]
+	coord := NewCoord(dest.X, dest.Y)
+	return &coord
+}
+
 func (game *Savegame) Craft(offset int) *Craft {
 	craft := game.craftsFile.Crafts[offset]
 	if craft.Type == geoscape.EntryNotUsed {

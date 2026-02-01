@@ -123,4 +123,5 @@ export interface GlobeLocation {
   typeCode: number;
   name: string;
   coord: { lat: number; lon: number };
+  destCoord?: { lat: number; lon: number };
 }

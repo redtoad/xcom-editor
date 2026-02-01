@@ -20,6 +20,19 @@ declare module 'globe.gl' {
     pointAltitude(accessor: string | ((d: any) => number)): GlobeInstance;
     pointLabel(accessor: string | ((d: any) => string)): GlobeInstance;
 
+    // Arcs layer
+    arcsData(data: object[]): GlobeInstance;
+    arcStartLat(accessor: string | ((d: any) => number)): GlobeInstance;
+    arcStartLng(accessor: string | ((d: any) => number)): GlobeInstance;
+    arcEndLat(accessor: string | ((d: any) => number)): GlobeInstance;
+    arcEndLng(accessor: string | ((d: any) => number)): GlobeInstance;
+    arcColor(accessor: string | ((d: any) => string)): GlobeInstance;
+    arcLabel(accessor: string | ((d: any) => string)): GlobeInstance;
+    arcStroke(width: number | ((d: any) => number)): GlobeInstance;
+    arcDashLength(length: number | ((d: any) => number)): GlobeInstance;
+    arcDashGap(gap: number | ((d: any) => number)): GlobeInstance;
+    arcDashAnimateTime(ms: number | ((d: any) => number)): GlobeInstance;
+
     // Camera
     pointOfView(pov: { lat?: number; lng?: number; altitude?: number }, transitionMs?: number): GlobeInstance;
 
