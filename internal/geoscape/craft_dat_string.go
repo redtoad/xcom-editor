@@ -28,10 +28,11 @@ const _CraftType_name = "SkyrangerLightningAvengerInterceptorFirestormsmall scou
 var _CraftType_index = [...]uint8{0, 9, 18, 25, 36, 45, 56, 68, 79, 88, 96, 107, 117, 128}
 
 func (i CraftType) String() string {
-	if i < 0 || i >= CraftType(len(_CraftType_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_CraftType_index)-1 {
 		return "CraftType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _CraftType_name[_CraftType_index[i]:_CraftType_index[i+1]]
+	return _CraftType_name[_CraftType_index[idx]:_CraftType_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -49,10 +50,11 @@ const _Altitude_name = "Groundvery lowLowHighvery high"
 var _Altitude_index = [...]uint8{0, 6, 14, 17, 21, 30}
 
 func (i Altitude) String() string {
-	if i < 0 || i >= Altitude(len(_Altitude_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_Altitude_index)-1 {
 		return "Altitude(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _Altitude_name[_Altitude_index[i]:_Altitude_index[i+1]]
+	return _Altitude_name[_Altitude_index[idx]:_Altitude_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -68,10 +70,11 @@ const _FlightMode_name = "No destination set (at base)Single destinationMultiple
 var _FlightMode_index = [...]uint8{0, 28, 46, 78}
 
 func (i FlightMode) String() string {
-	if i < 0 || i >= FlightMode(len(_FlightMode_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_FlightMode_index)-1 {
 		return "FlightMode(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _FlightMode_name[_FlightMode_index[i]:_FlightMode_index[i+1]]
+	return _FlightMode_name[_FlightMode_index[idx]:_FlightMode_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -90,10 +93,11 @@ const _WeaponType_name = "StingrayAvalancheCannonfusion balllaser cannonplasma b
 var _WeaponType_index = [...]uint8{0, 8, 17, 23, 34, 46, 57}
 
 func (i WeaponType) String() string {
-	if i < 0 || i >= WeaponType(len(_WeaponType_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_WeaponType_index)-1 {
 		return "WeaponType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _WeaponType_name[_WeaponType_index[i]:_WeaponType_index[i+1]]
+	return _WeaponType_name[_WeaponType_index[idx]:_WeaponType_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -114,10 +118,11 @@ const _MissionType_name = "Alien ResearchAlien HarvestAlien AbductionAlien Infil
 var _MissionType_index = [...]uint8{0, 14, 27, 42, 60, 70, 82, 99, 111}
 
 func (i MissionType) String() string {
-	if i < 0 || i >= MissionType(len(_MissionType_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_MissionType_index)-1 {
 		return "MissionType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _MissionType_name[_MissionType_index[i]:_MissionType_index[i+1]]
+	return _MissionType_name[_MissionType_index[idx]:_MissionType_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -145,10 +150,11 @@ const _MissionZone_name = "North AmericaArcticAntarcticaSouth AmericaEuropeNorth
 var _MissionZone_index = [...]uint8{0, 13, 19, 29, 42, 48, 60, 75, 87, 102, 109, 120, 127, 150, 173, 194}
 
 func (i MissionZone) String() string {
-	if i < 0 || i >= MissionZone(len(_MissionZone_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_MissionZone_index)-1 {
 		return "MissionZone(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _MissionZone_name[_MissionZone_index[i]:_MissionZone_index[i+1]]
+	return _MissionZone_name[_MissionZone_index[idx]:_MissionZone_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -166,8 +172,9 @@ const _CraftStatus_name = "ReadyOutRepairsRefuelingRearming"
 var _CraftStatus_index = [...]uint8{0, 5, 8, 15, 24, 32}
 
 func (i CraftStatus) String() string {
-	if i < 0 || i >= CraftStatus(len(_CraftStatus_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_CraftStatus_index)-1 {
 		return "CraftStatus(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _CraftStatus_name[_CraftStatus_index[i]:_CraftStatus_index[i+1]]
+	return _CraftStatus_name[_CraftStatus_index[idx]:_CraftStatus_index[idx+1]]
 }

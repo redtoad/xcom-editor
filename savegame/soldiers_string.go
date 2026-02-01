@@ -21,8 +21,9 @@ const _Rank_name = "RookieSquaddieSergeantCaptainColonelCommander"
 var _Rank_index = [...]uint8{0, 6, 14, 22, 29, 36, 45}
 
 func (i Rank) String() string {
-	if i < 0 || i >= Rank(len(_Rank_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_Rank_index)-1 {
 		return "Rank(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _Rank_name[_Rank_index[i]:_Rank_index[i+1]]
+	return _Rank_name[_Rank_index[idx]:_Rank_index[idx+1]]
 }

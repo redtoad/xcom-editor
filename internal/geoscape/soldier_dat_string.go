@@ -22,11 +22,11 @@ const _Rank_name = "Dead or UnusedRookieSquaddieSergeantCaptainColonelCommander"
 var _Rank_index = [...]uint8{0, 14, 20, 28, 36, 43, 50, 59}
 
 func (i Rank) String() string {
-	i -= -1
-	if i < 0 || i >= Rank(len(_Rank_index)-1) {
-		return "Rank(" + strconv.FormatInt(int64(i+-1), 10) + ")"
+	idx := int(i) - -1
+	if i < -1 || idx >= len(_Rank_index)-1 {
+		return "Rank(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _Rank_name[_Rank_index[i]:_Rank_index[i+1]]
+	return _Rank_name[_Rank_index[idx]:_Rank_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -51,10 +51,11 @@ const _Armor_name = "NoArmorPersonal ArmourPower SuitFlying SuitSectoid ArmourSn
 var _Armor_index = [...]uint8{0, 7, 22, 32, 43, 57, 72, 87, 99, 113, 127, 142, 159}
 
 func (i Armor) String() string {
-	if i < 0 || i >= Armor(len(_Armor_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_Armor_index)-1 {
 		return "Armor(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _Armor_name[_Armor_index[i]:_Armor_index[i+1]]
+	return _Armor_name[_Armor_index[idx]:_Armor_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -69,10 +70,11 @@ const _Gender_name = "MaleFemale"
 var _Gender_index = [...]uint8{0, 4, 10}
 
 func (i Gender) String() string {
-	if i < 0 || i >= Gender(len(_Gender_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_Gender_index)-1 {
 		return "Gender(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _Gender_name[_Gender_index[i]:_Gender_index[i+1]]
+	return _Gender_name[_Gender_index[idx]:_Gender_index[idx+1]]
 }
 func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
@@ -89,8 +91,9 @@ const _Appearance_name = "BlondeBrown HairOrientalAfrican"
 var _Appearance_index = [...]uint8{0, 6, 16, 24, 31}
 
 func (i Appearance) String() string {
-	if i < 0 || i >= Appearance(len(_Appearance_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_Appearance_index)-1 {
 		return "Appearance(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _Appearance_name[_Appearance_index[i]:_Appearance_index[i+1]]
+	return _Appearance_name[_Appearance_index[idx]:_Appearance_index[idx+1]]
 }
