@@ -636,12 +636,8 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 				name = fmt.Sprintf("CRAFT-%d", loc.CountSuffix)
 			}
 		case geoscape.AlienShip:
-			craftDetail := ""
 			if c := sg.Craft(loc.TableReference); c != nil {
-				craftDetail = c.Type().String()
-			}
-			if craftDetail != "" {
-				name = fmt.Sprintf("UFO-%d (%s)", loc.CountSuffix, craftDetail)
+				name = fmt.Sprintf("UFO-%d (%s, %s)", loc.CountSuffix, c.Type(), c.MissionType())
 			} else {
 				name = fmt.Sprintf("UFO-%d", loc.CountSuffix)
 			}
@@ -669,6 +665,8 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 			if craft := sg.Craft(loc.TableReference); craft != nil {
 				if dest := craft.Destination(); dest != nil {
 					summary.DestCoord = &coordJS{Lat: dest.Lat, Lon: dest.Lon}
+				} else if wp := craft.NextWaypoint(); wp != nil {
+					summary.DestCoord = &coordJS{Lat: wp.Lat, Lon: wp.Lon}
 				}
 			}
 		}

@@ -119,6 +119,30 @@ func (c *Craft) Destination() *Coord {
 	return &coord
 }
 
+// NextWaypoint returns the GPS coordinate of the craft's next UFO waypoint,
+// or nil if the craft is stationary or has no waypoint set.
+func (c *Craft) NextWaypoint() *Coord {
+	data := c.game.craftsFile.Crafts[c.offset]
+	if data.Speed == 0 || data.FlightMode == geoscape.NoDestination {
+		return nil
+	}
+	if data.NextUFOWaypointLon == 0 && data.NextUFOWaypointLat == 0 {
+		return nil
+	}
+	coord := NewCoord(data.NextUFOWaypointLon, data.NextUFOWaypointLat)
+	return &coord
+}
+
+// MissionType returns the mission type string for this craft.
+func (c *Craft) MissionType() string {
+	return c.game.craftsFile.Crafts[c.offset].MissionType.String()
+}
+
+// MissionZone returns the mission zone string for this craft.
+func (c *Craft) MissionZone() string {
+	return c.game.craftsFile.Crafts[c.offset].MissionZone.String()
+}
+
 func (game *Savegame) Craft(offset int) *Craft {
 	craft := game.craftsFile.Crafts[offset]
 	if craft.Type == geoscape.EntryNotUsed {
