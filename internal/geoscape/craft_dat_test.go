@@ -18,7 +18,28 @@ func Test_CRAFT_DAT_Unpack(t *testing.T) {
 	data := loadCRAFT_DAT()
 	err := restruct.Unpack(data, binary.LittleEndian, &obj)
 	require.NoError(t, err)
-	assert.EqualValues(t, 8, len(obj.Crafts), "numbers don't match")
+	assert.EqualValues(t, 50, len(obj.Crafts), "should have all 50 slots")
+	// First 8 entries have valid craft types, rest are EntryNotUsed
+	for i := 0; i < 8; i++ {
+		assert.NotEqual(t, geoscape.EntryNotUsed, obj.Crafts[i].Type, "craft %d should be active", i)
+	}
+	for i := 8; i < 50; i++ {
+		assert.Equal(t, geoscape.CraftType(geoscape.EntryNotUsed), obj.Crafts[i].Type, "craft %d should be unused", i)
+	}
+}
+
+func Test_CRAFT_DAT_RoundTrip(t *testing.T) {
+	data := loadCRAFT_DAT()
+
+	var obj geoscape.CraftFile
+	_, err := obj.Unpack(data, binary.LittleEndian)
+	require.NoError(t, err)
+	require.Equal(t, 50, len(obj.Crafts), "should have 50 crafts after unpack")
+
+	encoded := make([]byte, obj.SizeOf())
+	_, err = obj.Pack(encoded, binary.LittleEndian)
+	require.NoError(t, err)
+	assert.Equal(t, data, encoded, "round-trip should produce identical bytes")
 }
 
 func stripWhitespace(str string) string {

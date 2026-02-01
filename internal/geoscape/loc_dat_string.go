@@ -24,8 +24,9 @@ const _LocationType_name = "UnusedAlien ShipX-COM ShipX-COM BaseAlien BaseCrash 
 var _LocationType_index = [...]uint8{0, 6, 16, 26, 36, 46, 56, 66, 74, 84}
 
 func (i LocationType) String() string {
-	if i >= LocationType(len(_LocationType_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_LocationType_index)-1 {
 		return "LocationType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _LocationType_name[_LocationType_index[i]:_LocationType_index[i+1]]
+	return _LocationType_name[_LocationType_index[idx]:_LocationType_index[idx+1]]
 }
