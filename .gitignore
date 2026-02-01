@@ -4,6 +4,8 @@
 /.vscode/
 
 /dist/
+/cmd/**/dist/
+
 *.png
 
 cmd/savegame-editor/frontend/node_modules/
