@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X-COM Savegame Editor</title>
+  <script type="module" crossorigin src="/assets/index-CTR1qmsZ.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CrskB67L.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    // Polyfill GPUShaderStage for browsers without WebGPU support.
+    // three.js's webgpu build reads GPUShaderStage at module load time;
+    // without this stub the import crashes before any code runs.
+    if (typeof GPUShaderStage === 'undefined') {
+      window.GPUShaderStage = { VERTEX: 1, FRAGMENT: 2, COMPUTE: 4 };
+    }
+  </script>
+</body>
+</html>
