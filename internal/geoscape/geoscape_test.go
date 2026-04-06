@@ -88,6 +88,16 @@ func TestFileUnpackingAndPackingIsBinaryIdentical(t *testing.T) {
 			obj:  &geoscape.TransferFile{},
 			data: testFile_TRANSFER_DAT,
 		},
+		{
+			name: "IGLOB.DAT",
+			obj:  &geoscape.IglobFile{},
+			data: testFile_IGLOB_DAT,
+		},
+		{
+			name: "ALIEN.DAT",
+			obj:  &geoscape.AlienFile{},
+			data: testFile_ALIEN_DAT,
+		},
 	}
 
 	for _, tc := range tt {
