@@ -1,9 +1,12 @@
 package geoscape_test
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
+	"os"
 	"strings"
 	"testing"
 	"unicode"
@@ -12,7 +15,7 @@ import (
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 )
 
-// MustLoadFromBase64 loads a file content from a hex-encoded string.
+// MustLoadFromHex loads a file content from a hex-encoded string.
 func MustLoadFromHex(str string) []byte {
 	txt := strings.Map(func(r rune) rune {
 		if unicode.IsSpace(r) {
@@ -38,22 +41,22 @@ func MustLoadFromBase64(base64String string) []byte {
 	return buffer
 }
 
-func TestFileUnpacking(t *testing.T) {
+func TestFileUnpackingAndPackingIsBinaryIdentical(t *testing.T) {
 
 	tt := []struct {
 		name string
-		obj  restruct.Unpacker
+		obj  any
 		data string
 	}{
-		{
-			name: "BASE.DAT",
-			obj:  &geoscape.BaseFile{},
-			data: testFile_BASE_DAT,
-		},
 		{
 			name: "CRAFT.DAT",
 			obj:  &geoscape.CraftFile{},
 			data: testFile_CRAFT_DAT,
+		},
+		{
+			name: "BASE.DAT",
+			obj:  &geoscape.BaseFile{},
+			data: testFile_BASE_DAT,
 		},
 		{
 			name: "INTER.DAT",
@@ -64,6 +67,11 @@ func TestFileUnpacking(t *testing.T) {
 			name: "LOC.DAT",
 			obj:  &geoscape.LocFile{},
 			data: testFile_LOC_DAT,
+		},
+		{
+			name: "SAVEINFO.DAT",
+			obj:  &geoscape.SaveinfoFile{},
+			data: testFile_SAVEINFO_DAT,
 		},
 		{
 			name: "SOLDIER.DAT",
@@ -80,12 +88,28 @@ func TestFileUnpacking(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			buffer := MustLoadFromBase64(tc.data)
-			remaining, err := tc.obj.Unpack(buffer, binary.LittleEndian)
-			if err != nil {
+
+			if err := restruct.Unpack(buffer, binary.LittleEndian, tc.obj); err != nil {
 				t.Fatalf("could not unpack %T: %v", tc.obj, err)
 			}
-			if len(remaining) != 0 {
-				t.Errorf("expected no remaining bytes, got %d", len(remaining))
+
+			packed, err := restruct.Pack(binary.LittleEndian, tc.obj)
+			if err != nil {
+				t.Fatalf("could not pack %T: %v", tc.obj, err)
+			}
+			if !bytes.Equal(buffer, packed) {
+				t.Errorf("re-packed data does not match original data")
+				fmt.Println("Original:", hex.Dump(buffer))
+				fmt.Println("Re-packed:", hex.Dump(packed))
+
+				// dump contents of buffer and packed to files for manual inspection
+				if err := os.WriteFile(fmt.Sprintf("%s_original.bin", tc.name), buffer, 0644); err != nil {
+					t.Fatalf("could not write original data to file: %v", err)
+				}
+				if err := os.WriteFile(fmt.Sprintf("%s_repacked.bin", tc.name), packed, 0644); err != nil {
+					t.Fatalf("could not write re-packed data to file: %v", err)
+				}
+
 			}
 		})
 	}

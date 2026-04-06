@@ -19,13 +19,13 @@ type InterFile struct {
 
 // Pack implements the restruct.Packer interface.
 func (if_ InterFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	for i := 0; i < maxCrafts; i++ {
+	for i := range maxInterceptions {
 		data, err := restruct.Pack(order, &if_.Interceptions[i])
 		if err != nil {
 			return nil, err
 		}
-		offset := i * craftByteLength
-		for j := 0; j < len(data); j++ {
+		offset := i * interceptionByteLength
+		for j := range data {
 			buf[offset+j] = data[j]
 		}
 	}
@@ -35,7 +35,7 @@ func (if_ InterFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 // Unpack implements the restruct.Unpacker interface.
 func (s *InterFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	s.Interceptions = make([]InterceptionData, maxInterceptions)
-	for i := 0; i < maxInterceptions; i++ {
+	for i := range maxInterceptions {
 		offset := i * interceptionByteLength
 		data := buf[offset : offset+interceptionByteLength]
 		if err := restruct.Unpack(data, order, &s.Interceptions[i]); err != nil {
@@ -97,6 +97,7 @@ type InterceptionData struct {
 	// 0x82 (dword): pointer to attacking craft right weapon stats offset
 	// 0x86 (dword): pointer to CRAFT.DAT offset of the attacked UFO
 	// 0x8A (dword): pointer to UFO stats offset
+	RawData [141]byte `struct:"[141]uint8"`
 }
 
 // SizeOf implemtents the restruct.Sizer interface.

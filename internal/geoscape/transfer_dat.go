@@ -20,13 +20,13 @@ func (tf TransferFile) SizeOf() int {
 }
 
 func (tf TransferFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	for i := 0; i < maxTransfers; i++ {
+	for i := range maxTransfers {
 		data, err := restruct.Pack(order, &tf.Transfers[i])
 		if err != nil {
 			return nil, err
 		}
 		offset := i * transferByteLength
-		for j := 0; j < len(data); j++ {
+		for j := range data {
 			buf[offset+j] = data[j]
 		}
 	}
@@ -35,7 +35,7 @@ func (tf TransferFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) 
 
 func (tf *TransferFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	tf.Transfers = make([]TransferData, maxTransfers)
-	for i := 0; i < maxTransfers; i++ {
+	for i := range maxTransfers {
 		offset := i * transferByteLength
 		data := buf[offset : offset+transferByteLength]
 		if err := restruct.Unpack(data, order, &tf.Transfers[i]); err != nil {
@@ -57,13 +57,17 @@ type TransferData struct {
 	HoursLeft int `struct:"int8"`
 
 	// Offset 3 (1 Byte) - Item Type. This also affects what can be used in the next offset. Possible/observed values:
-	Type int `stuct:"int8"`
+	Type int `struct:"int8"`
 
 	// Offset 4-5 (2 Bytes) - Reference number. The meaning of this value depends on the above Item Type value.
-	ReferenceNumber int `stuct:"int16"`
+	ReferenceNumber int `struct:"int16"`
 
 	// Offset 6 (1 Byte) - Quantity. Also the entry is ignored if this value is 0, thus there can be invalid data in the other entries but they will always have this byte set to 0.
-	Quantity int `stuct:"int8"`
+	Quantity int `struct:"int8"`
+
+	// Offset 7 (1 Byte) - Padding / unused.
+	// Note: Normally we would use `_` for unused fields, but in this case we want to preserve the exact byte layout of the
+	Unused int `struct:"int8"`
 }
 
 // SizeOf implements restruct.Sizer

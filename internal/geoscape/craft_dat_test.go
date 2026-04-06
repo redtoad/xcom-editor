@@ -1,26 +1,5 @@
 package geoscape_test
 
-import (
-	"encoding/binary"
-	"testing"
-
-	"github.com/redtoad/xcom-editor/internal/geoscape"
-)
-
-func Test_CRAFT_DAT_Unpack(t *testing.T) {
-	buf := MustLoadFromBase64(testFile_CRAFT_DAT)
-	var obj geoscape.CraftFile
-	remaining, err := obj.Unpack(buf, binary.LittleEndian)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(remaining) != 0 {
-		t.Errorf("expected no remaining bytes, got %d", len(remaining))
-	}
-
-}
-
 // base64 -i GAME_1/CRAFT.DAT -b 120 | pbcopy
 const testFile_CRAFT_DAT = `
 AgVkAAAFZAD//wAAAAAAAAAA//+I/4r/PAAAAJH/k/+V/5f/mf+c/57/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAODgAIAAAAAwAADgAAAAAAAAAAAAAAAAAA

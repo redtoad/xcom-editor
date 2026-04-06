@@ -9,45 +9,45 @@ import (
 	"github.com/go-restruct/restruct"
 )
 
-type CraftFile struct {
-	Crafts []CraftData
-}
-
 const maxCrafts = 50
 const craftByteLength = 104
 
+// CraftFile represents the CRAFT.DAT file with its fixed set of geoscape craft entries.
+type CraftFile struct {
+	Crafts [maxCrafts]CraftData
+}
+
+// SizeOf implements restruct.Sizer.
+func (cf CraftFile) SizeOf() int {
+	return maxCrafts * craftByteLength
+}
+
+// Pack implements restruct.Packer.
 func (cf CraftFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	for i := 0; i < maxCrafts; i++ {
+	for i := range maxCrafts {
 		data, err := restruct.Pack(order, &cf.Crafts[i])
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("could not pack CraftData: %w", err)
 		}
+
 		offset := i * craftByteLength
-		for j := 0; j < len(data); j++ {
+		for j := range data {
 			buf[offset+j] = data[j]
 		}
 	}
 	return buf, nil
 }
 
+// Unpack implements restruct.Unpacker.
 func (cf *CraftFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	cf.Crafts = make([]CraftData, maxCrafts)
-	for i := 0; i < maxCrafts; i++ {
+	for i := range maxCrafts {
 		offset := i * craftByteLength
 		data := buf[offset : offset+craftByteLength]
 		if err := restruct.Unpack(data, order, &cf.Crafts[i]); err != nil {
-			return nil, fmt.Errorf("could not unpack []Crafts: %w", err)
-		}
-		if cf.Crafts[i].Type == EntryNotUsed {
-			cf.Crafts = cf.Crafts[:i]
-			break
+			return nil, fmt.Errorf("could not unpack CraftData: %w", err)
 		}
 	}
 	return buf[cf.SizeOf():], nil
-}
-
-func (cf *CraftFile) SizeOf() int {
-	return maxCrafts * craftByteLength
 }
 
 type CraftData struct {
@@ -88,8 +88,10 @@ type CraftData struct {
 	// 6-7	0x06-0x07	Right ammo
 	RightAmmo int `struct:"int16"`
 
-	// 8-9	0x08-0x09	Unused.
-	_ int `struct:"int16"`
+	// 8-9	0x08-0x09	Unused
+	// Note: Normally we would use `_` for unused fields, but in this case we want to preserve the exact byte layout of the
+	// struct, so we use a named field and just ignore it.
+	UnusedWord int16 `struct:"int16"`
 
 	// Damage, that is the amount it currently has taken. This value divided by the
 	// crafts damage capacity gives the percentage shown in-game.
@@ -156,6 +158,7 @@ type CraftData struct {
 	// 42-43	0x2A-0x2B	Craft status. Is an index within ENGLISH.DAT for the string (268 + this value).
 	Status CraftStatus `struct:"int16"`
 
+	// Bytes 44-103: on-board item quantities (bytes 44-99) and status bitfield (bytes 100-103).
 	// The rest of the known values detail the items on board of the craft. 49-98 refer to offsets 0-49 in OBDATA.DAT.
 	// 44	0x2C	Tank/Cannon
 	// 45	0x2D	Tank/Rocket Launcher
@@ -225,10 +228,11 @@ type CraftData struct {
 	//             multiple escape/attack timers decrementing in case when UFO is
 	//             pursued in more than 1 window at once.
 	// bit 6 (64): Hyperwaved extra info
+	Items [60]byte `struct:"[60]uint8"`
 }
 
 // SizeOf implements restruct.Sizer
-func (c CraftData) SizeOf() int {
+func (c *CraftData) SizeOf() int {
 	return 104
 }
 
