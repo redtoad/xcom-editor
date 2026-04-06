@@ -6,6 +6,8 @@ import (
 	"encoding/binary"
 
 	"github.com/go-restruct/restruct"
+
+	"github.com/redtoad/xcom-editor/internal"
 )
 
 const maxBases = 8
@@ -58,7 +60,7 @@ type BaseData struct {
 
 	// 00-0E: BaseData Name, pretty obvious
 	// 0F: Presumably the Null character if the BaseData Name uses all 15 characters
-	Name string `struct:"[16]byte"`
+	Name internal.NullString `struct:"[16]byte"`
 
 	// Logical values for the detection capabilities:
 	//

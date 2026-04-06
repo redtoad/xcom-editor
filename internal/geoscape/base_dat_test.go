@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/redtoad/xcom-editor/internal/geoscape"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBaseFile_Unpack(t *testing.T) {
@@ -31,6 +32,12 @@ func TestBaseData(t *testing.T) {
 	if len(bf.Bases) != 8 {
 		t.Errorf("expected 8 bases, got %d", len(bf.Bases))
 	}
+
+	base := bf.Bases[0]
+	assert.Equal(t, "Alpine HQ", base.Name.String())
+	assert.Equal(t, 10, base.ShortRange)
+	assert.Equal(t, 0, base.LongRange)
+	assert.Equal(t, 0, base.Hyperwave)
 }
 
 // base64 -i GAME_1/BASE.DAT -b 120 | pbcopy
