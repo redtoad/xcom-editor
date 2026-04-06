@@ -17,6 +17,8 @@ func TestSaveinfo_Unpack(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	assert.Equal(t, "Test", bf.Name.String())
+	assert.Equal(t, false, bf.TacticalSave)
 }
 
 func TestSaveinfoFile_Time(t *testing.T) {
