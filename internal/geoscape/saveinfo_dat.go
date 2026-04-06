@@ -3,17 +3,24 @@ package geoscape
 // This file is present in any save.
 // https://www.ufopaedia.org/index.php/SAVEINFO.DAT
 
-import "time"
+import (
+	"time"
+
+	"github.com/redtoad/xcom-editor/internal"
+)
 
 // SaveinfoFile contains name and game time of the saved game.
 // This file is 40 bytes long, no separate entries.
 type SaveinfoFile struct {
 
-	// 0-1	0x00-0x01	Ignore this if the file is not in the missdat folder. If 0, then this is a savegame made on the beginning of a new battlescape game. If 1, then check DIRECT.DAT to see where which save slot to load from.
-	_ bool `struct:"int16"`
+	// 0-1	0x00-0x01	Ignore this if the file is not in the missdat folder. If 0, then this is a savegame made on the
+	// beginning of a new battlescape game. If 1, then check DIRECT.DAT to see where which save slot to load from.
+	// Note: Normally we would use `_` for unused fields, but in this case we want to preserve the exact byte layout of the
+	// struct, so we use a named field and just ignore it.
+	Unused bool `struct:"int16,invertedbool"`
 
 	// 2-27	0x02-0x1D	This a 26 byte null terminated string, which details the name of the save file. The name may be 25 characters long; the final byte is always of value 0. A 0 also marks the end of the save name, should it not use all 25 characters.
-	Name string `struct:"[26]byte"`
+	Name internal.NullString `struct:"[26]byte"`
 
 	// 28-29	0x1C-0x1D	The current year.
 	Year int `struct:"int16"`

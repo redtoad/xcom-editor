@@ -17,7 +17,7 @@ func (game *Savegame) loadMetadata() error {
 
 // Title returns the savegame title.
 func (game *Savegame) Title() string {
-	return game.meta.Name
+	return game.meta.Name.String()
 }
 
 // Time returns the game time.

@@ -14,7 +14,7 @@ type Base struct {
 }
 
 func (b *Base) Name() string {
-	return b.game.baseFile.Bases[b.offset].Name
+	return b.game.baseFile.Bases[b.offset].Name.String()
 }
 
 func (b *Base) Coord() Coord {
