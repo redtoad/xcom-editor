@@ -12,7 +12,7 @@ import (
 var DefaultByteOrder = binary.LittleEndian
 
 // LoadDATFile loads binary file found at path and populates obj instance.
-func LoadDATFile(path string, obj interface{}) error {
+func LoadDATFile(path string, obj any) error {
 	buf, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("could not open file %s: %w", path, err)
@@ -24,7 +24,7 @@ func LoadDATFile(path string, obj interface{}) error {
 }
 
 // Unmarshall decodes binary data from a buffer into a struct.
-func Unmarshall(buffer []byte, obj interface{}) error {
+func Unmarshall(buffer []byte, obj any) error {
 	if err := restruct.Unpack(buffer, DefaultByteOrder, obj); err != nil {
 		return fmt.Errorf("could not unpack data: %w", err)
 	}
@@ -33,11 +33,11 @@ func Unmarshall(buffer []byte, obj interface{}) error {
 
 // SaveDATFile saves a single data to its original location on disk file
 // if the content has changed. name is the path inside the game directory.
-func SaveDATFile(path string, obj interface{}) error {
+func SaveDATFile(path string, obj any) error {
 
 	saveData, err := Marshall(obj)
 	if err != nil {
-		return fmt.Errorf("could load data from file %s: %w", path, err)
+		return fmt.Errorf("could not marshal data for file %s: %w", path, err)
 	}
 
 	original, err := os.ReadFile(path)
@@ -48,7 +48,7 @@ func SaveDATFile(path string, obj interface{}) error {
 	if bytes.Equal(saveData, original) {
 		return nil
 	}
-	if err = os.WriteFile(path, saveData, os.ModePerm); err != nil {
+	if err = os.WriteFile(path, saveData, 0644); err != nil {
 		return fmt.Errorf("could not save file %s: %w", path, err)
 	}
 	return nil
