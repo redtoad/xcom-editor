@@ -16,3 +16,10 @@ func (s NullString) String() string {
 	}
 	return string(s)
 }
+
+// NewNullString returns a NullString of the given fixed size, padded with null bytes.
+func NewNullString(value string, size int) NullString {
+	buf := make([]byte, size)
+	copy(buf, value)
+	return NullString(buf)
+}
