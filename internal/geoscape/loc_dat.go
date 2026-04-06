@@ -84,14 +84,16 @@ type LocationData struct {
 	// other types where it is set, 0B is the high byte for when you go over 255 UFO's or crafts, etc.
 	CountSuffix int `struct:"int16"`
 
-	// unused
-	_ int `struct:"int16"`
+	// Note: The following field are only used for crafts and bases, but they are still present in the file for all records. They
+	// are ignored for other types of objects. They are used for both UFOs and XCOM crafts, but they are not used for UFOs
+	Unused1 int `struct:"int16"`
 
 	// CraftData transfer mode
 	TransferMode int `struct:"int8"`
 
-	// unused
-	_ int `struct:"int8"`
+	// Note: The following field are only used for crafts and bases, but they are still present in the file for all records. They
+	// are ignored for other types of objects. They are used for both UFOs and XCOM crafts, but they are not used for UFOs
+	Unused2 int `struct:"int8"`
 
 	// Globe object visiblity/mobility bitfield
 	Visibility int `struct:"int32"`

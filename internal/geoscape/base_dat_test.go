@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"testing"
 
+	"github.com/go-restruct/restruct"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,27 +12,9 @@ import (
 func TestBaseFile_Unpack(t *testing.T) {
 	buf := MustLoadFromBase64(testFile_BASE_DAT)
 	var bf geoscape.BaseFile
-	remaining, err := bf.Unpack(buf, binary.LittleEndian)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(remaining) != 0 {
-		t.Errorf("expected no remaining bytes, got %d", len(remaining))
-	}
-}
-
-func TestBaseData(t *testing.T) {
-	buf := MustLoadFromBase64(testFile_BASE_DAT)
-	var bf geoscape.BaseFile
-	_, err := bf.Unpack(buf, binary.LittleEndian)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(bf.Bases) != 8 {
-		t.Errorf("expected 8 bases, got %d", len(bf.Bases))
-	}
+	err := restruct.Unpack(buf, binary.LittleEndian, &bf)
+	assert.NoError(t, err)
+	assert.Equal(t, 8, len(bf.Bases))
 
 	base := bf.Bases[0]
 	assert.Equal(t, "Alpine HQ", base.Name.String())

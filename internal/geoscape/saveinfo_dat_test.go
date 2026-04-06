@@ -14,9 +14,7 @@ func TestSaveinfo_Unpack(t *testing.T) {
 	buf := MustLoadFromBase64(testFile_SAVEINFO_DAT)
 	var bf geoscape.SaveinfoFile
 	err := restruct.Unpack(buf, binary.LittleEndian, &bf)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 	assert.Equal(t, "Test", bf.Name.String())
 	assert.Equal(t, false, bf.TacticalSave)
 }
