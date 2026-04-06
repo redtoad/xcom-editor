@@ -36,7 +36,7 @@ func TestNullString_Unpack(t *testing.T) {
 		t.Run(fmt.Sprintf("%x", tt.bytes), func(t *testing.T) {
 			var value nullStringStruct
 			_ = restruct.Unpack(tt.bytes, binary.LittleEndian, &value)
-			assert.Equal(t, tt.want, string(value.Name))
+			assert.Equal(t, tt.want, string(value.Name.String()))
 		})
 	}
 }
@@ -74,7 +74,6 @@ func TestNullString_Pack(t *testing.T) {
 			value := nullStringStruct{Name: tt.want}
 			data, _ := restruct.Pack(binary.LittleEndian, &value)
 			assert.Equal(t, tt.bytes, data)
-
 		})
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/go-restruct/restruct"
+	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,7 +29,7 @@ func TestUnpackSoldier(t *testing.T) {
 				Kills:                       0,
 				RecoveryDays:                0,
 				SoldierValue:                20,
-				Name:                        "Gudrun Unger",
+				Name:                        internal.NewNullString("Gudrun Unger", 25),
 				DestinationBase:             0,
 				InitialTimeUnits:            57,
 				InitialHealth:               25,
