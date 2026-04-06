@@ -69,6 +69,11 @@ func TestFileUnpackingAndPackingIsBinaryIdentical(t *testing.T) {
 			data: testFile_LOC_DAT,
 		},
 		{
+			name: "LIGLOB.DAT",
+			obj:  &geoscape.LiglobFile{},
+			data: testFile_LIGLOB_DAT,
+		},
+		{
 			name: "SAVEINFO.DAT",
 			obj:  &geoscape.SaveinfoFile{},
 			data: testFile_SAVEINFO_DAT,
