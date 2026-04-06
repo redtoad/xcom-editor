@@ -144,6 +144,9 @@ func (c *Craft) MissionZone() string {
 }
 
 func (game *Savegame) Craft(offset int) *Craft {
+	if offset < 0 || offset >= len(game.craftsFile.Crafts) {
+		return nil
+	}
 	craft := game.craftsFile.Crafts[offset]
 	if craft.Type == geoscape.EntryNotUsed {
 		return nil
