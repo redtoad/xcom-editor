@@ -49,15 +49,15 @@ func (s *Soldier) Base() *Base {
 	return s.game.Base(baseNo)
 }
 
-const NoCraft = 0xffff
+const NoCraft = -1
 
 func (s *Soldier) Craft() *Craft {
 	currCraftNo := s.game.soldierFile.Soldiers[s.offset].Craft
 	prevCraftNo := s.game.soldierFile.Soldiers[s.offset].CraftBefore
-	if currCraftNo != NoCraft {
+	if currCraftNo > 0 {
 		return s.game.Craft(currCraftNo - 1)
 	}
-	if prevCraftNo != NoCraft {
+	if prevCraftNo > 0 {
 		return s.game.Craft(prevCraftNo - 1)
 	}
 	return nil

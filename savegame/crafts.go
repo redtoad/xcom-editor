@@ -2,9 +2,10 @@ package savegame
 
 import (
 	"fmt"
+	"path"
+
 	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
-	"path"
 )
 
 type Craft struct {
@@ -52,6 +53,9 @@ func (game *Savegame) saveCrafts() error {
 }
 
 func (game *Savegame) Craft(offset int) *Craft {
+	if offset < 0 || offset >= len(game.craftsFile.Crafts) {
+		return nil
+	}
 	craft := game.craftsFile.Crafts[offset]
 	if craft.Type == geoscape.EntryNotUsed {
 		return nil
