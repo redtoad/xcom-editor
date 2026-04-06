@@ -20,13 +20,13 @@ func (tf TransferFile) SizeOf() int {
 }
 
 func (tf TransferFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	for i := 0; i < maxTransfers; i++ {
+	for i := range maxTransfers {
 		data, err := restruct.Pack(order, &tf.Transfers[i])
 		if err != nil {
 			return nil, err
 		}
 		offset := i * transferByteLength
-		for j := 0; j < len(data); j++ {
+		for j := range data {
 			buf[offset+j] = data[j]
 		}
 	}
@@ -35,7 +35,7 @@ func (tf TransferFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) 
 
 func (tf *TransferFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	tf.Transfers = make([]TransferData, maxTransfers)
-	for i := 0; i < maxTransfers; i++ {
+	for i := range maxTransfers {
 		offset := i * transferByteLength
 		data := buf[offset : offset+transferByteLength]
 		if err := restruct.Unpack(data, order, &tf.Transfers[i]); err != nil {

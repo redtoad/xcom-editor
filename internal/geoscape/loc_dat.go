@@ -3,7 +3,15 @@ package geoscape
 //go:generate stringer -type=LocationType -output=loc_dat_string.go -linecomment
 
 import (
+	"encoding/binary"
 	"fmt"
+
+	"github.com/go-restruct/restruct"
+)
+
+const (
+	maxLocations  = 50
+	locByteLength = 20
 )
 
 // LocFile provides location Data for bases and crafts
@@ -14,6 +22,38 @@ import (
 // https://www.ufopaedia.org/index.php/LOC.DAT
 type LocFile struct {
 	Objects [50]LocationData
+}
+
+// SizeOf implements the restruct.Sizer interface.
+func (lf LocFile) SizeOf() int {
+	return maxLocations * locByteLength
+}
+
+// Pack implements the restruct.Packer interface.
+func (lf LocFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	for i := range maxLocations {
+		data, err := restruct.Pack(order, &lf.Objects[i])
+		if err != nil {
+			return nil, fmt.Errorf("could not pack LocationData: %w", err)
+		}
+		offset := i * locByteLength
+		for j := range data {
+			buf[offset+j] = data[j]
+		}
+	}
+	return buf, nil
+}
+
+// Unpack implements the restruct.Unpacker interface.
+func (lf *LocFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	for i := range maxLocations {
+		offset := i * locByteLength
+		data := buf[offset : offset+locByteLength]
+		if err := restruct.Unpack(data, order, &lf.Objects[i]); err != nil {
+			return nil, fmt.Errorf("could not unpack LocationData: %w", err)
+		}
+	}
+	return buf[lf.SizeOf():], nil
 }
 
 type LocationData struct {
@@ -57,8 +97,8 @@ type LocationData struct {
 	Visibility int `struct:"int32"`
 }
 
-// SizeOf implemtents the restruct.Sizer interface.
-func (o LocationData) SizeOf() uint {
+// SizeOf implements the restruct.Sizer interface.
+func (o LocationData) SizeOf() int {
 	return 20
 }
 
