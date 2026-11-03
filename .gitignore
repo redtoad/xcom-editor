@@ -21,6 +21,8 @@ examples/world/.cache/
 cmd/editor/editor
 bin/revive-soldiers
 
-cmd/savegame-editor/build/
+cmd/savegame-editor/build/*
+!cmd/savegame-editor/build/appicon.png
+!cmd/savegame-editor/build/appicon.svg
 cmd/savegame-editor/frontend/wailsjs/
 cmd/savegame-editor/frontend/package.json.md5

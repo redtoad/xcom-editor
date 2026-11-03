@@ -97,6 +97,9 @@ wails build -skipbindings   # creates build/bin/ (an .app bundle on macOS)
 wails dev -skipbindings -appargs path/to/game   # live reload of the frontend
 ```
 
+The app icon is `cmd/savegame-editor/build/appicon.png`, rendered from
+`appicon.svg` next to it (`inkscape appicon.svg -w 1024 -h 1024 -o appicon.png`).
+
 Without the Wails CLI, build it with `go build -tags desktop,production`
 (on macOS additionally with `CGO_LDFLAGS="-framework UniformTypeIdentifiers"`).
 The desktop build needs cgo and the platform's webview (WebKit on macOS and
