@@ -82,6 +82,8 @@ func main() {
 	r := mux.NewRouter()
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 	r.PathPrefix("/resource").HandlerFunc(ServeImage)
+	editor := &Editor{config: &Config{GamePath: *rootPath}}
+	r.PathPrefix("/games").Handler(editor.handleGames(*rootPath))
 	r.PathPrefix("/bases").HandlerFunc(Bases)
 	r.PathPrefix("/locations").HandlerFunc(locations)
 

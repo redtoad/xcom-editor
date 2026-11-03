@@ -30,7 +30,7 @@ func tileTemplate(tile geoscape.Facility) string {
 	case geoscape.AlienContainment:
 		return "alien-containment"
 	case geoscape.LaserDefense:
-		return "lase-defenses"
+		return "laser-defenses"
 	case geoscape.PlasmaDefense:
 		return "plasma-defenses"
 	case geoscape.FusionBallDefense:
@@ -40,7 +40,7 @@ func tileTemplate(tile geoscape.Facility) string {
 	case geoscape.MindShield:
 		return "mind-shield"
 	case geoscape.PsionicLaboratory:
-		return "laboratory"
+		return "psyonic-laboratory"
 	case geoscape.HyperwaveDecoder:
 		return "hyperwave-decoder"
 	case geoscape.HangarTopLeft:
