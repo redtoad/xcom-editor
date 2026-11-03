@@ -20,9 +20,11 @@ type StoredAlien struct {
 	Rank AlienRank
 	// 2: Base the alien is kept in (index in LOC.DAT). 0xFF while in transfer.
 	Base uint8
-	// 3-10: Unknown, usually 0. Only entry 0 has been seen with other data
-	// (00 a4 3b 20 00 00 00 00), independent of the alien stored there, so
-	// this is probably a stale pointer.
+	// 3-10: Unknown, usually 0. Neither GEOSCAPE.EXE nor TACTICAL.EXE (which
+	// only copies the file) reads or writes these bytes: a new game only
+	// clears bytes 0 and 11 of each entry (GEOSCAPE.EXE 0x21db0) and
+	// storing an alien only sets bytes 0, 1, 2 and 11. The bytes therefore
+	// keep uninitialized memory, e.g. 00 a4 3b 20 00 00 00 00 in entry 0.
 	Unknown [8]uint8
 	// 11: Transfer state: 1 = in transit, 2 = selected for transfer.
 	TransferState uint8

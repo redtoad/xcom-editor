@@ -22,8 +22,11 @@ type ResearchTopic struct {
 	Topic [3]uint8
 	// 5: Unknown, 0 in the initial table and only set for live alien topics
 	// during the game (values up to 21 seen). It changes between savegames
-	// but does not match the number of such aliens in ASTORE.DAT. Where
-	// GEOSCAPE.EXE writes it has not been determined yet.
+	// but does not match the number of such aliens in ASTORE.DAT. No code in
+	// GEOSCAPE.EXE references this byte directly or relative to the table
+	// (code only accesses bytes 0, 2-4, 6-8, 10, 14 and 18) and TACTICAL.EXE
+	// only copies the file, so it is probably changed by an indirect or
+	// out-of-bounds write that has not been found yet.
 	Unknown1 uint8
 	// 6: UFOpaedia category.
 	UfopaediaCategory uint8
@@ -31,7 +34,7 @@ type ResearchTopic struct {
 	UfopaediaEntry uint8
 	// 8: Score points awarded on completion.
 	Points uint8
-	// 9: Unknown, always 0.
+	// 9: Unknown, always 0. Not accessed by any code.
 	Unknown2 uint8
 	// 10-13: Non-zero if the research is completed.
 	Completed int32
