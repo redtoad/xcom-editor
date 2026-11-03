@@ -98,13 +98,14 @@ export interface BaseDetail {
   tiles: TileInfo[];
   inventory: Record<string, number>;
   // sprites to draw the base with the graphics of the game (ground,
-  // outlines, corridors, interiors), only if the game files are available
+  // outlines, corridors, interiors, crafts), only if the game files are
+  // available
   layers?: BaseSprite[][];
 }
 
 export interface BaseSprite {
   sprite: number;
-  // grid position in half tiles
+  // position in pixels (of the original 32x32 tiles)
   x: number;
   y: number;
 }

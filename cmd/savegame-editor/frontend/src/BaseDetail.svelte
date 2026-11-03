@@ -72,7 +72,7 @@
             class="sprite"
             src={baseBitURL(s.sprite)}
             alt=""
-            style="left:{(s.x * TILE) / 2}px; top:{(s.y * TILE) / 2}px; width:{TILE}px"
+            style="left:{s.x * SCALE}px; top:{s.y * SCALE}px; width:{TILE}px"
           />
         {/each}
       {/each}

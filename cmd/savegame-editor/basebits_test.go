@@ -35,40 +35,64 @@ func TestBaseLayers(t *testing.T) {
 	tiles[3].Type = geoscape.HangarTopRight
 	tiles[8].Type = geoscape.HangarBottomLeft
 	tiles[9].Type = geoscape.HangarBottomRight
+	tiles[12].Type = geoscape.LaserDefense
 
-	layers := baseLayers(tiles)
-	require.Len(t, layers, 4)
-	ground, shapes, corridors, interiors := layers[0], layers[1], layers[2], layers[3]
+	layers := baseLayers(tiles, []hangarCraft{{Type: geoscape.Interceptor}})
+	require.Len(t, layers, 5)
+	ground, shapes, corridors, interiors, crafts := layers[0], layers[1], layers[2], layers[3], layers[4]
 
 	assert.Len(t, ground, 36)
-	assert.Equal(t, baseSprite{spriteGround, 10, 10}, ground[35])
+	assert.Equal(t, baseSprite{spriteGround, 160, 160}, ground[35])
 
 	assert.ElementsMatch(t, []baseSprite{
-		{2, 0, 0},                                     // access lift (octagon)
-		{1, 2, 0},                                     // living quarters (square)
-		{1 + 3, 2, 2},                                 // laboratory under construction (dotted square)
-		{9, 4, 0}, {10, 6, 0}, {11, 4, 2}, {12, 6, 2}, // hangar
+		{2, 0, 0},                                           // access lift (octagon)
+		{1, 32, 0},                                          // living quarters (square)
+		{1 + 3, 32, 32},                                     // laboratory under construction (dotted square)
+		{9, 64, 0}, {10, 96, 0}, {11, 64, 32}, {12, 96, 32}, // hangar
+		{3, 0, 64}, // laser defense (cross)
 	}, shapes)
 
 	assert.ElementsMatch(t, []baseSprite{
-		{spriteFacilityStart, 0, 0},                                // access lift
-		{spriteFacilityStart + int(geoscape.LivingQuarters), 2, 0}, // living quarters
-		{33, 4, 0}, {34, 6, 0}, {35, 4, 2}, {36, 6, 2}, // hangar
-	}, interiors, "facilities under construction have no interior")
+		{spriteFacilityStart, 0, 0},                                 // access lift
+		{spriteFacilityStart + int(geoscape.LivingQuarters), 32, 0}, // living quarters
+		{spriteFacilityStart + int(geoscape.LaserDefense), 0, 64},   // laser defense
+	}, interiors, "no interior for hangars and facilities under construction")
 
 	// no corridors within the hangar or to the laboratory under construction
 	assert.ElementsMatch(t, []baseSprite{
-		{spriteCorridorH, 1, 0}, // access lift - living quarters
-		{spriteCorridorH, 3, 0}, // living quarters - hangar
+		{spriteCorridorH, 16, 0}, // access lift - living quarters
+		{spriteCorridorH, 48, 0}, // living quarters - hangar
 	}, corridors)
+
+	// the craft is drawn in the middle of the hangar
+	assert.Equal(t, []baseSprite{{spriteCraftStart + int(geoscape.Interceptor), 64 + 18, 12}}, crafts)
+}
+
+func TestBaseLayers_Crafts(t *testing.T) {
+	tiles := emptyBase()
+	for _, hangar := range []int{0, 2, 4} {
+		tiles[hangar].Type = geoscape.HangarTopLeft
+		tiles[hangar+1].Type = geoscape.HangarTopRight
+		tiles[hangar+6].Type = geoscape.HangarBottomLeft
+		tiles[hangar+7].Type = geoscape.HangarBottomRight
+	}
+	tiles[2].DaysToCompletion = 3 // second hangar is under construction
+
+	crafts := baseLayers(tiles, []hangarCraft{
+		{Type: geoscape.Skyranger, Out: true}, // occupies the first hangar
+		{Type: geoscape.Avenger},
+		{Type: geoscape.Firestorm}, // no hangar left
+	})[4]
+
+	assert.Equal(t, []baseSprite{{spriteCraftStart + int(geoscape.Avenger), 128 + 18, 12}}, crafts)
 }
 
 func TestBaseLayers_EmptyBase(t *testing.T) {
-	layers := baseLayers(emptyBase())
+	layers := baseLayers(emptyBase(), []hangarCraft{{Type: geoscape.Skyranger}})
 	assert.Len(t, layers[0], 36)
-	assert.Empty(t, layers[1])
-	assert.Empty(t, layers[2])
-	assert.Empty(t, layers[3])
+	for _, layer := range layers[1:] {
+		assert.Empty(t, layer)
+	}
 }
 
 // writeFakeBaseBits writes a (synthetic) BASEBITS.PCK with two sprites and
@@ -138,5 +162,5 @@ func TestHandleGetBase_Layers(t *testing.T) {
 	t.Cleanup(func() { baseBits = nil })
 	getJSON(t, "/api/games/GAME_1/bases/0", handleGetBase, "/api/games/{slot}/bases/{idx}", &result)
 	require.Contains(t, result, "layers")
-	assert.Len(t, result["layers"], 4)
+	assert.Len(t, result["layers"], 5)
 }

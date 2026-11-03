@@ -425,7 +425,13 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 	}
 	// sprites to draw the base with the graphics of the game
 	if baseBits != nil {
-		result["layers"] = baseLayers(b.Tiles())
+		var crafts []hangarCraft
+		for _, c := range entry.sg.Crafts() {
+			if base := c.Base(); base != nil && base.Index() == b.Index() && c.Type() < geoscape.SmallScout {
+				crafts = append(crafts, hangarCraft{Type: c.Type(), Out: c.Status() == geoscape.Out})
+			}
+		}
+		result["layers"] = baseLayers(b.Tiles(), crafts)
 	}
 	writeJSON(w, result)
 }

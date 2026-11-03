@@ -19,17 +19,20 @@ const basePalette = 1
 
 // Sprites in BASEBITS.PCK (the same layout is used by OpenXcom).
 const (
-	spriteGround         = 0  // ground of every grid cell
-	spriteCorridorH      = 7  // corridor to the facility on the right
-	spriteCorridorV      = 8  // corridor to the facility below
-	spriteHangarShape    = 9  // hangar outline, 4 sprites (one per quarter)
-	spriteFacilityStart  = 17 // first facility interior (in order of geoscape.Facility)
-	spriteHangarInterior = 33 // hangar interior, 4 sprites (one per quarter)
+	spriteGround        = 0  // ground of every grid cell
+	spriteCorridorH     = 7  // corridor to the facility on the right
+	spriteCorridorV     = 8  // corridor to the facility below
+	spriteHangarShape   = 9  // hangar, 4 sprites (one per quarter)
+	spriteFacilityStart = 17 // first facility interior (in order of geoscape.Facility)
+	spriteCraftStart    = 33 // first craft (in order of geoscape.CraftType)
 )
 
+// tileSize is the size of a grid cell in pixels.
+const tileSize = 32
+
 // facilityShapes is the outline sprite of each facility type (1 = square,
-// 2 = octagon), in the order of geoscape.Facility.
-var facilityShapes = []int{2, 1, 1, 1, 2, 1, 2, 1, 1, 2, 2, 2, 2, 2, 1, 1}
+// 2 = octagon, 3 = cross), in the order of geoscape.Facility.
+var facilityShapes = []int{2, 1, 1, 1, 2, 1, 2, 1, 1, 3, 3, 3, 2, 2, 1, 2}
 
 // baseBits holds the PNG encoded sprites of GEOGRAPH/BASEBITS.PCK, nil if
 // the game files could not be loaded.
@@ -61,19 +64,27 @@ func loadBaseBits(root string) ([][]byte, error) {
 	return result, nil
 }
 
-// baseSprite is a sprite drawn at a grid position of the base screen.
+// baseSprite is a sprite drawn at a position (in pixels) of the base screen.
 type baseSprite struct {
 	Sprite int `json:"sprite"`
-	// X and Y are the grid position in half tiles (corridors are drawn
-	// between two tiles).
-	X int `json:"x"`
-	Y int `json:"y"`
+	X      int `json:"x"`
+	Y      int `json:"y"`
+}
+
+// hangarCraft is a craft stationed at a base.
+type hangarCraft struct {
+	Type geoscape.CraftType
+	// Out is true if the craft has left the base.
+	Out bool
 }
 
 // baseLayers returns the sprites to draw a base like the base screen of the
-// game: the ground, facility outlines, corridors between facilities and the
-// facility interiors (in this order).
-func baseLayers(tiles []savegame.BaseTile) [][]baseSprite {
+// game: the ground, facility outlines, corridors between facilities, the
+// facility interiors and the crafts in the hangars (in this order).
+//
+// Like the game, the crafts of the base are assigned to the built hangars in
+// order; crafts that are out still occupy their hangar.
+func baseLayers(tiles []savegame.BaseTile, crafts []hangarCraft) [][]baseSprite {
 	const size = 6
 	built := func(i int) bool {
 		return tiles[i].Type != geoscape.Empty && tiles[i].DaysToCompletion == 0
@@ -82,9 +93,9 @@ func baseLayers(tiles []savegame.BaseTile) [][]baseSprite {
 		return f >= geoscape.HangarTopLeft && f <= geoscape.HangarBottomRight
 	}
 
-	var ground, shapes, corridors, interiors []baseSprite
+	var ground, shapes, corridors, interiors, craftSprites []baseSprite
 	for i, tile := range tiles {
-		x, y := i%size*2, i/size*2
+		x, y := i%size*tileSize, i/size*tileSize
 		ground = append(ground, baseSprite{spriteGround, x, y})
 		f := tile.Type
 		switch {
@@ -97,8 +108,14 @@ func baseLayers(tiles []savegame.BaseTile) [][]baseSprite {
 				shape += 4 // dotted outline while under construction
 			}
 			shapes = append(shapes, baseSprite{shape, x, y})
-			if built(i) {
-				interiors = append(interiors, baseSprite{spriteHangarInterior + quarter, x, y})
+			if f == geoscape.HangarTopLeft && built(i) && len(crafts) > 0 {
+				craft := crafts[0]
+				crafts = crafts[1:]
+				if !craft.Out {
+					craftSprites = append(craftSprites, baseSprite{
+						spriteCraftStart + int(craft.Type), x + tileSize/2 + 2, y + tileSize/2 - 4,
+					})
+				}
 			}
 		case int(f) < len(facilityShapes):
 			shape := facilityShapes[f]
@@ -118,15 +135,15 @@ func baseLayers(tiles []savegame.BaseTile) [][]baseSprite {
 		if right := i + 1; i%size < size-1 && built(right) &&
 			!(f == geoscape.HangarTopLeft && tiles[right].Type == geoscape.HangarTopRight) &&
 			!(f == geoscape.HangarBottomLeft && tiles[right].Type == geoscape.HangarBottomRight) {
-			corridors = append(corridors, baseSprite{spriteCorridorH, x + 1, y})
+			corridors = append(corridors, baseSprite{spriteCorridorH, x + tileSize/2, y})
 		}
 		if below := i + size; i/size < size-1 && built(below) &&
 			!(f == geoscape.HangarTopLeft && tiles[below].Type == geoscape.HangarBottomLeft) &&
 			!(f == geoscape.HangarTopRight && tiles[below].Type == geoscape.HangarBottomRight) {
-			corridors = append(corridors, baseSprite{spriteCorridorV, x, y + 1})
+			corridors = append(corridors, baseSprite{spriteCorridorV, x, y + tileSize/2})
 		}
 	}
-	return [][]baseSprite{ground, shapes, corridors, interiors}
+	return [][]baseSprite{ground, shapes, corridors, interiors, craftSprites}
 }
 
 // GET /api/basebits/{sprite}.png
