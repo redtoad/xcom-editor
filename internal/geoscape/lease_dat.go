@@ -6,6 +6,11 @@ package geoscape
 // Only the first bytes are documented, the rest is kept as raw bytes. The
 // file is 180 bytes long.
 //
+// Only RotationY, RotationX and Zoom differ between savegames. All unknown
+// bytes are identical in every savegame seen and Unknown3 looks like x86
+// machine code, so they are most likely uninitialized memory of the buffer
+// GEOSCAPE.EXE allocates for the file.
+//
 // https://www.ufopaedia.org/index.php/LEASE.DAT
 type LeaseFile struct {
 	// 0-1: Y rotation of the globe.

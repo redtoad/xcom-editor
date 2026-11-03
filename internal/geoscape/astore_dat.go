@@ -20,7 +20,9 @@ type StoredAlien struct {
 	Rank AlienRank
 	// 2: Base the alien is kept in (index in LOC.DAT). 0xFF while in transfer.
 	Base uint8
-	// 3-10: Unknown, usually 0.
+	// 3-10: Unknown, usually 0. Only entry 0 has been seen with other data
+	// (00 a4 3b 20 00 00 00 00), independent of the alien stored there, so
+	// this is probably a stale pointer.
 	Unknown [8]uint8
 	// 11: Transfer state: 1 = in transit, 2 = selected for transfer.
 	TransferState uint8

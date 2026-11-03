@@ -35,11 +35,12 @@ type UnitposFile struct {
 
 // UnitPosition holds the position of a single unit.
 type UnitPosition struct {
-	// 0-2: Position, Y is 0xFF if the slot is unused.
+	// 0-2: Position. Unused slots (Unit.Type is 0xFF in UNITREF.DAT) may
+	// contain arbitrary values here.
 	Y uint8
 	X uint8
 	Z uint8
-	// 3: Unknown.
+	// 3: Unknown, always 0.
 	Unknown1 uint8
 	// 4-7: Memory address of the UNITREF.DAT entry (not used on disk).
 	UnitRef uint32
@@ -50,7 +51,7 @@ type UnitPosition struct {
 	Owner uint8
 	// 10: Flags (see UnitVisible etc.).
 	Flags uint8
-	// 11-13: Unknown.
+	// 11-13: Unknown, always 0.
 	Unknown2 [3]uint8
 }
 
@@ -190,7 +191,7 @@ type Unit struct {
 	// 117-118: Tank turret weapon (0xFF if unused) and ammunition.
 	TurretWeapon uint8
 	TurretAmmo   uint8
-	// 119: Unknown.
+	// 119: Unknown, always 0.
 	Unknown uint8
 	// 120-123: Flags: 1 = moving, 2 = can fly, 4 = flying, 8 = selected this
 	// turn, 16 = selection disabled, 32 = right hand item selected,

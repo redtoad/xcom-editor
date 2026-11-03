@@ -42,6 +42,8 @@ type BattleObject struct {
 	Floor int8
 	// 12: Flags (e.g. 8 = unconscious unit).
 	Flags uint8
-	// 13-15: Unknown.
+	// 13-15: Unknown. Byte 13 is always 0, bytes 14-15 are usually 0 but
+	// some entries contain values like 0x0004, 0x0008 or 0x0288, 0x028c
+	// (probably stale offsets or pointers).
 	Unknown [3]uint8
 }

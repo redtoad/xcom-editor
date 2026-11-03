@@ -3,7 +3,9 @@ package geoscape
 // PurchaseFile holds prices and transfer times of everything that can be
 // bought or sold.
 //
-// The file is 1820 bytes long (91 entries * 20 bytes).
+// The file is 1820 bytes long (91 entries * 20 bytes). A new game copies the
+// table from GEOSCAPE.EXE (offset 374512); only LastPurchased changes during
+// the game, all unknown fields are constants.
 //
 // https://www.ufopaedia.org/index.php/PURCHASE.DAT
 type PurchaseFile struct {
@@ -16,7 +18,8 @@ type PurchaseItem struct {
 	Category uint8
 	// 1: Index of the item within its category (e.g. Inventory index or craft type).
 	Index uint8
-	// 2-5: Unknown, usually 1000.
+	// 2-5: Unknown, 1000 for all items except the crafts X-COM can only
+	// manufacture (Lightning, Avenger, Firestorm), which have 0.
 	Unknown1 int32
 	// 6-9: Buy price in $.
 	BuyPrice int32

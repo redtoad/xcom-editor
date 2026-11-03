@@ -2,7 +2,9 @@ package geoscape
 
 // UpFile holds the UFOpaedia entries.
 //
-// The file is 1392 bytes long (116 entries * 12 bytes).
+// The file is 1392 bytes long (116 entries * 12 bytes). A new game copies the
+// table from GEOSCAPE.EXE (offset 386176); only Research changes during the
+// game, all unknown fields are constants.
 //
 // https://www.ufopaedia.org/index.php/UP.DAT
 type UpFile struct {

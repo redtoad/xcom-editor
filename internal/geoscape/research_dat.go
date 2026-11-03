@@ -2,7 +2,9 @@ package geoscape
 
 // ResearchFile holds all research topics.
 //
-// The file is 2112 bytes long (96 topics * 22 bytes).
+// The file is 2112 bytes long (96 topics * 22 bytes). A new game copies the
+// table from GEOSCAPE.EXE (offset 371496); only Unknown1, Completed and
+// PrerequisitesMet change during the game.
 //
 // https://www.ufopaedia.org/index.php/RESEARCH.DAT
 type ResearchFile struct {
@@ -18,7 +20,9 @@ type ResearchTopic struct {
 	// AlienRank. If byte 2 or 3 is not 0, the item must be in stores before
 	// the topic can be researched.
 	Topic [3]uint8
-	// 5: Unknown, only set for some live aliens.
+	// 5: Unknown, 0 in the initial table and only set for live alien topics
+	// during the game (values up to 21 seen). It changes between savegames
+	// but does not match the number of such aliens in ASTORE.DAT.
 	Unknown1 uint8
 	// 6: UFOpaedia category.
 	UfopaediaCategory uint8
@@ -30,7 +34,8 @@ type ResearchTopic struct {
 	Unknown2 uint8
 	// 10-13: Non-zero if the research is completed.
 	Completed int32
-	// 14-17: Prerequisite flag (exact meaning unclear).
+	// 14-17: Prerequisite flag (exact meaning unclear). 0 or 1, never changes
+	// during the game.
 	Prerequisite int32
 	// 18-21: Non-zero if all prerequisites are met.
 	PrerequisitesMet int32

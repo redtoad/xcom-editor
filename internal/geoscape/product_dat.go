@@ -2,7 +2,9 @@ package geoscape
 
 // ProductFile holds the manufacturing data of all manufacturable items.
 //
-// The file is 630 bytes long (35 items * 18 bytes).
+// The file is 630 bytes long (35 items * 18 bytes). A new game copies the
+// table from GEOSCAPE.EXE (offset 373608); only NotResearched changes during
+// the game, all unknown fields are constants.
 //
 // https://www.ufopaedia.org/index.php/PRODUCT.DAT
 type ProductFile struct {
@@ -23,10 +25,10 @@ type Product struct {
 	RequiredQuantities [3]uint8
 	// 14: Manufactured item (Inventory index in BASE.DAT).
 	Item uint8
-	// 15: Unknown, usually 1.
+	// 15: Unknown, always 1.
 	Unknown1 uint8
 	// 16: 0 if the item can be built, 1 if it still needs to be researched.
 	NotResearched uint8
-	// 17: Unknown, usually 0.
+	// 17: Unknown, always 0.
 	Unknown2 uint8
 }

@@ -14,6 +14,12 @@
 // All bytes are kept, so that every file can be saved byte-identical to the
 // original.
 //
+// The temporary files in MISSDAT are not supported. UNIPOS.DAT and UNIREF.DAT
+// (34 entries each) as well as UNIREF2.DAT and OBPOS2.DAT use the record
+// formats of UNITPOS.DAT, UNITREF.DAT and OBPOS.DAT; MISSION.DAT and
+// MISSION2.DAT use the format of MISDATA.DAT. The formats of CODE.DAT
+// (2 bytes) and OBPOSREF.DAT (1328 bytes) are unknown.
+//
 // https://www.ufopaedia.org/index.php/Saved_Game_Files
 package battlescape
 

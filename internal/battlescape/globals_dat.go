@@ -17,7 +17,8 @@ type BglobFile struct {
 // WglobFile holds the map dimensions, the current turn, the mission score
 // and the speed options of the Battlescape.
 //
-// The file is 44 bytes long.
+// The file is 44 bytes long. Bytes 32-43 (ScrollSpeed to ScrollMode) have the
+// same layout as MISSDAT/OPTION.DAT.
 //
 // https://www.ufopaedia.org/index.php/WGLOB.DAT
 type WglobFile struct {

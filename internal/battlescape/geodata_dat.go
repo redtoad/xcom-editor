@@ -38,6 +38,6 @@ type GeodataFile struct {
 	AlienCraftY uint8
 	// 90: X position of the alien craft.
 	AlienCraftX uint8
-	// 91: Unknown.
+	// 91: Unknown, always 0.
 	Unknown uint8
 }

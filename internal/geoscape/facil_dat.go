@@ -3,7 +3,8 @@ package geoscape
 // FacilFile holds the stats of the 17 base facility types (in the order of
 // Facility).
 //
-// The file is 272 bytes long (17 facilities * 16 bytes).
+// The file is 272 bytes long (17 facilities * 16 bytes). A new game copies the
+// table from GEOSCAPE.EXE (offset 374240) and it never changes during the game.
 //
 // https://www.ufopaedia.org/index.php/FACIL.DAT
 type FacilFile struct {
@@ -22,17 +23,17 @@ type FacilityStats struct {
 	Upkeep uint8
 	// 6: Capacity (e.g. personnel, storage or containment space).
 	Capacity uint8
-	// 7: Unknown.
+	// 7: Unknown, always 0.
 	Unknown1 uint8
 	// 8-9: Defense strength.
 	Defense int16
 	// 10: Defense hit ratio in percent.
 	HitRatio uint8
-	// 11: Unknown.
+	// 11: Unknown, always 0.
 	Unknown2 uint8
 	// 12: Build flags: 0x01 = special facility, 0x02 = defense facility,
 	// 0x04 = can be built now, 0x08 = requires research.
 	Flags uint8
-	// 13-15: Unknown.
+	// 13-15: Unknown, always 0.
 	Unknown3 [3]uint8
 }
