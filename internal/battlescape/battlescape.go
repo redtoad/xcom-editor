@@ -27,6 +27,10 @@
 //   - OPTION.DAT holds the Battlescape options (layout of WGLOB.DAT bytes
 //     32-43) and is read by TACTICAL.EXE at startup.
 //
+// References (linear addresses): GEOSCAPE.EXE writes the pre-mission files at
+// 0x34f50, TACTICAL.EXE reads them at 0x31c7c and writes the post-mission
+// files at 0x2b4c0 (CODE.DAT at 0x2b75f).
+//
 // https://www.ufopaedia.org/index.php/Saved_Game_Files
 package battlescape
 

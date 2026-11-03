@@ -18,7 +18,9 @@ type BglobFile struct {
 // and the speed options of the Battlescape.
 //
 // The file is 44 bytes long. Bytes 32-43 (ScrollSpeed to ScrollMode) have the
-// same layout as MISSDAT/OPTION.DAT.
+// same layout as MISSDAT/OPTION.DAT, which TACTICAL.EXE reads at startup
+// (0x2f430) into its option variables and writes back at the end of a
+// mission (0x2b7a2).
 //
 // https://www.ufopaedia.org/index.php/WGLOB.DAT
 type WglobFile struct {

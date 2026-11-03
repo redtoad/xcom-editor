@@ -22,7 +22,8 @@ type ResearchTopic struct {
 	Topic [3]uint8
 	// 5: Unknown, 0 in the initial table and only set for live alien topics
 	// during the game (values up to 21 seen). It changes between savegames
-	// but does not match the number of such aliens in ASTORE.DAT.
+	// but does not match the number of such aliens in ASTORE.DAT. Where
+	// GEOSCAPE.EXE writes it has not been determined yet.
 	Unknown1 uint8
 	// 6: UFOpaedia category.
 	UfopaediaCategory uint8

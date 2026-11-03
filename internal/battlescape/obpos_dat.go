@@ -8,6 +8,10 @@ const NoOwner = 0xFF
 //
 // The file is 2720 bytes long (170 objects * 16 bytes).
 //
+// MISSDAT/OBPOSREF.DAT (written by GEOSCAPE.EXE before a mission, only the
+// objects used, e.g. 83 * 16 = 1328 bytes) and MISSDAT/OBPOS2.DAT (written
+// by TACTICAL.EXE at the end of a mission) use the same record format.
+//
 // https://www.ufopaedia.org/index.php/OBPOS.DAT
 type ObposFile struct {
 	Objects [170]BattleObject

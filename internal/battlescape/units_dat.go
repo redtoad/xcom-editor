@@ -43,7 +43,9 @@ type UnitPosition struct {
 	// 3: Unknown, always 0.
 	Unknown1 uint8
 	// 4-7: Memory address of the UNITREF.DAT entry (not used on disk;
-	// TACTICAL.EXE recalculates it after loading).
+	// TACTICAL.EXE recalculates it after loading MISSDAT/UNIPOS.DAT at
+	// 0x31cbb; the four entries of a large unit (UnitLarge) all point to
+	// the same UNITREF.DAT entry).
 	UnitRef uint32
 	// 8: Turns since the unit was last spotted.
 	TurnsSinceSpotted uint8
@@ -112,7 +114,8 @@ type Unit struct {
 	Value uint8
 	// 40: Index in SOLDIER.DAT, 0xFF if the unit is not a soldier.
 	Soldier uint8
-	// 41: Animation frame counter.
+	// 41: Animation frame counter. TACTICAL.EXE resets it for all units after
+	// loading MISSDAT/UNIREF.DAT (0x31ca4).
 	AnimationFrame uint8
 	// 42: Rank, 0xFF if dead or unused.
 	Rank uint8

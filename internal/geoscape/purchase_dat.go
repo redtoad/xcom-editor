@@ -21,7 +21,7 @@ type PurchaseItem struct {
 	// 2-5: Unknown, 1000 for all items except the crafts X-COM can only
 	// manufacture (Lightning, Avenger, Firestorm), which have 0.
 	Unknown1 int32
-	// 6-9: Buy price in $.
+	// 6-9: Buy price in $. Also stored in LEASE.DAT when a craft is bought.
 	BuyPrice int32
 	// 10-13: Sell price in $.
 	SellPrice int32
@@ -29,9 +29,11 @@ type PurchaseItem struct {
 	TransferHours uint8
 	// 15: Unknown, always 0.
 	Unknown2 uint8
-	// 16: Quantity last purchased.
+	// 16: Quantity last purchased. The purchase screen of GEOSCAPE.EXE
+	// (0x1c8fa) reads bytes 16-17 as a uint16 order quantity (limited to
+	// 255), so Unknown3 is its high byte.
 	LastPurchased uint8
-	// 17: Unknown, always 0.
+	// 17: Unknown, always 0 (high byte of LastPurchased, see above).
 	Unknown3 uint8
 	// 18: 1 if the item can be bought, 0 otherwise.
 	Purchasable uint8

@@ -13,6 +13,9 @@ package geoscape
 // loading and saving, no code in GEOSCAPE.EXE or TACTICAL.EXE accesses it,
 // so it is always 0.
 //
+// References in GEOSCAPE.EXE (linear addresses): allocation 0x21808, new
+// game 0x21dca, save 0x14dde, load 0x15b8d.
+//
 // https://www.ufopaedia.org/index.php/AKNOW.DAT
 type AknowFile struct {
 	Data [495]byte
