@@ -56,7 +56,8 @@ func CheckGameRoot(root string) error {
 func main() {
 
 	rootPath = flag.String("path", ".", "game path")
-	port := *flag.Int("port", DefaultPort, fmt.Sprintf("network port (default: %d", DefaultPort))
+	port := DefaultPort
+	flag.IntVar(&port, "port", DefaultPort, fmt.Sprintf("network port (default: %d)", DefaultPort))
 	flag.Parse()
 
 	if err := CheckGameRoot(*rootPath); err != nil {
