@@ -53,59 +53,59 @@ func (s *Soldier) RecoveryDays() int {
 // TimeUnits returns total time units (initial + improvement).
 func (s *Soldier) TimeUnits() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
-	return d.InitialTimeUnits + d.TimeUnitImprovement
+	return int(d.InitialTimeUnits) + int(d.TimeUnitImprovement)
 }
 
 // Health returns total health (initial + improvement).
 func (s *Soldier) Health() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
-	return d.InitialHealth + d.HealthImprovement
+	return int(d.InitialHealth) + int(d.HealthImprovement)
 }
 
 // Energy returns total energy/stamina (initial + improvement).
 func (s *Soldier) Energy() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
-	return d.InitialEnergy + d.EnergyImprovement
+	return int(d.InitialEnergy) + int(d.EnergyImprovement)
 }
 
 // Reactions returns total reactions (initial + improvement).
 func (s *Soldier) Reactions() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
-	return d.InitialReactions + d.ReactionsImprovement
+	return int(d.InitialReactions) + int(d.ReactionsImprovement)
 }
 
 // Strength returns total strength (initial + improvement).
 func (s *Soldier) Strength() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
-	return d.InitialStrength + d.StrengthImprovement
+	return int(d.InitialStrength) + int(d.StrengthImprovement)
 }
 
 // FiringAccuracy returns total firing accuracy (initial + improvement).
 func (s *Soldier) FiringAccuracy() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
-	return d.InitialFiringAccuracy + d.FiringAccuracyImprovement
+	return int(d.InitialFiringAccuracy) + int(d.FiringAccuracyImprovement)
 }
 
 // ThrowingAccuracy returns total throwing accuracy (initial + improvement).
 func (s *Soldier) ThrowingAccuracy() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
-	return d.InitialThrowingAccuracy + d.ThrowingAccuracyImprovement
+	return int(d.InitialThrowingAccuracy) + int(d.ThrowingAccuracyImprovement)
 }
 
 // MeleeAccuracy returns total melee accuracy (initial + improvement).
 func (s *Soldier) MeleeAccuracy() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
-	return d.InitialMeleeAccuracy + d.MeleeAccuracyImprovement
+	return int(d.InitialMeleeAccuracy) + int(d.MeleeAccuracyImprovement)
 }
 
 // PsionicStrength returns psionic strength (never changes).
 func (s *Soldier) PsionicStrength() int {
-	return s.game.soldierFile.Soldiers[s.offset].InitialPsionicStrength
+	return int(s.game.soldierFile.Soldiers[s.offset].InitialPsionicStrength)
 }
 
 // PsionicSkill returns current psionic skill.
 func (s *Soldier) PsionicSkill() int {
-	return s.game.soldierFile.Soldiers[s.offset].InitialPsionicSkill
+	return int(s.game.soldierFile.Soldiers[s.offset].InitialPsionicSkill)
 }
 
 // Bravery returns bravery value (110 - 10*(initial - improvement)).
@@ -135,67 +135,67 @@ func (s *Soldier) Appearance() string {
 }
 
 // InitialTimeUnits returns the soldier's initial time units (before improvements).
-func (s *Soldier) InitialTimeUnits() int { return s.data().InitialTimeUnits }
+func (s *Soldier) InitialTimeUnits() int { return int(s.data().InitialTimeUnits) }
 
 // InitialHealth returns the soldier's initial health (before improvements).
-func (s *Soldier) InitialHealth() int { return s.data().InitialHealth }
+func (s *Soldier) InitialHealth() int { return int(s.data().InitialHealth) }
 
 // InitialEnergy returns the soldier's initial energy (before improvements).
-func (s *Soldier) InitialEnergy() int { return s.data().InitialEnergy }
+func (s *Soldier) InitialEnergy() int { return int(s.data().InitialEnergy) }
 
 // InitialReactions returns the soldier's initial reactions (before improvements).
-func (s *Soldier) InitialReactions() int { return s.data().InitialReactions }
+func (s *Soldier) InitialReactions() int { return int(s.data().InitialReactions) }
 
 // InitialStrength returns the soldier's initial strength (before improvements).
-func (s *Soldier) InitialStrength() int { return s.data().InitialStrength }
+func (s *Soldier) InitialStrength() int { return int(s.data().InitialStrength) }
 
 // InitialFiringAccuracy returns the soldier's initial firing accuracy (before improvements).
-func (s *Soldier) InitialFiringAccuracy() int { return s.data().InitialFiringAccuracy }
+func (s *Soldier) InitialFiringAccuracy() int { return int(s.data().InitialFiringAccuracy) }
 
 // InitialThrowingAccuracy returns the soldier's initial throwing accuracy (before improvements).
-func (s *Soldier) InitialThrowingAccuracy() int { return s.data().InitialThrowingAccuracy }
+func (s *Soldier) InitialThrowingAccuracy() int { return int(s.data().InitialThrowingAccuracy) }
 
 // InitialMeleeAccuracy returns the soldier's initial melee accuracy (before improvements).
-func (s *Soldier) InitialMeleeAccuracy() int { return s.data().InitialMeleeAccuracy }
+func (s *Soldier) InitialMeleeAccuracy() int { return int(s.data().InitialMeleeAccuracy) }
 
 // InitialPsionicStrength returns the soldier's initial psionic strength.
-func (s *Soldier) InitialPsionicStrength() int { return s.data().InitialPsionicStrength }
+func (s *Soldier) InitialPsionicStrength() int { return int(s.data().InitialPsionicStrength) }
 
 // InitialPsionicSkill returns the soldier's initial psionic skill.
-func (s *Soldier) InitialPsionicSkill() int { return s.data().InitialPsionicSkill }
+func (s *Soldier) InitialPsionicSkill() int { return int(s.data().InitialPsionicSkill) }
 
 // InitialBravery returns the soldier's initial bravery value.
 func (s *Soldier) InitialBravery() int { return s.data().InitialBravery }
 
 // SetInitialTimeUnits sets the soldier's initial time units.
-func (s *Soldier) SetInitialTimeUnits(v int) { s.data().InitialTimeUnits = v }
+func (s *Soldier) SetInitialTimeUnits(v int) { s.data().InitialTimeUnits = statByte(v) }
 
 // SetInitialHealth sets the soldier's initial health.
-func (s *Soldier) SetInitialHealth(v int) { s.data().InitialHealth = v }
+func (s *Soldier) SetInitialHealth(v int) { s.data().InitialHealth = statByte(v) }
 
 // SetInitialEnergy sets the soldier's initial energy.
-func (s *Soldier) SetInitialEnergy(v int) { s.data().InitialEnergy = v }
+func (s *Soldier) SetInitialEnergy(v int) { s.data().InitialEnergy = statByte(v) }
 
 // SetInitialReactions sets the soldier's initial reactions.
-func (s *Soldier) SetInitialReactions(v int) { s.data().InitialReactions = v }
+func (s *Soldier) SetInitialReactions(v int) { s.data().InitialReactions = statByte(v) }
 
 // SetInitialStrength sets the soldier's initial strength.
-func (s *Soldier) SetInitialStrength(v int) { s.data().InitialStrength = v }
+func (s *Soldier) SetInitialStrength(v int) { s.data().InitialStrength = statByte(v) }
 
 // SetInitialFiringAccuracy sets the soldier's initial firing accuracy.
-func (s *Soldier) SetInitialFiringAccuracy(v int) { s.data().InitialFiringAccuracy = v }
+func (s *Soldier) SetInitialFiringAccuracy(v int) { s.data().InitialFiringAccuracy = statByte(v) }
 
 // SetInitialThrowingAccuracy sets the soldier's initial throwing accuracy.
-func (s *Soldier) SetInitialThrowingAccuracy(v int) { s.data().InitialThrowingAccuracy = v }
+func (s *Soldier) SetInitialThrowingAccuracy(v int) { s.data().InitialThrowingAccuracy = statByte(v) }
 
 // SetInitialMeleeAccuracy sets the soldier's initial melee accuracy.
-func (s *Soldier) SetInitialMeleeAccuracy(v int) { s.data().InitialMeleeAccuracy = v }
+func (s *Soldier) SetInitialMeleeAccuracy(v int) { s.data().InitialMeleeAccuracy = statByte(v) }
 
 // SetInitialPsionicStrength sets the soldier's initial psionic strength.
-func (s *Soldier) SetInitialPsionicStrength(v int) { s.data().InitialPsionicStrength = v }
+func (s *Soldier) SetInitialPsionicStrength(v int) { s.data().InitialPsionicStrength = statByte(v) }
 
 // SetInitialPsionicSkill sets the soldier's initial psionic skill.
-func (s *Soldier) SetInitialPsionicSkill(v int) { s.data().InitialPsionicSkill = v }
+func (s *Soldier) SetInitialPsionicSkill(v int) { s.data().InitialPsionicSkill = statByte(v) }
 
 type Rank int
 
@@ -299,4 +299,10 @@ func (game *Savegame) HealAllSoldiers() {
 	for _, soldier := range game.Soldiers() {
 		soldier.Heal()
 	}
+}
+
+// statByte converts a stat value to the unsigned byte stored in SOLDIER.DAT,
+// clamping it to the valid range 0-255.
+func statByte(v int) uint8 {
+	return uint8(min(max(v, 0), 255))
 }

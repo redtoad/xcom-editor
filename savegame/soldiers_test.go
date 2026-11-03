@@ -41,3 +41,37 @@ func TestSavegameCraft_OutOfBoundsReturnsNil(t *testing.T) {
 		t.Fatalf("expected nil for offset beyond bounds, got %#v", got)
 	}
 }
+
+func TestSoldierStats_AboveSignedByteRange(t *testing.T) {
+	game := &Savegame{}
+	game.soldierFile.Soldiers = make([]geoscape.SoldierData, 1)
+	game.soldierFile.Soldiers[0].InitialTimeUnits = 200
+	game.soldierFile.Soldiers[0].TimeUnitImprovement = 100
+
+	s := &Soldier{game: game, offset: 0}
+	if got := s.InitialTimeUnits(); got != 200 {
+		t.Fatalf("InitialTimeUnits() = %d, want 200", got)
+	}
+	// The total must not wrap around at 255.
+	if got := s.TimeUnits(); got != 300 {
+		t.Fatalf("TimeUnits() = %d, want 300", got)
+	}
+}
+
+func TestSoldierSetInitialStat_ClampsToByteRange(t *testing.T) {
+	game := &Savegame{}
+	game.soldierFile.Soldiers = make([]geoscape.SoldierData, 1)
+	s := &Soldier{game: game, offset: 0}
+
+	for _, tt := range []struct{ in, want int }{
+		{135, 135},
+		{255, 255},
+		{300, 255},
+		{-5, 0},
+	} {
+		s.SetInitialFiringAccuracy(tt.in)
+		if got := s.InitialFiringAccuracy(); got != tt.want {
+			t.Errorf("SetInitialFiringAccuracy(%d): got %d, want %d", tt.in, got, tt.want)
+		}
+	}
+}
