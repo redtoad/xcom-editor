@@ -104,3 +104,7 @@ export async function getWorld(): Promise<WorldData> {
 export function textureURL(set: number, terrain: number): string {
   return `/api/world/textures/${set}/${terrain}.png`;
 }
+
+export function baseBitURL(sprite: number): string {
+  return `/api/basebits/${sprite}.png`;
+}

@@ -413,7 +413,7 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	writeJSON(w, map[string]interface{}{
+	result := map[string]interface{}{
 		"index":      b.Index(),
 		"name":       b.Name(),
 		"active":     b.Active(),
@@ -422,7 +422,12 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 		"coord":      b.Coord().String(),
 		"tiles":      tiles,
 		"inventory":  inventoryMap,
-	})
+	}
+	// sprites to draw the base with the graphics of the game
+	if baseBits != nil {
+		result["layers"] = baseLayers(b.Tiles())
+	}
+	writeJSON(w, result)
 }
 
 type baseUpdateRequest struct {

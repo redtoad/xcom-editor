@@ -73,7 +73,8 @@ It shows whether a savegame was saved during a mission (with turn, surviving
 units and score) and has a map of both hemispheres of the globe with all
 bases, X-COM craft and UFOs, their flight paths and details on hover. If the
 folder is the game folder (containing `GEODATA` and `GEOGRAPH`), the map is
-drawn with the terrain and textures of the game (`WORLD.DAT`, `TEXTURE.DAT`),
-otherwise a generic world map is used. The
+drawn with the terrain and textures of the game (`WORLD.DAT`, `TEXTURE.DAT`)
+and bases are shown like on the base screen of the game (`BASEBITS.PCK`),
+otherwise a generic world map and a simple facility grid are used. The
 frontend (Svelte) is in `cmd/savegame-editor/frontend`; run `npm run build`
 there after changing it, the build output is embedded into the binary.
