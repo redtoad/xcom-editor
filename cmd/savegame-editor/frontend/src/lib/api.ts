@@ -1,7 +1,7 @@
 import type {
   GameSummary, GameDetail, SoldierSummary, SoldierDetail,
   BaseSummary, BaseDetail, CraftSummary, TransferSummary, Financials,
-  GlobeLocation
+  GlobeLocation, WorldData
 } from './types';
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
@@ -95,4 +95,12 @@ export async function reloadGame(slot: string): Promise<void> {
 
 export async function listLocations(slot: string): Promise<GlobeLocation[]> {
   return fetchJSON(`/api/games/${slot}/locations`);
+}
+
+export async function getWorld(): Promise<WorldData> {
+  return fetchJSON('/api/world');
+}
+
+export function textureURL(set: number, terrain: number): string {
+  return `/api/world/textures/${set}/${terrain}.png`;
 }

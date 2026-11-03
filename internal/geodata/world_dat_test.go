@@ -3,6 +3,7 @@ package geodata_test
 import (
 	"encoding/base64"
 	"encoding/binary"
+	"image/color"
 	"reflect"
 	"testing"
 
@@ -46,5 +47,27 @@ func TestWORLD_DAT_Unpack(t *testing.T) {
 				t.Errorf("WORLD_DAT.Unpack() = %v, want %v", world.Polygons, tt.want)
 			}
 		})
+	}
+}
+
+func TestTextureFile_Image(t *testing.T) {
+	var buf [geodata.NumTextureSets * geodata.NumTerrains * geodata.TextureSize * geodata.TextureSize]byte
+	// first pixel of terrain 2 in texture set 1
+	buf[(1*geodata.NumTerrains+2)*geodata.TextureSize*geodata.TextureSize] = 7
+
+	var f geodata.TextureFile
+	if err := restruct.Unpack(buf[:], binary.LittleEndian, &f); err != nil {
+		t.Fatal(err)
+	}
+	palette := make(color.Palette, 256)
+	for i := range palette {
+		palette[i] = color.Gray{Y: uint8(i)}
+	}
+	img := f.Image(1, 2, palette)
+	if got := img.ColorIndexAt(0, 0); got != 7 {
+		t.Errorf("ColorIndexAt(0, 0) = %d, want 7", got)
+	}
+	if got := img.Bounds().Dx(); got != geodata.TextureSize {
+		t.Errorf("width = %d, want %d", got, geodata.TextureSize)
 	}
 }

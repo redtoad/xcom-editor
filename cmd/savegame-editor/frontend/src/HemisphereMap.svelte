@@ -1,15 +1,19 @@
 <script lang="ts">
-  import { geoOrthographic, geoPath, geoGraticule10, geoDistance } from 'd3-geo';
+  import { onMount } from 'svelte';
+  import { geoOrthographic, geoPath, geoGraticule10, geoDistance, geoArea } from 'd3-geo';
   import type { GeoPermissibleObjects } from 'd3-geo';
   import { feature } from 'topojson-client';
   import type { Topology, GeometryCollection } from 'topojson-specification';
   import landTopology from 'world-atlas/land-110m.json';
-  import { listLocations } from './lib/api';
-  import type { GlobeLocation } from './lib/types';
+  import { listLocations, getWorld, textureURL } from './lib/api';
+  import type { GlobeLocation, WorldData } from './lib/types';
 
   export let gameSlot: string;
 
   const SIZE = 360;
+  // Textures are drawn with doubled pixels, like on the original 320x200 screen.
+  const TEXTURE_SCALE = 2;
+  const TEXTURE_SIZE = 32 * TEXTURE_SCALE;
   const RADIUS = SIZE / 2 - 4;
 
   // Location type codes (see geoscape.LocationType).
@@ -41,6 +45,10 @@
   const graticule = geoGraticule10();
 
   let locations: GlobeLocation[] = [];
+  // terrain from the game files, null if not available
+  let terrain: { ocean: string; layers: { terrain: number; shape: GeoPermissibleObjects }[] } | null = null;
+  let textureSet = 0;
+  let textureSets = 0;
   let error = '';
   let centerLon = 0;
   let showSites = true;
@@ -62,6 +70,44 @@
   }
 
   $: load(gameSlot);
+
+  onMount(async () => {
+    try {
+      const world = await getWorld();
+      if (world.available) {
+        terrain = buildTerrain(world);
+        textureSets = world.textureSets ?? 0;
+      }
+    } catch {
+      // fall back to the generic map
+    }
+  });
+
+  // buildTerrain combines the polygons of WORLD.DAT into one shape per
+  // terrain type.
+  function buildTerrain(world: WorldData) {
+    const byTerrain = new Map<number, [number, number][][][]>();
+    for (const poly of world.polygons ?? []) {
+      // Points exactly on a pole lie on the horizon of both hemispheres,
+      // which breaks clipping (the polygon then fills the whole hemisphere).
+      const points = poly.points.map(([lon, lat]): [number, number] =>
+        [lon, Math.max(-89.9, Math.min(89.9, lat))]);
+      const ring = [...points, points[0]];
+      // d3-geo expects clockwise rings, otherwise the polygon covers the
+      // rest of the globe
+      if (geoArea({ type: 'Polygon', coordinates: [ring] }) > 2 * Math.PI) {
+        ring.reverse();
+      }
+      byTerrain.set(poly.terrain, [...(byTerrain.get(poly.terrain) ?? []), [ring]]);
+    }
+    return {
+      ocean: world.ocean ?? '#0b1d3a',
+      layers: [...byTerrain.entries()].map(([terrain, polygons]) => ({
+        terrain,
+        shape: { type: 'MultiPolygon', coordinates: polygons } as GeoPermissibleObjects,
+      })),
+    };
+  }
 
   function normalize(lon: number): number {
     return ((lon + 540) % 360) - 180;
@@ -177,16 +223,56 @@
     <input type="checkbox" bind:checked={showSites} />
     Show bases and sites
   </label>
+  {#if terrain && textureSets > 1}
+    <label>
+      Textures
+      <select bind:value={textureSet}>
+        {#each Array(textureSets) as _, i}
+          <option value={i}>Set {i + 1}</option>
+        {/each}
+      </select>
+    </label>
+  {/if}
   <span class="count">{ships.length} ships &middot; {flights.length} in flight</span>
 </div>
+
+{#if terrain}
+  <svg class="defs" aria-hidden="true">
+    <defs>
+      {#each terrain.layers as layer (layer.terrain)}
+        <pattern
+          id="terrain-{layer.terrain}"
+          patternUnits="userSpaceOnUse"
+          width={TEXTURE_SIZE}
+          height={TEXTURE_SIZE}
+        >
+          <image
+            href={textureURL(textureSet, layer.terrain)}
+            width={TEXTURE_SIZE}
+            height={TEXTURE_SIZE}
+            style="image-rendering: pixelated"
+          />
+        </pattern>
+      {/each}
+    </defs>
+  </svg>
+{/if}
 
 <div class="map-wrapper" bind:this={wrapper}>
   {#each hemispheres as h (h.label)}
     <figure class="hemisphere">
       <svg viewBox="0 0 {SIZE} {SIZE}" width={SIZE} height={SIZE} role="img" aria-label="{h.label} hemisphere">
-        <path class="ocean" d={h.path({ type: 'Sphere' })} />
-        <path class="graticule" d={h.path(graticule)} />
-        <path class="land" d={h.path(land)} />
+        {#if terrain}
+          <path class="ocean" d={h.path({ type: 'Sphere' })} style="fill:{terrain.ocean}" />
+          {#each terrain.layers as layer (layer.terrain)}
+            <path class="terrain" d={h.path(layer.shape)} fill="url(#terrain-{layer.terrain})" />
+          {/each}
+          <path class="graticule faint" d={h.path(graticule)} />
+        {:else}
+          <path class="ocean" d={h.path({ type: 'Sphere' })} />
+          <path class="graticule" d={h.path(graticule)} />
+          <path class="land" d={h.path(land)} />
+        {/if}
 
         {#each flights as { ship, dest }}
           {@const d = h.path(flightPath(ship, dest))}
@@ -334,6 +420,23 @@
     fill: none;
     stroke: #16325c;
     stroke-width: 0.5;
+  }
+  .graticule.faint {
+    stroke: rgba(255, 255, 255, 0.08);
+  }
+  .terrain {
+    stroke: none;
+  }
+  .defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  .controls select {
+    background: #16213e;
+    color: #e0e0e0;
+    border: 1px solid #0f3460;
+    font-family: inherit;
   }
   .land {
     fill: #1f3d2b;

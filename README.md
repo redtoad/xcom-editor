@@ -66,11 +66,14 @@ The real savegames in `testdata/` are used for round-trip tests.
 `cmd/savegame-editor` is a web-based editor for savegames:
 
 ```sh
-go run ./cmd/savegame-editor path/to/game/root   # folder containing GAME_1 ... GAME_10
+go run ./cmd/savegame-editor path/to/game   # folder containing GAME_1 ... GAME_10
 ```
 
 It shows whether a savegame was saved during a mission (with turn, surviving
 units and score) and has a map of both hemispheres of the globe with all
-bases, X-COM craft and UFOs, their flight paths and details on hover. The
+bases, X-COM craft and UFOs, their flight paths and details on hover. If the
+folder is the game folder (containing `GEODATA` and `GEOGRAPH`), the map is
+drawn with the terrain and textures of the game (`WORLD.DAT`, `TEXTURE.DAT`),
+otherwise a generic world map is used. The
 frontend (Svelte) is in `cmd/savegame-editor/frontend`; run `npm run build`
 there after changing it, the build output is embedded into the binary.

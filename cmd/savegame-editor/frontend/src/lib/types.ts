@@ -152,3 +152,16 @@ export interface CraftDetails {
   race?: string;
   destination?: string;
 }
+
+export interface WorldPolygon {
+  terrain: number;
+  points: [number, number][]; // [lon, lat]
+}
+
+export interface WorldData {
+  available: boolean;
+  ocean?: string;
+  polygons?: WorldPolygon[];
+  textureSets?: number;
+  terrains?: number;
+}
