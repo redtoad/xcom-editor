@@ -496,6 +496,7 @@ func handleListCraft(w http.ResponseWriter, r *http.Request) {
 		Damage   int    `json:"damage"`
 		Fuel     int    `json:"fuel"`
 		BaseName string `json:"baseName"`
+		Damaged  bool   `json:"damaged"`
 	}
 
 	result := make([]craftSummary, 0)
@@ -512,6 +513,7 @@ func handleListCraft(w http.ResponseWriter, r *http.Request) {
 			Damage:   c.Damage(),
 			Fuel:     c.Fuel(),
 			BaseName: baseName,
+			Damaged:  c.Damaged(),
 		})
 	}
 	writeJSON(w, result)
@@ -657,6 +659,8 @@ type craftDetails struct {
 	Zone        string `json:"zone,omitempty"`
 	Race        string `json:"race,omitempty"`
 	Destination string `json:"destination,omitempty"`
+	// Damaged is true if the entry in CRAFT.DAT is (nearly) empty.
+	Damaged bool `json:"damaged,omitempty"`
 }
 
 // GET /api/games/{slot}/locations
@@ -708,6 +712,7 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 					Speed:    craft.Speed(),
 					Fuel:     craft.Fuel(),
 					Damage:   craft.Damage(),
+					Damaged:  craft.Damaged(),
 				}
 				if loc.Type == geoscape.AlienShip {
 					details.Mission = craft.MissionType()

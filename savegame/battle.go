@@ -9,6 +9,7 @@ import (
 
 	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/battlescape"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 )
 
 // Battle holds the Battlescape data of a savegame that was saved during a
@@ -119,8 +120,11 @@ func (game *Savegame) MissionStatus() *MissionStatus {
 		Turn:  int(b.Globals.Turn),
 		Score: int(b.Globals.AlienKillScore) + int(b.Globals.XcomLossScore),
 	}
-	if b.Mission.UFOSite == 0 {
-		status.Craft = game.Craft(int(b.Mission.Craft))
+	// MISDATA.DAT refers to the craft by its location (LOC.DAT)
+	if idx := int(b.Mission.Craft); idx < len(game.locationFile.Objects) {
+		if loc := game.locationFile.Objects[idx]; loc.Type == geoscape.XCOMShip {
+			status.Craft = game.Craft(int(loc.TableReference))
+		}
 	}
 	for i, pos := range b.UnitPositions.Units {
 		unit := b.Units.Units[i]

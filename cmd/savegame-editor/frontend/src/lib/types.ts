@@ -123,6 +123,8 @@ export interface CraftSummary {
   damage: number;
   fuel: number;
   baseName: string;
+  // the entry in CRAFT.DAT is (nearly) empty, its values are meaningless
+  damaged: boolean;
 }
 
 export interface TransferSummary {
@@ -162,6 +164,7 @@ export interface CraftDetails {
   zone?: string;
   race?: string;
   destination?: string;
+  damaged?: boolean;
 }
 
 export interface WorldPolygon {

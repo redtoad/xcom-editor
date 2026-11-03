@@ -22,7 +22,9 @@ type MisdataFile struct {
 	TimeOfDay int16
 	// 76: LOC.DAT index of the UFO crash site.
 	UFOLocation uint8
-	// 77: CRAFT.DAT index of the X-COM craft (LOC.DAT index for base defence).
+	// 77: LOC.DAT index of the X-COM craft (or of the X-COM base for base
+	// defence). Note: UFOpaedia describes it as a CRAFT.DAT index, but in the
+	// savegames it refers to LOC.DAT.
 	Craft uint8
 	// 78: Result: 0 = aborted, 1 = won, 2 = lost, 3 = aborted without units
 	// in the exit area.

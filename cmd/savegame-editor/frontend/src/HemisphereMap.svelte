@@ -313,6 +313,9 @@
         <div class="tooltip-entry">
           <div class="tooltip-title" style="color:{color(loc)}">{loc.name}</div>
           <div class="tooltip-type">{loc.type}</div>
+          {#if loc.craft?.damaged}
+            <div class="tooltip-damaged">Damaged entry in CRAFT.DAT, values are meaningless</div>
+          {/if}
           {#if loc.craft}
             <dl>
               <dt>Craft</dt><dd>{loc.craft.type}</dd>
@@ -502,6 +505,10 @@
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid #0f3460;
+  }
+  .tooltip-damaged {
+    color: #ff8888;
+    margin-bottom: 4px;
   }
   .tooltip-position {
     margin-top: 8px;

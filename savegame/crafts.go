@@ -210,3 +210,22 @@ func (c *Craft) DestinationLocation() *Location {
 		CountSuffix:    obj.CountSuffix,
 	}
 }
+
+// Damaged returns true if the craft exists (it is referenced by LOC.DAT) but
+// its entry in CRAFT.DAT is (nearly) empty, e.g. because the file was
+// overwritten with zeros. The values of such a craft are meaningless.
+func (c *Craft) Damaged() bool {
+	data, err := internal.Marshall(&c.game.craftsFile.Crafts[c.offset])
+	if err != nil {
+		return true
+	}
+	nonZero := 0
+	for _, b := range data {
+		if b != 0 {
+			nonZero++
+		}
+	}
+	// valid entries always contain several values (weapons, fuel, base,
+	// location, ...), damaged ones only leftovers.
+	return nonZero <= 2
+}

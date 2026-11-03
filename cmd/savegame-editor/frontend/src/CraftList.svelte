@@ -5,6 +5,9 @@
 
   export let gameSlot: string;
 
+  const DAMAGED_HINT = 'The entry of this craft in CRAFT.DAT is empty (e.g. overwritten with zeros), ' +
+    'so its values are meaningless. The craft still exists in the game (LOC.DAT refers to it).';
+
   let craft: CraftSummary[] = [];
   let error = '';
 
@@ -41,8 +44,13 @@
     </thead>
     <tbody>
       {#each craft as c}
-        <tr>
-          <td class="name">{c.name}</td>
+        <tr class:damaged={c.damaged}>
+          <td class="name">
+            {c.name}
+            {#if c.damaged}
+              <span class="badge damaged-badge" title={DAMAGED_HINT}>Damaged</span>
+            {/if}
+          </td>
           <td>{c.type}</td>
           <td>{c.baseName}</td>
           <td>
@@ -86,6 +94,14 @@
   }
   .badge.ready { background: #0a3a0a; color: #44ff44; }
   .badge.out { background: #3a3a0a; color: #ffff44; }
+  tr.damaged td { color: #666; }
+  .badge.damaged-badge {
+    margin-left: 6px;
+    background: #5c0a0a;
+    color: #ff8888;
+    font-weight: normal;
+    cursor: help;
+  }
   .empty {
     color: #666;
     text-align: center;

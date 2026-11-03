@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/redtoad/xcom-editor/savegame"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -123,7 +122,8 @@ func TestSavegame_MissionStatus(t *testing.T) {
 	assert.Equal(t, 7, status.AliensTotal)
 	assert.Equal(t, 7, status.AliensAlive)
 	require.NotNil(t, status.Craft)
-	assert.Equal(t, geoscape.Skyranger, status.Craft.Type())
+	assert.Equal(t, "SKYRANGER-2", status.Craft.Name())
+	assert.Equal(t, 0, status.Craft.Index(), "the craft that is out on the mission")
 }
 
 func TestSavegame_Crafts(t *testing.T) {
@@ -146,5 +146,17 @@ func TestSavegame_Crafts(t *testing.T) {
 			}
 			assert.Equal(t, tt.want, names)
 		})
+	}
+}
+
+func TestCraft_Damaged(t *testing.T) {
+	for _, game := range []string{"GAME_1", "GAME_2", "GAME_4"} {
+		sg, err := savegame.Load(copySavegame(t, game))
+		require.NoError(t, err)
+		for _, c := range sg.Crafts() {
+			// the entries 1 and 2 of CRAFT.DAT were zeroed in GAME_4
+			want := game == "GAME_4" && (c.Index() == 1 || c.Index() == 2)
+			assert.Equal(t, want, c.Damaged(), "%s: %s (%d)", game, c.Name(), c.Index())
+		}
 	}
 }

@@ -62,7 +62,7 @@ func TestHandleListGames_Mission(t *testing.T) {
 	assert.Equal(t, "GAME_4", result[1].Slot)
 	require.NotNil(t, result[1].Mission)
 	assert.Equal(t, missionJS{
-		Turn: 2, CraftName: "SKYRANGER-1",
+		Turn: 2, CraftName: "SKYRANGER-2",
 		XcomAlive: 13, XcomTotal: 14, AliensAlive: 7, AliensTotal: 7, Score: -27,
 	}, *result[1].Mission)
 }
@@ -122,4 +122,19 @@ func TestHandleListLocations_CraftDetails(t *testing.T) {
 	assert.Equal(t, "Alien Supply", ufo.Craft.Mission)
 	assert.Equal(t, "Antarctica", ufo.Craft.Zone)
 	assert.Equal(t, 3200, ufo.Craft.Speed)
+}
+
+func TestHandleListCraft_Damaged(t *testing.T) {
+	loadTestGames(t, "GAME_4")
+
+	var result []struct {
+		Index   int  `json:"index"`
+		Damaged bool `json:"damaged"`
+	}
+	getJSON(t, "/api/games/GAME_4/craft", handleListCraft, "/api/games/{slot}/craft", &result)
+
+	require.Len(t, result, 3)
+	for _, c := range result {
+		assert.Equal(t, c.Index != 0, c.Damaged, "craft %d", c.Index)
+	}
 }
