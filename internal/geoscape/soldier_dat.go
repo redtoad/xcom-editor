@@ -128,36 +128,39 @@ type SoldierData struct {
 
 	// Initial Recruit Stats
 
+	// All stat bytes (42-60, 63) are unsigned. Values above 127 occur in hacked
+	// or edited savegames and must not be read as negative numbers.
+
 	// 42 / 2A (50-60): Initial Time Units
-	InitialTimeUnits int `struct:"int8"`
+	InitialTimeUnits uint8 `struct:"uint8"`
 
 	// 43 / 2B (25-40): Initial Health
-	InitialHealth int `struct:"int8"`
+	InitialHealth uint8 `struct:"uint8"`
 
 	// 44 / 2C (40-70): Initial Energy a.k.a. Stamina
-	InitialEnergy int `struct:"int8"`
+	InitialEnergy uint8 `struct:"uint8"`
 
 	// 45 / 2D (30-60): Initial Reactions
-	InitialReactions int `struct:"int8"`
+	InitialReactions uint8 `struct:"uint8"`
 
 	// 46 / 2E (20-40): Initial Strength
-	InitialStrength int `struct:"int8"`
+	InitialStrength uint8 `struct:"uint8"`
 
 	// 47 / 2F (40-70): Initial Firing Accuracy
-	InitialFiringAccuracy int `struct:"int8"`
+	InitialFiringAccuracy uint8 `struct:"uint8"`
 
 	// 48 / 30 (50-80): Initial Throwing Accuracy
-	InitialThrowingAccuracy int `struct:"int8"`
+	InitialThrowingAccuracy uint8 `struct:"uint8"`
 
 	// 49 / 31 (20-40): Initial Melee Accuracy a.k.a. Close Combat Accuracy
-	InitialMeleeAccuracy int `struct:"int8"`
+	InitialMeleeAccuracy uint8 `struct:"uint8"`
 
 	// 50 / 32 (0-100): Psionic Strength. Never changes.
-	InitialPsionicStrength int `struct:"int8"`
+	InitialPsionicStrength uint8 `struct:"uint8"`
 
 	// 51 / 33 (0-105+): Current Psionic Skill. 0 = Not yet trained / Psi stats not visible. See Note 1.
 	// Unlike other stats, Psi Skill always starts at 0. So it stores its current skill in what would've otherwise been its initial skill byte, if you will. Also see Bytes 64 and 65.
-	InitialPsionicSkill int `struct:"int8"`
+	InitialPsionicSkill uint8 `struct:"uint8"`
 
 	// 52 / 34 (5-10): Initial Bravery. Computed as 110-(10*ThisByte). E.g. if ThisByte=9, Bravery=20. So the lower this byte is, the better your Bravery is (see table at right). Initial Bravery can be 10-60, and it only uses increments of 10.
 	// [52] Value	Bravery
@@ -179,31 +182,31 @@ type SoldierData struct {
 	// Add to initial values to get current total.
 
 	// 53 / 35 (0-31): Time Unit Improvement. (Max total TUs possible (initial+improvement) is 81. See Note 1.)
-	TimeUnitImprovement int `struct:"int8"`
+	TimeUnitImprovement uint8 `struct:"uint8"`
 
 	// 54 / 36 (0-36): Health Improvement. (Max total 61)
-	HealthImprovement int `struct:"int8"`
+	HealthImprovement uint8 `struct:"uint8"`
 
 	// 55 / 37 (0-61): Stamina Improvement. (Max total 101)
-	EnergyImprovement int `struct:"int8"`
+	EnergyImprovement uint8 `struct:"uint8"`
 
 	// 56 / 38 (0-75): Reaction Improvement. (Max total 105)
-	ReactionsImprovement int `struct:"int8"`
+	ReactionsImprovement uint8 `struct:"uint8"`
 
 	// 57 / 39 (0-51): Strength Improvement. (Max total 71) Note that very high (hacked)
 	// values can cause "unable to throw here", presumably because the arc would intercept
 	// the "ceiling" of the Battlescape. See throwing distance for more on Strength versus
 	// Throwing.
-	StrengthImprovement int `struct:"int8"`
+	StrengthImprovement uint8 `struct:"uint8"`
 
 	// 58 / 3A (0-85): Firing Accuracy Improvement. (Max total 125)
-	FiringAccuracyImprovement int `struct:"int8"`
+	FiringAccuracyImprovement uint8 `struct:"uint8"`
 
 	// 59 / 3B (0-75): Throwing Accuracy Improvement Improvement. (Max total 125)
-	ThrowingAccuracyImprovement int `struct:"int8"`
+	ThrowingAccuracyImprovement uint8 `struct:"uint8"`
 
 	// 60 / 3C (0-105): Melee/Close Combat Accuracy Improvement. (Max total 125)
-	MeleeAccuracyImprovement int `struct:"int8"`
+	MeleeAccuracyImprovement uint8 `struct:"uint8"`
 
 	// 61 / 3D (0-9): Bravery Improvement (multiply by 10). (Max total 9; 100 Bravery)
 	BraveryImprovement int `struct:"int8"`
@@ -215,7 +218,7 @@ type SoldierData struct {
 	Armor Armor `struct:"int8"`
 
 	// 63 / 3F (0-24): Most-recent month's Psi Lab training increase. Largest values for newly trained (16-24). For Psi Lab point-award functionality, see Psionic Skill.
-	MostRecentPsiLabTraining int `struct:"int8"`
+	MostRecentPsiLabTraining uint8 `struct:"uint8"`
 
 	// 64 / 40 (0,1): In Psi Lab training.
 	InPsiLabTraining bool `struct:"int8"`

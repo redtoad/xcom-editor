@@ -75,3 +75,45 @@ func TestUnpackSoldier(t *testing.T) {
 		})
 	}
 }
+
+// TestSoldierStatsAreUnsigned ensures that stat bytes above 127 (e.g. from
+// hacked or heavily trained soldiers) are read as unsigned values and written
+// back unchanged.
+func TestSoldierStatsAreUnsigned(t *testing.T) {
+	data := make([]byte, 68)
+	// Bytes 42-51: initial stats, 53-60: stat improvements, 63: psi lab increase.
+	for _, offset := range []int{42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 63} {
+		data[offset] = 0x87 // 135
+	}
+
+	var soldier geoscape.SoldierData
+	assert.NoError(t, restruct.Unpack(data, binary.LittleEndian, &soldier))
+
+	for name, got := range map[string]int{
+		"InitialTimeUnits":            int(soldier.InitialTimeUnits),
+		"InitialHealth":               int(soldier.InitialHealth),
+		"InitialEnergy":               int(soldier.InitialEnergy),
+		"InitialReactions":            int(soldier.InitialReactions),
+		"InitialStrength":             int(soldier.InitialStrength),
+		"InitialFiringAccuracy":       int(soldier.InitialFiringAccuracy),
+		"InitialThrowingAccuracy":     int(soldier.InitialThrowingAccuracy),
+		"InitialMeleeAccuracy":        int(soldier.InitialMeleeAccuracy),
+		"InitialPsionicStrength":      int(soldier.InitialPsionicStrength),
+		"InitialPsionicSkill":         int(soldier.InitialPsionicSkill),
+		"TimeUnitImprovement":         int(soldier.TimeUnitImprovement),
+		"HealthImprovement":           int(soldier.HealthImprovement),
+		"EnergyImprovement":           int(soldier.EnergyImprovement),
+		"ReactionsImprovement":        int(soldier.ReactionsImprovement),
+		"StrengthImprovement":         int(soldier.StrengthImprovement),
+		"FiringAccuracyImprovement":   int(soldier.FiringAccuracyImprovement),
+		"ThrowingAccuracyImprovement": int(soldier.ThrowingAccuracyImprovement),
+		"MeleeAccuracyImprovement":    int(soldier.MeleeAccuracyImprovement),
+		"MostRecentPsiLabTraining":    int(soldier.MostRecentPsiLabTraining),
+	} {
+		assert.Equal(t, 135, got, name)
+	}
+
+	packed, err := restruct.Pack(binary.LittleEndian, &soldier)
+	assert.NoError(t, err)
+	assert.Equal(t, data, packed)
+}
