@@ -86,6 +86,7 @@ func (f *IglobFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	f.UFOsOnRetaliation = int32(order.Uint32(buf[48:]))
 	f.AlienBases = int32(order.Uint32(buf[52:]))
 	f.CurrentMIDI = int32(order.Uint32(buf[56:]))
+	f.Difficulty = nil
 	if len(buf) >= 64 {
 		d := Difficulty(int32(order.Uint32(buf[60:])))
 		f.Difficulty = &d
