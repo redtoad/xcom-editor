@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"image/png"
 	"net/http"
 	"net/http/httptest"
@@ -163,4 +164,12 @@ func TestHandleGetBase_Layers(t *testing.T) {
 	getJSON(t, "/api/games/GAME_1/bases/0", handleGetBase, "/api/games/{slot}/bases/{idx}", &result)
 	require.Contains(t, result, "layers")
 	assert.Len(t, result["layers"], 5)
+}
+
+// Empty layers must be encoded as [] (not null), otherwise the frontend
+// cannot iterate over them.
+func TestBaseLayers_EmptyLayersAreNotNull(t *testing.T) {
+	buf, err := json.Marshal(baseLayers(emptyBase(), nil))
+	require.NoError(t, err)
+	assert.NotContains(t, string(buf), "null")
 }

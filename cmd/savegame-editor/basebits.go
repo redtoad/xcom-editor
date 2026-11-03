@@ -93,7 +93,8 @@ func baseLayers(tiles []savegame.BaseTile, crafts []hangarCraft) [][]baseSprite 
 		return f >= geoscape.HangarTopLeft && f <= geoscape.HangarBottomRight
 	}
 
-	var ground, shapes, corridors, interiors, craftSprites []baseSprite
+	// empty layers must not be nil, so they are encoded as [] in JSON
+	ground, shapes, corridors, interiors, craftSprites := []baseSprite{}, []baseSprite{}, []baseSprite{}, []baseSprite{}, []baseSprite{}
 	for i, tile := range tiles {
 		x, y := i%size*tileSize, i/size*tileSize
 		ground = append(ground, baseSprite{spriteGround, x, y})
