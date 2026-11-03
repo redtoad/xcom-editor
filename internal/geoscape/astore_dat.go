@@ -30,29 +30,29 @@ type StoredAlien struct {
 type AlienRace uint8
 
 const (
-	AlienNone       AlienRace = 0  // none
-	AlienSectoid    AlienRace = 1  // Sectoid
-	AlienSnakeman   AlienRace = 2  // Snakeman
-	AlienEthereal   AlienRace = 3  // Ethereal
-	AlienMuton      AlienRace = 4  // Muton
-	AlienFloater    AlienRace = 5  // Floater
-	AlienCelatid    AlienRace = 6  // Celatid
-	AlienSilacoid   AlienRace = 7  // Silacoid
-	AlienChryssalid AlienRace = 8  // Chryssalid
-	AlienReaper     AlienRace = 9  // Reaper
-	AlienSectopod   AlienRace = 10 // Sectopod
-	AlienCyberdisc  AlienRace = 11 // Cyberdisc
+	AlienNone       AlienRace = iota // none
+	AlienSectoid                     // Sectoid
+	AlienSnakeman                    // Snakeman
+	AlienEthereal                    // Ethereal
+	AlienMuton                       // Muton
+	AlienFloater                     // Floater
+	AlienCelatid                     // Celatid
+	AlienSilacoid                    // Silacoid
+	AlienChryssalid                  // Chryssalid
+	AlienReaper                      // Reaper
+	AlienSectopod                    // Sectopod
+	AlienCyberdisc                   // Cyberdisc
 )
 
 // AlienRank is the rank of a live alien in ASTORE.DAT.
 type AlienRank uint8
 
 const (
-	AlienCommander AlienRank = 1 // Commander
-	AlienLeader    AlienRank = 2 // Leader
-	AlienEngineer  AlienRank = 3 // Engineer
-	AlienMedic     AlienRank = 4 // Medic
-	AlienNavigator AlienRank = 5 // Navigator
-	AlienSoldier   AlienRank = 6 // Soldier
-	AlienTerrorist AlienRank = 7 // Terrorist
+	AlienCommander AlienRank = iota + 1 // Commander
+	AlienLeader                         // Leader
+	AlienEngineer                       // Engineer
+	AlienMedic                          // Medic
+	AlienNavigator                      // Navigator
+	AlienSoldier                        // Soldier
+	AlienTerrorist                      // Terrorist
 )
