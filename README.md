@@ -76,6 +76,8 @@ folder is the game folder (containing `GEODATA` and `GEOGRAPH`), the map is
 drawn with the terrain and textures of the game (`WORLD.DAT`, `TEXTURE.DAT`)
 and bases are shown like on the base screen of the game, including the crafts
 in their hangars (`BASEBITS.PCK`),
-otherwise a generic world map and a simple facility grid are used. The
+otherwise a generic world map and a simple facility grid are used. The user
+interface mimics the game and uses its fonts (`SMALLSET.DAT`, `BIGLETS.DAT`),
+which the editor converts to TrueType (see `resources.BitmapFont.TTF`). The
 frontend (Svelte) is in `cmd/savegame-editor/frontend`; run `npm run build`
 there after changing it, the build output is embedded into the binary.

@@ -26,41 +26,30 @@
 </main>
 
 <style>
-  :global(body) {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-    background: #1a1a2e;
-    color: #e0e0e0;
-  }
-  :global(*) {
-    box-sizing: border-box;
-  }
   .layout {
     display: grid;
     grid-template-columns: 280px 1fr;
     height: 100vh;
   }
   .sidebar {
-    background: #16213e;
-    padding: 16px;
+    background: var(--panel);
+    padding: 12px;
     overflow-y: auto;
-    border-right: 1px solid #0f3460;
+    border-right: 4px solid var(--border);
   }
   .sidebar h1 {
-    font-size: 18px;
-    color: #00ff41;
-    margin: 0 0 16px 0;
+    margin: 0 0 12px 0;
     padding-bottom: 8px;
-    border-bottom: 1px solid #0f3460;
+    border-bottom: 2px solid var(--border);
   }
   .detail {
-    padding: 16px 24px;
+    padding: 12px 20px;
     overflow-y: auto;
   }
   .placeholder {
-    color: #666;
+    color: var(--muted);
     text-align: center;
     padding: 60px 20px;
-    font-size: 16px;
+    text-transform: uppercase;
   }
 </style>

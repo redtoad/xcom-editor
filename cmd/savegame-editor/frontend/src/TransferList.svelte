@@ -53,35 +53,10 @@
 {/if}
 
 <style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  th {
-    text-align: left;
-    padding: 6px 10px;
-    border-bottom: 1px solid #0f3460;
-    color: #888;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  td {
-    padding: 6px 10px;
-    border-bottom: 1px solid #16213e;
-  }
-  .num { text-align: right; font-variant-numeric: tabular-nums; }
   .empty {
-    color: #666;
+    color: var(--muted);
     text-align: center;
     padding: 40px;
-  }
-  .error {
-    color: #ff4444;
-    padding: 8px;
-    margin-bottom: 8px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 4px;
+    text-transform: uppercase;
   }
 </style>

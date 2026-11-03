@@ -105,6 +105,12 @@ func main() {
 		world = w
 		log.Printf("Loaded globe terrain: %d polygons", len(w.Polygons))
 	}
+	if f, err := loadFonts(root); err != nil {
+		log.Printf("Game fonts not available (%v)", err)
+	} else {
+		fonts = f
+		log.Printf("Loaded game fonts")
+	}
 	if bits, err := loadBaseBits(root); err != nil {
 		log.Printf("Base graphics not available (%v)", err)
 	} else {
@@ -137,6 +143,7 @@ func main() {
 	api.HandleFunc("/world", handleGetWorld).Methods("GET")
 	api.HandleFunc("/world/textures/{set}/{terrain}.png", handleGetTexture).Methods("GET")
 	api.HandleFunc("/basebits/{sprite}.png", handleGetBaseBit).Methods("GET")
+	api.HandleFunc("/fonts/{name}.ttf", handleGetFont).Methods("GET")
 
 	// SPA fallback: serve frontend for all non-API routes
 	frontendContent, err := fs.Sub(frontendFS, "frontend/dist")

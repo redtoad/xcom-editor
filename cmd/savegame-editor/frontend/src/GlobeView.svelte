@@ -44,7 +44,7 @@
 
   function pointLabel(d: GlobeLocation): string {
     const c = pointColor(d);
-    return `<div style="color:${c};font-family:monospace;font-size:13px;text-shadow:0 0 4px #000">
+    return `<div style="color:${c};font-family:XcomSmall,monospace;font-size:18px;text-shadow:0 0 4px #000">
       <b>${d.name}</b><br/><span style="opacity:0.7">${d.type}</span>
     </div>`;
   }
@@ -176,8 +176,7 @@
     gap: 12px;
     justify-content: center;
     margin-top: 12px;
-    font-size: 12px;
-    color: #aaa;
+    color: var(--muted);
   }
   .legend-item {
     display: flex;
@@ -189,12 +188,5 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-  }
-  .error {
-    color: #ff4444;
-    padding: 8px;
-    margin-bottom: 8px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 4px;
   }
 </style>
