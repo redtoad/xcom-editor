@@ -1,6 +1,7 @@
 package internal_test
 
 import (
+	"bytes"
 	"encoding/binary"
 	"os"
 	"path/filepath"
@@ -67,6 +68,30 @@ func TestMarshall(t *testing.T) {
 	}
 	if len(data) != 4 {
 		t.Errorf("Marshall() len = %d, want 4", len(data))
+	}
+}
+
+func TestMarshall_StructValue(t *testing.T) {
+	type sliceStruct struct {
+		A int32   `struct:"int32"`
+		B []int32 `struct:"[2]int32"`
+	}
+	obj := sliceStruct{A: 1, B: []int32{2, 3}}
+
+	byValue, err := internal.Marshall(obj)
+	if err != nil {
+		t.Fatalf("Marshall() unexpected error: %v", err)
+	}
+	byPointer, err := internal.Marshall(&obj)
+	if err != nil {
+		t.Fatalf("Marshall() unexpected error: %v", err)
+	}
+	want := []byte{1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0}
+	if !bytes.Equal(byValue, want) {
+		t.Errorf("Marshall(value) = %v, want %v", byValue, want)
+	}
+	if !bytes.Equal(byPointer, want) {
+		t.Errorf("Marshall(pointer) = %v, want %v", byPointer, want)
 	}
 }
 

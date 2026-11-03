@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"reflect"
 
 	"github.com/go-restruct/restruct"
 )
@@ -56,6 +57,14 @@ func SaveDATFile(path string, obj any) error {
 
 // Marshall encodes a struct into binary data.
 func Marshall(obj interface{}) ([]byte, error) {
+	// restruct packs struct values that are passed by value (instead of by
+	// pointer) and have no custom Pack method as zeros, so we pass a pointer
+	// to a copy instead.
+	if v := reflect.ValueOf(obj); v.Kind() == reflect.Struct {
+		ptr := reflect.New(v.Type())
+		ptr.Elem().Set(v)
+		obj = ptr.Interface()
+	}
 	buffer, err := restruct.Pack(binary.LittleEndian, obj)
 	if err != nil {
 		return nil, fmt.Errorf("could not pack data: %w", err)
