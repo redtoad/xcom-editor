@@ -11,7 +11,7 @@ import (
 func (e *Editor) loadGames() ([]*savegame.Savegame, error) {
 	var err error
 	games := make([]*savegame.Savegame, 10)
-	for i := 1; i < 10; i++ {
+	for i := 1; i <= 10; i++ {
 		path := filepath.Join(e.config.GamePath, fmt.Sprintf("GAME_%d", i))
 		games[i-1], err = savegame.Load(path)
 		if err != nil {
