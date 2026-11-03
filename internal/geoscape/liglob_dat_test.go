@@ -10,7 +10,7 @@ import (
 )
 
 func TestLiglobFile_Unpack(t *testing.T) {
-	buf := MustLoadFromBase64(testFile_LIGLOB_DAT)
+	buf := MustLoadTestFile(t, "PARTIAL", "LIGLOB.DAT")
 	var lf geoscape.LiglobFile
 	err := restruct.Unpack(buf, binary.LittleEndian, &lf)
 	assert.NoError(t, err)
@@ -30,9 +30,3 @@ func TestLiglobFile_Unpack(t *testing.T) {
 	assert.Equal(t, int32(2_108_442_887), lf.Balance[7])
 	assert.Equal(t, int32(0), lf.Balance[8])
 }
-
-// base64 -i GAME_1/LIGLOB.DAT -b 120 | pbcopy
-const testFile_LIGLOB_DAT = `
-t0qgfX4TWgD0o/0AiHWnAPBeVgC8DIwAqOWZAGiNfQBQ/gsAAAAAAAAAAAAAAAAAoGEcALDgNwC44m4AmP6GAJBERABYsk8AeBB3ANiJdQAAAAAAAAAAAAAA
-AAAAAAAAoGEcAP/////rf7d/7zHQfh/Ke34/j31+d50KfsdGvH0HSax9AAAAAAAAAAAAAAAAAAAAAA==
-`

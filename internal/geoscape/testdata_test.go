@@ -13,8 +13,8 @@ import (
 )
 
 // savegameDirs are real savegames (geoscape) stored in testdata/ at the
-// repository root.
-var savegameDirs = []string{"GAME_1", "GAME_2", "GAME_3"}
+// repository root. PARTIAL contains only some files of another savegame.
+var savegameDirs = []string{"GAME_1", "GAME_2", "GAME_3", "PARTIAL"}
 
 // MustLoadTestFile loads a DAT file from a savegame in testdata/.
 func MustLoadTestFile(t *testing.T, game, name string) []byte {
@@ -64,10 +64,19 @@ func TestSavegameFilesRoundTrip(t *testing.T) {
 		// make sure that every file of the savegame is covered
 		entries, err := os.ReadDir(filepath.Join("..", "..", "testdata", game))
 		require.NoError(t, err)
-		require.Len(t, files, len(entries), "not all files of %s are tested", game)
+		tested := map[string]bool{}
+		for _, f := range files {
+			tested[f.name] = true
+		}
+		for _, e := range entries {
+			require.True(t, tested[e.Name()], "%s/%s is not tested", game, e.Name())
+		}
 
 		for _, f := range files {
 			t.Run(game+"/"+f.name, func(t *testing.T) {
+				if _, err := os.Stat(filepath.Join("..", "..", "testdata", game, f.name)); os.IsNotExist(err) {
+					t.Skipf("%s not part of %s", f.name, game)
+				}
 				buf := MustLoadTestFile(t, game, f.name)
 				obj := f.obj()
 

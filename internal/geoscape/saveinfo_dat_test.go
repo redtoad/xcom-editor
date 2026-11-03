@@ -11,7 +11,7 @@ import (
 )
 
 func TestSaveinfo_Unpack(t *testing.T) {
-	buf := MustLoadFromBase64(testFile_SAVEINFO_DAT)
+	buf := MustLoadTestFile(t, "PARTIAL", "SAVEINFO.DAT")
 	var bf geoscape.SaveinfoFile
 	err := restruct.Unpack(buf, binary.LittleEndian, &bf)
 	assert.NoError(t, err)
@@ -92,8 +92,3 @@ func TestSaveinfoFile_RoundTrip(t *testing.T) {
 		})
 	}
 }
-
-// base64 -i GAME_1/SAVEINFO.DAT -b 120 | pbcopy
-const testFile_SAVEINFO_DAT = `
-AQBUZXN0AACgExwAaAEBAEYCAAC2+hkAAAAAAM8HBwANAA8AJAAAAA==
-`
