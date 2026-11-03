@@ -125,3 +125,26 @@ func TestSavegame_MissionStatus(t *testing.T) {
 	require.NotNil(t, status.Craft)
 	assert.Equal(t, geoscape.Skyranger, status.Craft.Type())
 }
+
+func TestSavegame_Crafts(t *testing.T) {
+	tests := []struct {
+		game string
+		want []string
+	}{
+		{"GAME_1", []string{"SKYRANGER-1", "FIRESTORM-1", "AVENGER-2", "INTERCEPTOR-3", "INTERCEPTOR-4", "INTERCEPTOR-5", "INTERCEPTOR-6"}},
+		{"GAME_2", []string{"SKYRANGER-2", "INTERCEPTOR-1", "INTERCEPTOR-2", "UFO-0"}},
+		// only crafts referenced by LOC.DAT exist (the other entries of CRAFT.DAT are zeroed)
+		{"GAME_4", []string{"SKYRANGER-2", "SKYRANGER-1", "SKYRANGER-2"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.game, func(t *testing.T) {
+			sg, err := savegame.Load(copySavegame(t, tt.game))
+			require.NoError(t, err)
+			var names []string
+			for _, c := range sg.Crafts() {
+				names = append(names, c.Name())
+			}
+			assert.Equal(t, tt.want, names)
+		})
+	}
+}

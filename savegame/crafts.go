@@ -52,11 +52,24 @@ func (game *Savegame) saveCrafts() error {
 	return internal.SaveDATFile(filePath, game.craftsFile)
 }
 
-// Crafts returns all active craft (skipping EntryNotUsed slots).
+// Crafts returns all existing X-COM craft and UFOs, ordered by their index
+// in CRAFT.DAT.
+//
+// Like the game, only crafts referenced by a location in LOC.DAT are
+// considered to exist. Unused entries in CRAFT.DAT are not reliably marked
+// as unused (some savegames contain zeroed entries, which would be read as
+// Skyrangers).
 func (game *Savegame) Crafts() []*Craft {
+	used := make(map[int]bool)
+	for _, obj := range game.locationFile.Objects {
+		if obj.Type != geoscape.XCOMShip && obj.Type != geoscape.AlienShip {
+			continue
+		}
+		used[int(obj.TableReference)] = true
+	}
 	crafts := make([]*Craft, 0)
 	for idx, data := range game.craftsFile.Crafts {
-		if data.Type == geoscape.EntryNotUsed {
+		if !used[idx] || data.Type == geoscape.EntryNotUsed {
 			continue
 		}
 		crafts = append(crafts, &Craft{
