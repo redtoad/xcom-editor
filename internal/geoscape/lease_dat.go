@@ -6,10 +6,15 @@ package geoscape
 // Only the first bytes are documented, the rest is kept as raw bytes. The
 // file is 180 bytes long.
 //
-// Only RotationY, RotationX and Zoom differ between savegames. All unknown
-// bytes are identical in every savegame seen and Unknown3 looks like x86
-// machine code, so they are most likely uninitialized memory of the buffer
-// GEOSCAPE.EXE allocates for the file.
+// GEOSCAPE.EXE treats the file as 30 records of 6 bytes (uint16 + uint32),
+// apparently left over from a craft leasing feature: a new game only clears
+// the uint16 of each record, so the uint32 parts keep uninitialized memory
+// (which looks like x86 machine code). When saving, the globe view is
+// written into the uint16 of the first three records (offsets 0, 6 and 12).
+// The purchase screen writes (36, buy price) into a free record (uint16 = 0)
+// when crafts are bought, but due to a bug it only checks the record
+// indexed by the number of crafts bought so far. Nothing else reads the
+// records.
 //
 // https://www.ufopaedia.org/index.php/LEASE.DAT
 type LeaseFile struct {

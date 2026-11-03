@@ -42,7 +42,8 @@ type UnitPosition struct {
 	Z uint8
 	// 3: Unknown, always 0.
 	Unknown1 uint8
-	// 4-7: Memory address of the UNITREF.DAT entry (not used on disk).
+	// 4-7: Memory address of the UNITREF.DAT entry (not used on disk;
+	// TACTICAL.EXE recalculates it after loading).
 	UnitRef uint32
 	// 8: Turns since the unit was last spotted.
 	TurnsSinceSpotted uint8
