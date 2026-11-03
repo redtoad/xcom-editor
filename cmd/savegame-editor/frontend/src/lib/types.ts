@@ -1,3 +1,13 @@
+export interface MissionInfo {
+  turn: number;
+  craftName: string;
+  xcomAlive: number;
+  xcomTotal: number;
+  aliensAlive: number;
+  aliensTotal: number;
+  score: number;
+}
+
 export interface GameSummary {
   slot: string;
   title: string;
@@ -5,6 +15,7 @@ export interface GameSummary {
   soldierCount: number;
   baseCount: number;
   craftCount: number;
+  mission: MissionInfo | null;
 }
 
 export interface GameDetail {
@@ -15,6 +26,7 @@ export interface GameDetail {
   baseCount: number;
   craftCount: number;
   balance: number;
+  mission: MissionInfo | null;
 }
 
 export interface SoldierSummary {
@@ -124,4 +136,19 @@ export interface GlobeLocation {
   name: string;
   coord: { lat: number; lon: number };
   destCoord?: { lat: number; lon: number };
+  craft?: CraftDetails;
+}
+
+export interface CraftDetails {
+  type: string;
+  status: string;
+  altitude: string;
+  speed: number;
+  fuel: number;
+  damage: number;
+  baseName?: string;
+  mission?: string;
+  zone?: string;
+  race?: string;
+  destination?: string;
 }

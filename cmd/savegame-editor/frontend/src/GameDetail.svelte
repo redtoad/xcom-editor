@@ -8,6 +8,7 @@
   import TransferList from './TransferList.svelte';
   import FinancialView from './FinancialView.svelte';
   import GlobeView from './GlobeView.svelte';
+  import HemisphereMap from './HemisphereMap.svelte';
 
   // Svelte reserves "slot" as a keyword, use a different prop name
   export let slot: string;
@@ -23,6 +24,7 @@
     { id: 'craft', label: 'Crafts' },
     { id: 'transfers', label: 'Transfers' },
     { id: 'financials', label: 'Financials' },
+    { id: 'map', label: 'Map' },
     { id: 'globe', label: 'Globe' },
   ];
 
@@ -60,6 +62,18 @@
   <div class="header">
     <h2>{game.title}</h2>
     <div class="meta">{game.time} &middot; Balance: ${game.balance?.toLocaleString()}</div>
+    {#if game.mission}
+      <div class="mission in-mission">
+        <strong>Mission in progress</strong>
+        <span>Turn {game.mission.turn}</span>
+        {#if game.mission.craftName}<span>{game.mission.craftName}</span>{/if}
+        <span>X-COM {game.mission.xcomAlive}/{game.mission.xcomTotal}</span>
+        <span>Aliens {game.mission.aliensAlive}/{game.mission.aliensTotal}</span>
+        <span>Score {game.mission.score}</span>
+      </div>
+    {:else}
+      <div class="mission">On Geoscape &middot; not in a mission</div>
+    {/if}
   </div>
 
   <nav class="tabs">
@@ -83,6 +97,8 @@
       <TransferList gameSlot={slot} />
     {:else if activeTab === 'financials'}
       <FinancialView gameSlot={slot} />
+    {:else if activeTab === 'map'}
+      <HemisphereMap gameSlot={slot} />
     {:else if activeTab === 'globe'}
       <GlobeView gameSlot={slot} />
     {/if}
@@ -110,6 +126,25 @@
     color: #888;
     font-size: 13px;
     margin-top: 4px;
+  }
+  .mission {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #888;
+    border: 1px solid #0f3460;
+  }
+  .mission.in-mission {
+    color: #ffaaaa;
+    background: rgba(255,68,68,0.1);
+    border-color: #ff4444;
+  }
+  .mission.in-mission strong {
+    color: #ff4444;
   }
   .tabs {
     display: flex;

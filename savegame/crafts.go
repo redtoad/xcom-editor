@@ -156,3 +156,44 @@ func (game *Savegame) Craft(offset int) *Craft {
 		game:   game,
 	}
 }
+
+// Altitude returns the craft's current altitude.
+func (c *Craft) Altitude() geoscape.Altitude {
+	return c.game.craftsFile.Crafts[c.offset].Altitude
+}
+
+// alienRaces maps CraftData.AlienRace to the race names.
+var alienRaces = []string{"Sectoid", "Snakeman", "Ethereal", "Muton", "Floater", "Mixed"}
+
+// AlienRace returns the alien race on board of a UFO, or "" for X-COM craft.
+func (c *Craft) AlienRace() string {
+	if c.Type() < geoscape.SmallScout {
+		return ""
+	}
+	race := c.game.craftsFile.Crafts[c.offset].AlienRace
+	if race < 0 || race >= len(alienRaces) {
+		return ""
+	}
+	return alienRaces[race]
+}
+
+// DestinationLocation returns the location (LOC.DAT) the craft is heading
+// to, or nil if the craft is stationary.
+func (c *Craft) DestinationLocation() *Location {
+	data := c.game.craftsFile.Crafts[c.offset]
+	if data.Speed == 0 || data.FlightMode == geoscape.NoDestination {
+		return nil
+	}
+	idx := data.Destination
+	if idx < 0 || idx >= len(c.game.locationFile.Objects) {
+		return nil
+	}
+	obj := c.game.locationFile.Objects[idx]
+	return &Location{
+		Type:           obj.Type,
+		TableReference: int(obj.TableReference),
+		X:              obj.X,
+		Y:              obj.Y,
+		CountSuffix:    obj.CountSuffix,
+	}
+}

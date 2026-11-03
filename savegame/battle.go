@@ -92,3 +92,59 @@ func (game *Savegame) saveBattle() error {
 	}
 	return nil
 }
+
+// MissionStatus summarizes an ongoing mission.
+type MissionStatus struct {
+	// Turn is the current turn (starting with 1).
+	Turn int
+	// Craft is the X-COM craft that brought the soldiers (nil for base
+	// defence missions).
+	Craft *Craft
+	// XcomAlive and XcomTotal count the X-COM units (soldiers and tanks).
+	XcomAlive, XcomTotal int
+	// AliensAlive and AliensTotal count the alien units.
+	AliensAlive, AliensTotal int
+	// Score is the current mission score.
+	Score int
+}
+
+// MissionStatus returns a summary of the ongoing mission, or nil if the
+// savegame was not saved during a mission.
+func (game *Savegame) MissionStatus() *MissionStatus {
+	b := game.Battle
+	if b == nil {
+		return nil
+	}
+	status := &MissionStatus{
+		Turn:  int(b.Globals.Turn),
+		Score: int(b.Globals.AlienKillScore) + int(b.Globals.XcomLossScore),
+	}
+	if b.Mission.UFOSite == 0 {
+		status.Craft = game.Craft(int(b.Mission.Craft))
+	}
+	for i, pos := range b.UnitPositions.Units {
+		unit := b.Units.Units[i]
+		if pos.Y == 0xFF || unit.Type == 0xFF {
+			continue // unused slot
+		}
+		// large units occupy 4 slots, only count the upper left one
+		if pos.Flags&battlescape.UnitLarge != 0 &&
+			pos.Flags&(battlescape.UnitRightSection|battlescape.UnitLowerSection) != 0 {
+			continue
+		}
+		alive := pos.Flags&battlescape.UnitActive != 0 && unit.Health > 0
+		switch pos.Owner {
+		case battlescape.OwnerXcom:
+			status.XcomTotal++
+			if alive {
+				status.XcomAlive++
+			}
+		case battlescape.OwnerAlien:
+			status.AliensTotal++
+			if alive {
+				status.AliensAlive++
+			}
+		}
+	}
+	return status
+}

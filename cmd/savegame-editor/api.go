@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
+	"github.com/redtoad/xcom-editor/savegame"
 )
 
 // armorToString converts a geoscape.Armor value to a display string.
@@ -54,15 +55,48 @@ func getGameEntry(w http.ResponseWriter, r *http.Request) *gameEntry {
 	return entry
 }
 
+// missionJS summarizes an ongoing mission.
+type missionJS struct {
+	Turn        int    `json:"turn"`
+	CraftName   string `json:"craftName"`
+	XcomAlive   int    `json:"xcomAlive"`
+	XcomTotal   int    `json:"xcomTotal"`
+	AliensAlive int    `json:"aliensAlive"`
+	AliensTotal int    `json:"aliensTotal"`
+	Score       int    `json:"score"`
+}
+
+// missionInfo returns the mission summary of a savegame, or nil if it was not
+// saved during a mission.
+func missionInfo(sg *savegame.Savegame) *missionJS {
+	status := sg.MissionStatus()
+	if status == nil {
+		return nil
+	}
+	info := &missionJS{
+		Turn:        status.Turn,
+		XcomAlive:   status.XcomAlive,
+		XcomTotal:   status.XcomTotal,
+		AliensAlive: status.AliensAlive,
+		AliensTotal: status.AliensTotal,
+		Score:       status.Score,
+	}
+	if status.Craft != nil {
+		info.CraftName = status.Craft.Name()
+	}
+	return info
+}
+
 // GET /api/games
 func handleListGames(w http.ResponseWriter, r *http.Request) {
 	type gameSummary struct {
-		Slot         string `json:"slot"`
-		Title        string `json:"title"`
-		Time         string `json:"time"`
-		SoldierCount int    `json:"soldierCount"`
-		BaseCount    int    `json:"baseCount"`
-		CraftCount   int    `json:"craftCount"`
+		Slot         string     `json:"slot"`
+		Title        string     `json:"title"`
+		Time         string     `json:"time"`
+		SoldierCount int        `json:"soldierCount"`
+		BaseCount    int        `json:"baseCount"`
+		CraftCount   int        `json:"craftCount"`
+		Mission      *missionJS `json:"mission"`
 	}
 
 	result := make([]gameSummary, 0)
@@ -75,6 +109,7 @@ func handleListGames(w http.ResponseWriter, r *http.Request) {
 			SoldierCount: len(entry.sg.Soldiers()),
 			BaseCount:    len(entry.sg.Bases()),
 			CraftCount:   len(entry.sg.Crafts()),
+			Mission:      missionInfo(entry.sg),
 		})
 		entry.mu.RUnlock()
 	}
@@ -99,6 +134,7 @@ func handleGetGame(w http.ResponseWriter, r *http.Request) {
 		"baseCount":    len(sg.Bases()),
 		"craftCount":   len(sg.Crafts()),
 		"balance":      sg.Financials.CurrentBalance,
+		"mission":      missionInfo(sg),
 	})
 }
 
@@ -597,6 +633,21 @@ func handleSave(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]string{"status": "ok"})
 }
 
+// craftDetails holds details about a craft shown on the globe.
+type craftDetails struct {
+	Type        string `json:"type"`
+	Status      string `json:"status"`
+	Altitude    string `json:"altitude"`
+	Speed       int    `json:"speed"`
+	Fuel        int    `json:"fuel"`
+	Damage      int    `json:"damage"`
+	BaseName    string `json:"baseName,omitempty"`
+	Mission     string `json:"mission,omitempty"`
+	Zone        string `json:"zone,omitempty"`
+	Race        string `json:"race,omitempty"`
+	Destination string `json:"destination,omitempty"`
+}
+
 // GET /api/games/{slot}/locations
 func handleListLocations(w http.ResponseWriter, r *http.Request) {
 	entry := getGameEntry(w, r)
@@ -612,46 +663,17 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 		Lon float32 `json:"lon"`
 	}
 	type locationSummary struct {
-		Type      string   `json:"type"`
-		TypeCode  int      `json:"typeCode"`
-		Name      string   `json:"name"`
-		Coord     coordJS  `json:"coord"`
-		DestCoord *coordJS `json:"destCoord,omitempty"`
+		Type      string        `json:"type"`
+		TypeCode  int           `json:"typeCode"`
+		Name      string        `json:"name"`
+		Coord     coordJS       `json:"coord"`
+		DestCoord *coordJS      `json:"destCoord,omitempty"`
+		Craft     *craftDetails `json:"craft,omitempty"`
 	}
 
 	result := make([]locationSummary, 0)
 	for _, loc := range sg.Locations() {
-		var name string
-		switch loc.Type {
-		case geoscape.XCOMBase:
-			if b := sg.Base(loc.TableReference); b != nil {
-				name = b.Name()
-			} else {
-				name = "X-COM Base"
-			}
-		case geoscape.XCOMShip:
-			if c := sg.Craft(loc.TableReference); c != nil {
-				name = c.Name()
-			} else {
-				name = fmt.Sprintf("CRAFT-%d", loc.CountSuffix)
-			}
-		case geoscape.AlienShip:
-			if c := sg.Craft(loc.TableReference); c != nil {
-				name = fmt.Sprintf("UFO-%d (%s, %s)", loc.CountSuffix, c.Type(), c.MissionType())
-			} else {
-				name = fmt.Sprintf("UFO-%d", loc.CountSuffix)
-			}
-		case geoscape.AlienBase:
-			name = "Alien Base"
-		case geoscape.CrashSite:
-			name = fmt.Sprintf("Crash Site-%d", loc.CountSuffix)
-		case geoscape.LandedUFO:
-			name = fmt.Sprintf("Landed UFO-%d", loc.CountSuffix)
-		case geoscape.TerrorSite:
-			name = fmt.Sprintf("Terror Site-%d", loc.CountSuffix)
-		default:
-			name = loc.Type.String()
-		}
+		name := locationName(sg, loc)
 
 		c := loc.Coord()
 		summary := locationSummary{
@@ -668,6 +690,25 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 				} else if wp := craft.NextWaypoint(); wp != nil {
 					summary.DestCoord = &coordJS{Lat: wp.Lat, Lon: wp.Lon}
 				}
+				details := &craftDetails{
+					Type:     craft.Type().String(),
+					Status:   craft.Status().String(),
+					Altitude: craft.Altitude().String(),
+					Speed:    craft.Speed(),
+					Fuel:     craft.Fuel(),
+					Damage:   craft.Damage(),
+				}
+				if loc.Type == geoscape.AlienShip {
+					details.Mission = craft.MissionType()
+					details.Zone = craft.MissionZone()
+					details.Race = craft.AlienRace()
+				} else if b := craft.Base(); b != nil {
+					details.BaseName = b.Name()
+				}
+				if dest := craft.DestinationLocation(); dest != nil {
+					details.Destination = locationName(sg, *dest)
+				}
+				summary.Craft = details
 			}
 		}
 
@@ -691,4 +732,35 @@ func handleReload(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Reloaded game: %s", slot)
 	writeJSON(w, map[string]string{"status": "ok"})
+}
+
+// locationName returns a display name for a location.
+func locationName(sg *savegame.Savegame, loc savegame.Location) string {
+	switch loc.Type {
+	case geoscape.XCOMBase:
+		if b := sg.Base(loc.TableReference); b != nil {
+			return b.Name()
+		}
+		return "X-COM Base"
+	case geoscape.XCOMShip:
+		if c := sg.Craft(loc.TableReference); c != nil {
+			return c.Name()
+		}
+		return fmt.Sprintf("CRAFT-%d", loc.CountSuffix)
+	case geoscape.AlienShip:
+		if c := sg.Craft(loc.TableReference); c != nil {
+			return fmt.Sprintf("UFO-%d (%s, %s)", loc.CountSuffix, c.Type(), c.MissionType())
+		}
+		return fmt.Sprintf("UFO-%d", loc.CountSuffix)
+	case geoscape.AlienBase:
+		return "Alien Base"
+	case geoscape.CrashSite:
+		return fmt.Sprintf("Crash Site-%d", loc.CountSuffix)
+	case geoscape.LandedUFO:
+		return fmt.Sprintf("Landed UFO-%d", loc.CountSuffix)
+	case geoscape.TerrorSite:
+		return fmt.Sprintf("Terror Site-%d", loc.CountSuffix)
+	default:
+		return loc.Type.String()
+	}
 }

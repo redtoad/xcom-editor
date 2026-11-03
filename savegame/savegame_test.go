@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/redtoad/xcom-editor/savegame"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -104,4 +105,23 @@ func TestSavegame_Battle(t *testing.T) {
 	reloaded, err := savegame.Load(dir)
 	require.NoError(t, err)
 	assert.Equal(t, uint8(99), reloaded.Battle.Units.Units[3].TimeUnits)
+}
+
+func TestSavegame_MissionStatus(t *testing.T) {
+	sg, err := savegame.Load(copySavegame(t, "GAME_1"))
+	require.NoError(t, err)
+	assert.Nil(t, sg.MissionStatus())
+
+	sg, err = savegame.Load(copySavegame(t, "GAME_4"))
+	require.NoError(t, err)
+	status := sg.MissionStatus()
+	require.NotNil(t, status)
+	assert.Equal(t, 2, status.Turn)
+	assert.Equal(t, -27, status.Score)
+	assert.Equal(t, 14, status.XcomTotal)
+	assert.Equal(t, 13, status.XcomAlive)
+	assert.Equal(t, 7, status.AliensTotal)
+	assert.Equal(t, 7, status.AliensAlive)
+	require.NotNil(t, status.Craft)
+	assert.Equal(t, geoscape.Skyranger, status.Craft.Type())
 }

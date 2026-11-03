@@ -60,3 +60,17 @@ _ = sg.Save()
 ```
 
 The real savegames in `testdata/` are used for round-trip tests.
+
+## Savegame editor
+
+`cmd/savegame-editor` is a web-based editor for savegames:
+
+```sh
+go run ./cmd/savegame-editor path/to/game/root   # folder containing GAME_1 ... GAME_10
+```
+
+It shows whether a savegame was saved during a mission (with turn, surviving
+units and score) and has a map of both hemispheres of the globe with all
+bases, X-COM craft and UFOs, their flight paths and details on hover. The
+frontend (Svelte) is in `cmd/savegame-editor/frontend`; run `npm run build`
+there after changing it, the build output is embedded into the binary.
