@@ -66,7 +66,11 @@ func main() {
 	// TODO select and load savegame
 	savegamePath := path.Join(*rootPath, "GAME_1")
 	log.Printf("loading savegame %s...", savegamePath)
-	currentSavegame, _ = savegame.Load(savegamePath)
+	if sg, err := savegame.Load(savegamePath); err != nil {
+		log.Fatalf("could not load savegame %s: %v", savegamePath, err)
+	} else {
+		currentSavegame = sg
+	}
 	curr := currency.USD.Amount(currentSavegame.Financials.CurrentBalance)
 	p := message.NewPrinter(language.AmericanEnglish)
 	p.Printf("%v\n", curr)
