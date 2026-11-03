@@ -44,9 +44,10 @@ type BattleObject struct {
 	Value3 uint8
 	// 11: Copy of the MCD floor offset of the tile.
 	Floor int8
-	// 12: Flags (e.g. 8 = unconscious unit). TACTICAL.EXE (e.g. 0x2475e when
-	// creating an object) accesses bytes 12-15 as a 32-bit bitfield, but
-	// only bits 0-2 are ever changed.
+	// 12: Flags (e.g. 8 = unconscious unit). TACTICAL.EXE tests and sets
+	// bits 0-3 of this byte (bit 3 is tested e.g. at 0x2b018). Only when
+	// creating an object (0x243d4, 0x2475e) does it access bytes 12-15 as a
+	// 32-bit bitfield, changing only bits 0-2.
 	Flags uint8
 	// 13-15: Unknown, upper bytes of the 32-bit flags bitfield (see Flags).
 	// They are only preserved by read-modify-write accesses and never set

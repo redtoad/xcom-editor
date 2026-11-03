@@ -1,8 +1,9 @@
 package geoscape
 
-// AknowFile determines whether the aliens know the locations of any of the
-// X-COM bases, and if so, which one. The flag is cleared after a base defence
-// mission.
+// AknowFile is meant to hold the alien knowledge (according to UFOpaedia,
+// whether the aliens know the locations of X-COM bases). In this game
+// version the data is unused and always 0, see below; base detection is
+// stored in XBASES.DAT.
 //
 // The format is undocumented, so the data is kept as raw bytes. The file is
 // 495 bytes long.
