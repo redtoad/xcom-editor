@@ -22,7 +22,11 @@ func ServeImage(w http.ResponseWriter, r *http.Request) {
 	paletteNr := r.URL.Query().Get("palette")
 
 	if paletteNr != "" {
-		val, _ := strconv.Atoi(paletteNr)
+		val, parseErr := strconv.Atoi(paletteNr)
+		if parseErr != nil || val < 0 {
+			http.Error(w, "invalid palette", http.StatusBadRequest)
+			return
+		}
 		img, err = loader.LoadImageWithPalette(pth, val)
 	} else {
 		img, err = loader.LoadImage(pth)
