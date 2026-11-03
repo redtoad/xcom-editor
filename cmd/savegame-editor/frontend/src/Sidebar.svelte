@@ -1,22 +1,28 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { listGames } from './lib/api';
   import type { GameSummary } from './lib/types';
 
   export let selectedSlot: string | null;
+  // incremented by the parent whenever a savegame has changed (e.g. after
+  // a reload or save), which reloads the list of savegames
+  export let refresh = 0;
 
   const dispatch = createEventDispatcher<{ select: string }>();
 
   let games: GameSummary[] = [];
   let error = '';
 
-  onMount(async () => {
+  async function load() {
     try {
       games = await listGames();
+      error = '';
     } catch (e: any) {
       error = e.message;
     }
-  });
+  }
+
+  $: refresh, load();
 </script>
 
 {#if error}

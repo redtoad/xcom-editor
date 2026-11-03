@@ -3,6 +3,7 @@
   import GameDetail from './GameDetail.svelte';
 
   let selectedSlot: string | null = null;
+  let refresh = 0;
 
   function handleSelect(event: CustomEvent<string>) {
     selectedSlot = event.detail;
@@ -13,11 +14,11 @@
   <div class="layout">
     <aside class="sidebar">
       <h1>X-COM Editor</h1>
-      <Sidebar {selectedSlot} on:select={handleSelect} />
+      <Sidebar {selectedSlot} {refresh} on:select={handleSelect} />
     </aside>
     <section class="detail">
       {#if selectedSlot}
-        <GameDetail slot={selectedSlot} />
+        <GameDetail slot={selectedSlot} on:changed={() => refresh++} />
       {:else}
         <div class="placeholder">Select a savegame from the sidebar.</div>
       {/if}

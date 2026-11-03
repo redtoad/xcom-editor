@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import { getGame, saveGame, reloadGame, healAll, completeConstructions, speedupDeliveries } from './lib/api';
   import { applyPendingChanges, refreshForms } from './lib/pending';
   import type { GameDetail } from './lib/types';
@@ -14,10 +14,15 @@
   // Svelte reserves "slot" as a keyword, use a different prop name
   export let slot: string;
 
+  const dispatch = createEventDispatcher<{ changed: void }>();
+
   let game: GameDetail | null = null;
   let activeTab = 'soldiers';
   let status = '';
   let error = '';
+  // incremented after every action, re-creates the active tab so that it
+  // shows the current data
+  let version = 0;
 
   const tabs = [
     { id: 'soldiers', label: 'Soldiers' },
@@ -58,12 +63,24 @@
     await refreshForms();
   }
 
+  // Changes to the savegame (e.g. "Heal All") re-create the active tab, so
+  // apply changes in open edit forms first instead of discarding them.
+  function withPendingChanges(fn: (slot: string) => Promise<void>): () => Promise<void> {
+    return async () => {
+      const target = slot;
+      await applyPendingChanges();
+      await fn(target);
+    };
+  }
+
   async function doAction(name: string, fn: () => Promise<void>) {
     try {
       status = name + '...';
       await fn();
       status = name + ' done!';
       await load();
+      version++;
+      dispatch('changed');
       setTimeout(() => status = '', 2000);
     } catch (e: any) {
       status = '';
@@ -108,6 +125,7 @@
   </nav>
 
   <div class="tab-content">
+    {#key version}
     {#if activeTab === 'soldiers'}
       <SoldierList gameSlot={slot} />
     {:else if activeTab === 'bases'}
@@ -123,12 +141,13 @@
     {:else if activeTab === 'globe'}
       <GlobeView gameSlot={slot} />
     {/if}
+    {/key}
   </div>
 
   <div class="action-bar">
-    <button class="action" on:click={() => doAction('Healing', () => healAll(slot))}>Heal All</button>
-    <button class="action" on:click={() => doAction('Completing', () => completeConstructions(slot))}>Complete Constructions</button>
-    <button class="action" on:click={() => doAction('Speeding up', () => speedupDeliveries(slot))}>Speed Up Deliveries</button>
+    <button class="action" on:click={() => doAction('Healing', withPendingChanges(healAll))}>Heal All</button>
+    <button class="action" on:click={() => doAction('Completing', withPendingChanges(completeConstructions))}>Complete Constructions</button>
+    <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupDeliveries))}>Speed Up Deliveries</button>
     <div class="spacer"></div>
     <button class="action reload" on:click={() => doAction('Reloading', reloadAndRefresh)}>Reload</button>
     <button class="action save" on:click={() => doAction('Saving', saveWithPendingChanges)}>Save</button>
