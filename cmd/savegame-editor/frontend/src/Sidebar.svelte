@@ -48,61 +48,61 @@
 {/each}
 
 <style>
+  /* savegame slots look like the buttons of the Geoscape */
   .game-card {
     display: block;
     width: 100%;
     text-align: left;
-    background: #1a1a2e;
-    border: 1px solid #0f3460;
-    border-radius: 6px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    color: #e0e0e0;
-    font-family: inherit;
-    font-size: 13px;
-    transition: border-color 0.15s;
+    text-transform: none;
+    color: var(--text);
+    background: var(--row-4);
+    border-color: var(--row-1) var(--bg) var(--bg) var(--row-1);
+    padding: 4px 8px;
+    margin-bottom: 6px;
   }
   .game-card:hover {
-    border-color: #00ff41;
+    background: var(--row-3);
   }
   .game-card.selected {
-    border-color: #00ff41;
-    background: #0f3460;
+    background: var(--button);
+    color: var(--button-text);
+    border-color: var(--button-light) var(--button-dark) var(--button-dark) var(--button-light);
   }
   .slot {
-    font-size: 11px;
-    color: #888;
+    color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+  }
+  .selected .slot,
+  .selected .meta,
+  .selected .counts {
+    color: var(--button-dark);
   }
   .mission-badge {
     float: right;
-    background: #5c0a0a;
-    border: 1px solid #ff4444;
-    color: #ff8888;
-    border-radius: 3px;
-    padding: 0 5px;
-    font-size: 10px;
-    letter-spacing: 0.5px;
+    color: var(--danger);
+    background: var(--bg);
+    border: 1px solid var(--danger);
+    padding: 0 4px;
+    text-transform: uppercase;
   }
   .title {
-    font-weight: bold;
-    color: #00ff41;
-    margin: 2px 0;
+    color: var(--value);
   }
-  .meta {
-    font-size: 12px;
-    color: #888;
+  .selected .title {
+    color: var(--button-text);
   }
+  .title,
+  .meta,
   .counts {
-    font-size: 11px;
-    color: #666;
-    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .meta,
+  .counts {
+    color: var(--muted);
   }
   .error {
-    color: #ff4444;
-    padding: 8px;
-    font-size: 13px;
+    color: var(--danger);
   }
 </style>

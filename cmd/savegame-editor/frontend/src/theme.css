@@ -1,0 +1,224 @@
+/*
+ * Look and feel of the original game (UFO: Enemy Unknown, 1994).
+ *
+ * The fonts are converted from the game files by the editor
+ * (/api/fonts/*.ttf). They are pixel fonts, so they are only used at
+ * multiples of their size (small: 9px, big: 16px) to stay crisp.
+ */
+
+@font-face {
+  font-family: 'XcomSmall';
+  src: url('/api/fonts/small.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'XcomBig';
+  src: url('/api/fonts/big.ttf') format('truetype');
+}
+
+:root {
+  /* text (small font at twice its size) and titles (big font at twice its size) */
+  --font-text: 'XcomSmall', monospace;
+  --font-title: 'XcomBig', 'XcomSmall', monospace;
+  --fs-text: 18px;
+  --fs-title: 32px;
+
+  /* colors taken from the game screens */
+  --bg: #000000;
+  --panel: #10103c;
+  --text: #dcdcfc;
+  --muted: #8c8cc8;
+  --dim: #5c5c9c;
+  --border: #4c4c94;
+  --title: #e4c4f4;
+  --value: #f4e444;
+  --danger: #ec5454;
+  --warning: #f4a444;
+  --ok: #74e474;
+
+  /* lavender buttons (base screen) */
+  --button: #a0a0ec;
+  --button-light: #d4d4fc;
+  --button-dark: #50509c;
+  --button-text: #14145c;
+
+  /* table rows (soldier screen), from light to dark */
+  --row-1: #8484c4;
+  --row-2: #6c6cb0;
+  --row-3: #54549c;
+  --row-4: #3c3c84;
+
+  /* dialogs (interception window) */
+  --dialog: #0c2c1c;
+  --dialog-border: #4cb46c;
+  --dialog-text: #84e4ac;
+
+  /* globe markers */
+  --xcom: #74c4fc;
+  --alien: #ec5454;
+  --base: #74e474;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: var(--fs-text);
+  line-height: 1.25;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-title);
+  font-size: var(--fs-title);
+  font-weight: normal;
+  color: var(--title);
+  margin: 0 0 8px 0;
+}
+
+h4 {
+  font-size: var(--fs-text);
+  font-weight: normal;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 20px 0 8px 0;
+}
+
+strong,
+b {
+  font-weight: normal;
+}
+
+/* lavender buttons with a 1px bevel */
+button {
+  font-family: inherit;
+  font-size: var(--fs-text);
+  color: var(--button-text);
+  background: var(--button);
+  border: 2px solid;
+  border-color: var(--button-light) var(--button-dark) var(--button-dark) var(--button-light);
+  border-radius: 0;
+  padding: 2px 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+button:hover {
+  background: var(--button-light);
+}
+
+button:active {
+  border-color: var(--button-dark) var(--button-light) var(--button-light) var(--button-dark);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input,
+select {
+  font-family: inherit;
+  font-size: var(--fs-text);
+  color: var(--value);
+  background: var(--bg);
+  border: 2px solid;
+  border-color: var(--button-dark) var(--button-light) var(--button-light) var(--button-dark);
+  border-radius: 0;
+  padding: 2px 6px;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--value);
+  outline-offset: 0;
+}
+
+input[type='range'],
+input[type='checkbox'] {
+  accent-color: var(--button);
+}
+
+/* tables like the stats of the soldier screen */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 2px;
+}
+
+th,
+td {
+  white-space: nowrap;
+}
+
+th {
+  text-align: left;
+  font-weight: normal;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 2px 8px;
+}
+
+td {
+  padding: 2px 8px;
+  color: var(--text);
+  background: var(--row-3);
+}
+
+tbody tr:nth-child(4n + 1) td { background: var(--row-1); }
+tbody tr:nth-child(4n + 2) td { background: var(--row-2); }
+tbody tr:nth-child(4n + 3) td { background: var(--row-3); }
+tbody tr:nth-child(4n + 4) td { background: var(--row-4); }
+
+tbody tr:hover td {
+  background: var(--button-light);
+  color: var(--button-text);
+}
+
+td.num,
+.num {
+  text-align: right;
+  color: var(--value);
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:hover td.num {
+  color: var(--button-text);
+}
+
+/* small status labels */
+.badge {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1px solid currentColor;
+  text-transform: uppercase;
+  background: var(--bg);
+}
+
+.error {
+  color: var(--danger);
+  background: var(--bg);
+  border: 2px solid var(--danger);
+  padding: 4px 8px;
+  margin-bottom: 8px;
+}
+
+/* dialog boxes like the interception window */
+.dialog {
+  background: var(--dialog);
+  color: var(--dialog-text);
+  border: 2px solid var(--dialog-border);
+  box-shadow: inset 0 0 0 2px var(--bg), inset 0 0 0 4px var(--dialog-border);
+  padding: 8px 12px;
+}

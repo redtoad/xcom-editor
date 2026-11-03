@@ -147,89 +147,68 @@
 {/if}
 
 <style>
-  .edit-form h3 {
-    color: #00ff41;
-    margin: 0 0 8px 0;
+  /* like the soldier screen of the game */
+  h3 {
+    background: var(--row-2);
+    border: 2px solid;
+    border-color: var(--row-1) var(--row-4) var(--row-4) var(--row-1);
+    padding: 2px 10px;
   }
   .info {
-    color: #888;
-    font-size: 13px;
-    margin-bottom: 4px;
-  }
-  h4 {
-    color: #aaa;
-    font-size: 13px;
-    margin: 16px 0 8px 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 2px;
   }
   .fields {
     display: flex;
-    gap: 16px;
-    margin-top: 16px;
     flex-wrap: wrap;
-  }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 8px;
-  }
-  .stats-display {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 4px;
-    font-size: 13px;
-  }
-  .stats-display span {
-    color: #888;
+    gap: 16px;
+    margin: 12px 0 8px 0;
   }
   label {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
   }
   label span {
-    font-size: 11px;
-    color: #888;
+    color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
   }
-  input, select {
-    background: #16213e;
-    border: 1px solid #0f3460;
-    color: #e0e0e0;
-    padding: 6px 8px;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: 13px;
+  .fields input[type='text'] {
+    width: 300px;
   }
-  input:focus, select:focus {
-    outline: none;
-    border-color: #00ff41;
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2px 8px;
   }
-  input[type="number"] {
-    width: 80px;
+  .stats-grid label {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--row-2);
+    padding: 1px 2px 1px 8px;
+  }
+  .stats-grid label:nth-child(4n + 1) { background: var(--row-1); }
+  .stats-grid label:nth-child(4n + 3) { background: var(--row-3); }
+  .stats-grid label:nth-child(4n + 4) { background: var(--row-4); }
+  .stats-grid label span {
+    color: var(--text);
+  }
+  .stats-grid input {
+    width: 70px;
+    text-align: right;
+  }
+  .stats-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 2px 16px;
+    color: var(--value);
+  }
+  .stats-display span {
+    color: var(--muted);
+    text-transform: uppercase;
   }
   .actions {
-    margin-top: 20px;
-  }
-  .save-btn {
-    background: #0a5c0a;
-    border: 1px solid #0f8f0f;
-    color: #e0e0e0;
-    padding: 8px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14px;
-  }
-  .save-btn:hover { background: #0f8f0f; }
-  .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .error {
-    color: #ff4444;
-    padding: 8px;
-    margin-bottom: 8px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 4px;
+    margin-top: 16px;
   }
 </style>

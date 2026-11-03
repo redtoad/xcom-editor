@@ -74,55 +74,11 @@
 {/if}
 
 <style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  th {
-    text-align: left;
-    padding: 6px 10px;
-    border-bottom: 1px solid #0f3460;
-    color: #888;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  td {
-    padding: 6px 10px;
-    border-bottom: 1px solid #16213e;
-  }
-  tr { cursor: pointer; transition: background 0.1s; }
-  tr:hover { background: #16213e; }
-  tr.dead { opacity: 0.5; }
-  tr.wounded td { color: #ffaa44; }
-  .name { font-weight: bold; }
-  .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .badge {
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-weight: bold;
-  }
-  .badge.dead { background: #5c0a0a; color: #ff4444; }
-  .badge.wounded { background: #5c3a0a; color: #ffaa44; }
-  .badge.ok { background: #0a3a0a; color: #44ff44; }
-  .back {
-    background: none;
-    border: none;
-    color: #00ff41;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    padding: 4px 0;
-    margin-bottom: 12px;
-  }
-  .back:hover { text-decoration: underline; }
-  .error {
-    color: #ff4444;
-    padding: 8px;
-    margin-bottom: 8px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 4px;
-  }
+  tbody tr { cursor: pointer; }
+  tr.dead td { color: var(--dim); }
+  tr.wounded td:not(.num) { color: var(--warning); }
+  .badge.dead { color: var(--danger); }
+  .badge.wounded { color: var(--warning); }
+  .badge.ok { color: var(--ok); }
+  .back { margin-bottom: 12px; }
 </style>

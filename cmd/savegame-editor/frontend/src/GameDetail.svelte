@@ -61,9 +61,12 @@
 {#if game}
   <div class="header">
     <h2>{game.title}</h2>
-    <div class="meta">{game.time} &middot; Balance: ${game.balance?.toLocaleString()}</div>
+    <div class="meta">
+      <span>{game.time}</span>
+      <span><span class="label">Funds&gt;</span> <span class="value">${game.balance?.toLocaleString()}</span></span>
+    </div>
     {#if game.mission}
-      <div class="mission in-mission">
+      <div class="mission dialog">
         <strong>Mission in progress</strong>
         <span>Turn {game.mission.turn}</span>
         {#if game.mission.craftName}<span>{game.mission.craftName}</span>{/if}
@@ -118,101 +121,76 @@
 {/if}
 
 <style>
-  .header h2 {
-    margin: 0;
-    color: #00ff41;
+  .header {
+    margin-bottom: 4px;
   }
   .meta {
-    color: #888;
-    font-size: 13px;
-    margin-top: 4px;
+    display: flex;
+    gap: 24px;
+    color: var(--muted);
+  }
+  .meta .label {
+    color: var(--danger);
+    text-transform: uppercase;
+  }
+  .meta .value {
+    color: var(--value);
   }
   .mission {
     display: inline-flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
     margin-top: 8px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    color: #888;
-    border: 1px solid #0f3460;
+    color: var(--muted);
+    text-transform: uppercase;
   }
-  .mission.in-mission {
-    color: #ffaaaa;
-    background: rgba(255,68,68,0.1);
-    border-color: #ff4444;
+  .mission.dialog {
+    color: var(--dialog-text);
   }
-  .mission.in-mission strong {
-    color: #ff4444;
+  .mission.dialog strong {
+    color: var(--value);
   }
   .tabs {
     display: flex;
-    gap: 0;
-    margin: 16px 0 0 0;
-    border-bottom: 1px solid #0f3460;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 12px 0 0 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
   }
-  .tab {
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: #888;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14px;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .tab:hover { color: #e0e0e0; }
   .tab.active {
-    color: #00ff41;
-    border-bottom-color: #00ff41;
+    background: var(--button-dark);
+    color: var(--value);
+    border-color: var(--bg) var(--button-light) var(--button-light) var(--bg);
   }
   .tab-content {
-    margin-top: 16px;
+    margin-top: 12px;
     min-height: 300px;
+    /* the pixel font is wide, tables may need to scroll */
+    overflow-x: auto;
   }
   .action-bar {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid #0f3460;
+    gap: 6px;
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 2px solid var(--border);
     flex-wrap: wrap;
   }
-  .action {
-    background: #0f3460;
-    border: 1px solid #1a4a8a;
-    color: #e0e0e0;
-    padding: 6px 14px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    transition: background 0.15s;
-  }
-  .action:hover { background: #1a4a8a; }
   .action.save {
-    background: #0a5c0a;
-    border-color: #0f8f0f;
+    background: var(--dialog-border);
+    color: var(--bg);
+    border-color: var(--dialog-text) var(--dialog) var(--dialog) var(--dialog-text);
   }
-  .action.save:hover { background: #0f8f0f; }
   .action.reload {
-    background: #5c3a0a;
-    border-color: #8f5c0f;
+    background: var(--warning);
+    color: var(--bg);
+    border-color: #fcd49c #8c5c1c #8c5c1c #fcd49c;
   }
-  .action.reload:hover { background: #8f5c0f; }
   .spacer { flex: 1; }
   .status {
-    font-size: 12px;
-    color: #00ff41;
-  }
-  .error {
-    color: #ff4444;
-    padding: 8px;
-    margin-bottom: 8px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 4px;
+    color: var(--value);
+    text-transform: uppercase;
   }
 </style>

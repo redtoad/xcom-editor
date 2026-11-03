@@ -51,61 +51,29 @@
 {/if}
 
 <style>
+  .back { margin-bottom: 12px; }
+  /* bases are listed like the menu buttons of the base screen */
   .base-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 8px;
   }
   .base-card {
-    display: block;
-    width: 100%;
     text-align: left;
-    background: #16213e;
-    border: 1px solid #0f3460;
-    border-radius: 6px;
-    padding: 14px;
-    cursor: pointer;
-    color: #e0e0e0;
-    font-family: inherit;
-    font-size: 13px;
-    transition: border-color 0.15s;
-  }
-  .base-card:hover {
-    border-color: #00ff41;
+    text-transform: none;
+    padding: 6px 10px;
   }
   .base-name {
-    font-weight: bold;
-    color: #00ff41;
-    font-size: 15px;
-    margin-bottom: 4px;
+    font-family: var(--font-title);
+    font-size: var(--fs-title);
+    color: var(--button-text);
   }
   .base-coord {
-    color: #666;
-    font-size: 11px;
-    margin-bottom: 8px;
+    color: var(--button-dark);
   }
   .base-staff {
     display: flex;
     gap: 16px;
-    font-size: 12px;
-    color: #888;
-  }
-  .back {
-    background: none;
-    border: none;
-    color: #00ff41;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    padding: 4px 0;
-    margin-bottom: 12px;
-  }
-  .back:hover { text-decoration: underline; }
-  .error {
-    color: #ff4444;
-    padding: 8px;
-    margin-bottom: 8px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 4px;
+    margin-top: 4px;
   }
 </style>

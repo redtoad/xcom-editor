@@ -308,7 +308,7 @@
   {/each}
 
   {#if hovered}
-    <div class="tooltip" style="left:{tooltipX}px; top:{tooltipY}px; border-color:{color(hovered[0])}">
+    <div class="tooltip" style="left:{tooltipX}px; top:{tooltipY}px">
       {#each hovered as loc}
         <div class="tooltip-entry">
           <div class="tooltip-title" style="color:{color(loc)}">{loc.name}</div>
@@ -361,8 +361,7 @@
     align-items: center;
     gap: 20px;
     margin-bottom: 12px;
-    font-size: 13px;
-    color: #aaa;
+    color: var(--muted);
   }
   .controls label {
     display: flex;
@@ -371,15 +370,15 @@
   }
   .controls input[type='range'] {
     width: 200px;
-    accent-color: #00ff41;
+    accent-color: var(--button);
   }
   .controls .value {
     width: 48px;
-    color: #e0e0e0;
+    color: var(--text);
   }
   .count {
     margin-left: auto;
-    color: #888;
+    color: var(--muted);
   }
   .map-wrapper {
     position: relative;
@@ -404,7 +403,7 @@
   }
   .rim {
     fill: none;
-    stroke: #1a4a8a;
+    stroke: var(--border);
     stroke-width: 1.5;
   }
   .hemisphere svg {
@@ -413,8 +412,7 @@
   }
   figcaption {
     margin-top: 6px;
-    font-size: 12px;
-    color: #888;
+    color: var(--muted);
   }
   .ocean {
     fill: #0b1d3a;
@@ -430,9 +428,9 @@
     stroke: rgba(255, 255, 255, 0.08);
   }
   .controls select {
-    background: #16213e;
-    color: #e0e0e0;
-    border: 1px solid #0f3460;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
     font-family: inherit;
   }
   .land {
@@ -474,9 +472,9 @@
     stroke-width: 2;
   }
   .count-badge {
+    font-family: 'XcomSmall', monospace;
     fill: #fff;
     font-size: 9px;
-    font-weight: bold;
     paint-order: stroke;
     stroke: #000;
     stroke-width: 2px;
@@ -485,34 +483,30 @@
     position: absolute;
     z-index: 10;
     pointer-events: none;
-    min-width: 180px;
-    background: rgba(22, 33, 62, 0.95);
-    border: 1px solid;
-    border-radius: 4px;
-    padding: 8px 10px;
-    font-size: 12px;
+    min-width: 240px;
+    /* like the interception window of the game */
+    background: var(--dialog);
+    color: var(--dialog-text);
+    border: 2px solid var(--dialog-border);
+    padding: 6px 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   }
-  .tooltip-title {
-    font-weight: bold;
-    font-size: 13px;
-  }
   .tooltip-type {
-    color: #888;
+    color: var(--muted);
     margin-bottom: 4px;
   }
   .tooltip-entry + .tooltip-entry {
     margin-top: 8px;
     padding-top: 8px;
-    border-top: 1px solid #0f3460;
+    border-top: 1px solid var(--border);
   }
   .tooltip-damaged {
-    color: #ff8888;
+    color: var(--danger);
     margin-bottom: 4px;
   }
   .tooltip-position {
     margin-top: 8px;
-    color: #888;
+    color: var(--muted);
   }
   dl {
     display: grid;
@@ -521,11 +515,12 @@
     margin: 0;
   }
   dt {
-    color: #888;
+    color: var(--dialog-text);
+    text-transform: uppercase;
   }
   dd {
     margin: 0;
-    color: #e0e0e0;
+    color: var(--value);
   }
   .legend {
     display: flex;
@@ -533,8 +528,7 @@
     gap: 14px;
     justify-content: center;
     margin-top: 12px;
-    font-size: 12px;
-    color: #aaa;
+    color: var(--muted);
   }
   .legend-item {
     display: flex;
@@ -553,12 +547,5 @@
     width: 16px;
     height: 0;
     border-top: 2px dashed #00ccff;
-  }
-  .error {
-    color: #ff4444;
-    padding: 8px;
-    margin-bottom: 8px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 4px;
   }
 </style>

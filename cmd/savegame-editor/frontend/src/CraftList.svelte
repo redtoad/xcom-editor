@@ -66,52 +66,20 @@
 {/if}
 
 <style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  th {
-    text-align: left;
-    padding: 6px 10px;
-    border-bottom: 1px solid #0f3460;
-    color: #888;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  td {
-    padding: 6px 10px;
-    border-bottom: 1px solid #16213e;
-  }
-  .name { font-weight: bold; }
-  .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 3px;
-    background: #0f3460;
-  }
-  .badge.ready { background: #0a3a0a; color: #44ff44; }
-  .badge.out { background: #3a3a0a; color: #ffff44; }
-  tr.damaged td { color: #666; }
+  .badge { color: var(--muted); }
+  .badge.ready { color: var(--ok); }
+  .badge.out { color: var(--value); }
+  tr.damaged td { color: var(--dim); }
+  tr.damaged td.num { color: var(--dim); }
   .badge.damaged-badge {
     margin-left: 6px;
-    background: #5c0a0a;
-    color: #ff8888;
-    font-weight: normal;
+    color: var(--danger);
     cursor: help;
   }
   .empty {
-    color: #666;
+    color: var(--muted);
     text-align: center;
     padding: 40px;
-  }
-  .error {
-    color: #ff4444;
-    padding: 8px;
-    margin-bottom: 8px;
-    background: rgba(255,68,68,0.1);
-    border-radius: 4px;
+    text-transform: uppercase;
   }
 </style>
