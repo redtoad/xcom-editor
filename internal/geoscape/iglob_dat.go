@@ -54,11 +54,11 @@ type IglobFile struct {
 type Difficulty int32
 
 const (
-	DifficultyBeginner    Difficulty = 0 // Beginner
-	DifficultyExperienced Difficulty = 1 // Experienced
-	DifficultyVeteran     Difficulty = 2 // Veteran
-	DifficultyGenius      Difficulty = 3 // Genius
-	DifficultySuperhuman  Difficulty = 4 // Superhuman
+	DifficultyBeginner    Difficulty = iota // Beginner
+	DifficultyExperienced                   // Experienced
+	DifficultyVeteran                       // Veteran
+	DifficultyGenius                        // Genius
+	DifficultySuperhuman                    // Superhuman
 )
 
 // SizeOf implements restruct.Sizer.
