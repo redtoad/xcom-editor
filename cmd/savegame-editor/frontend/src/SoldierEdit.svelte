@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { getSoldier, updateSoldier } from './lib/api';
+  import { registerPendingChanges, snapshot } from './lib/pending';
   import type { SoldierDetail } from './lib/types';
 
   export let gameSlot: string;
@@ -41,6 +42,7 @@
       initialPsionicStrength = soldier.initialPsionicStrength;
       initialPsionicSkill = soldier.initialPsionicSkill;
       armor = soldier.armor;
+      applied = snapshot(values());
       error = '';
     } catch (e: any) {
       error = e.message;
@@ -49,23 +51,43 @@
 
   onMount(load);
 
+  // Snapshot of the values last loaded from or sent to the server.
+  let applied = '';
+
+  function values() {
+    return {
+      name,
+      initialTimeUnits,
+      initialHealth,
+      initialEnergy,
+      initialReactions,
+      initialStrength,
+      initialFiringAccuracy,
+      initialThrowingAccuracy,
+      initialMeleeAccuracy,
+      initialPsionicStrength,
+      initialPsionicSkill,
+      armor,
+    };
+  }
+
+  // apply sends the form values to the server if they changed since they
+  // were last loaded or applied.
+  async function apply() {
+    if (!soldier) return;
+    const v = values();
+    if (snapshot(v) === applied) return;
+    await updateSoldier(gameSlot, soldierIdx, v);
+    applied = snapshot(v);
+  }
+
+  // Let the global "Save" button apply changes not yet applied here.
+  onDestroy(registerPendingChanges(apply));
+
   async function save() {
     saving = true;
     try {
-      await updateSoldier(gameSlot, soldierIdx, {
-        name,
-        initialTimeUnits,
-        initialHealth,
-        initialEnergy,
-        initialReactions,
-        initialStrength,
-        initialFiringAccuracy,
-        initialThrowingAccuracy,
-        initialMeleeAccuracy,
-        initialPsionicStrength,
-        initialPsionicSkill,
-        armor,
-      });
+      await apply();
       dispatch('saved');
     } catch (e: any) {
       error = e.message;

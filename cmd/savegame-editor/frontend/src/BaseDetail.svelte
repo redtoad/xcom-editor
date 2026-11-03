@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { getBase, updateBase, baseBitURL } from './lib/api';
+  import { registerPendingChanges, snapshot } from './lib/pending';
   import type { BaseDetail } from './lib/types';
 
   export let gameSlot: string;
@@ -24,6 +25,7 @@
       base = await getBase(gameSlot, baseIdx);
       engineers = base.engineers;
       scientists = base.scientists;
+      applied = snapshot({ engineers, scientists });
       error = '';
     } catch (e: any) {
       error = e.message;
@@ -32,10 +34,26 @@
 
   onMount(load);
 
+  // Snapshot of the values last loaded from or sent to the server.
+  let applied = '';
+
+  // apply sends the form values to the server if they changed since they
+  // were last loaded or applied.
+  async function apply() {
+    if (!base) return;
+    const v = { engineers, scientists };
+    if (snapshot(v) === applied) return;
+    await updateBase(gameSlot, baseIdx, v);
+    applied = snapshot(v);
+  }
+
+  // Let the global "Save" button apply changes not yet applied here.
+  onDestroy(registerPendingChanges(apply));
+
   async function save() {
     saving = true;
     try {
-      await updateBase(gameSlot, baseIdx, { engineers, scientists });
+      await apply();
       dispatch('saved');
     } catch (e: any) {
       error = e.message;

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getGame, saveGame, reloadGame, healAll, completeConstructions, speedupDeliveries } from './lib/api';
+  import { applyPendingChanges } from './lib/pending';
   import type { GameDetail } from './lib/types';
   import SoldierList from './SoldierList.svelte';
   import BaseList from './BaseList.svelte';
@@ -39,6 +40,13 @@
 
   onMount(load);
   $: if (slot) load();
+
+  // Apply changes in open edit forms first, so values that were edited but
+  // not applied with "Apply Changes" are not lost.
+  async function saveWithPendingChanges() {
+    await applyPendingChanges();
+    await saveGame(slot);
+  }
 
   async function doAction(name: string, fn: () => Promise<void>) {
     try {
@@ -113,7 +121,7 @@
     <button class="action" on:click={() => doAction('Speeding up', () => speedupDeliveries(slot))}>Speed Up Deliveries</button>
     <div class="spacer"></div>
     <button class="action reload" on:click={() => doAction('Reloading', () => reloadGame(slot))}>Reload</button>
-    <button class="action save" on:click={() => doAction('Saving', () => saveGame(slot))}>Save</button>
+    <button class="action save" on:click={() => doAction('Saving', saveWithPendingChanges)}>Save</button>
     {#if status}
       <span class="status">{status}</span>
     {/if}

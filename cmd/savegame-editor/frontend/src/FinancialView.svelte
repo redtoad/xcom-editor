@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { getFinancials, updateFinancials } from './lib/api';
+  import { registerPendingChanges } from './lib/pending';
   import type { Financials } from './lib/types';
 
   export let gameSlot: string;
@@ -15,6 +16,7 @@
     try {
       financials = await getFinancials(gameSlot);
       balance = financials.currentBalance;
+      appliedBalance = balance;
       error = '';
     } catch (e: any) {
       error = e.message;
@@ -24,10 +26,25 @@
   onMount(load);
   $: if (gameSlot) load();
 
+  // Balance last loaded from or sent to the server.
+  let appliedBalance = 0;
+
+  // apply sends the balance to the server if it changed since it was last
+  // loaded or applied.
+  async function apply() {
+    if (!financials || balance === appliedBalance) return;
+    const value = balance;
+    await updateFinancials(gameSlot, { currentBalance: value });
+    appliedBalance = value;
+  }
+
+  // Let the global "Save" button apply changes not yet applied here.
+  onDestroy(registerPendingChanges(apply));
+
   async function save() {
     saving = true;
     try {
-      await updateFinancials(gameSlot, { currentBalance: balance });
+      await apply();
       saved = true;
       setTimeout(() => saved = false, 2000);
     } catch (e: any) {
