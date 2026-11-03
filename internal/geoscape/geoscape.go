@@ -13,7 +13,8 @@
 // Undocumented parts of a file (e.g. all of AKNOW.DAT) are kept as raw bytes,
 // so that every file can be saved byte-identical to the original.
 //
-// Battlescape files (only found in MISSDAT) are not supported yet.
+// Savegames saved during a mission contain additional files, see package
+// battlescape. Temporary files in MISSDAT are not supported.
 //
 // Real savegames used for round-trip tests are stored in testdata/ at the
 // repository root.

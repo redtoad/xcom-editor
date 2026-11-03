@@ -47,9 +47,11 @@ The result is:
 
 ## Savegames
 
-The `savegame` package loads and saves Geoscape savegames (`GAME_1` ... `GAME_10`).
-All 27 data files of a savegame are supported and are written back byte-identical
-to the original. See [`internal/geoscape`](internal/geoscape) for the file formats.
+The `savegame` package loads and saves savegames (`GAME_1` ... `GAME_10`). All 27
+Geoscape data files are supported, as well as the 14 additional Battlescape files of
+savegames saved during a mission (available as `Savegame.Battle`). Every file is
+written back byte-identical to the original. See [`internal/geoscape`](internal/geoscape)
+and [`internal/battlescape`](internal/battlescape) for the file formats.
 
 ```go
 sg, _ := savegame.Load("GAME/GAME_1")

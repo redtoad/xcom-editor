@@ -58,6 +58,10 @@ type Savegame struct {
 	Purchases geoscape.PurchaseFile
 	// Ufopaedia holds the UFOpaedia entries (UP.DAT).
 	Ufopaedia geoscape.UpFile
+
+	// Battle holds the Battlescape data if the savegame was saved during a
+	// mission, nil otherwise.
+	Battle *Battle
 }
 
 type loadOrSaveFunc func() error
@@ -75,6 +79,7 @@ func Load(root string) (*Savegame, error) {
 		game.loadLocations,
 		game.loadFinancials,
 		game.loadGeoscapeFiles,
+		game.loadBattle,
 	} {
 		if err := fnc(); err != nil {
 			return nil, err
@@ -94,6 +99,7 @@ func (game *Savegame) Reload() error {
 		game.loadLocations,
 		game.loadFinancials,
 		game.loadGeoscapeFiles,
+		game.loadBattle,
 	} {
 		if err := fnc(); err != nil {
 			return err
@@ -124,6 +130,7 @@ func (game *Savegame) Save() error {
 		game.saveCrafts,
 		game.saveFinancials,
 		game.saveGeoscapeFiles,
+		game.saveBattle,
 	} {
 		if err := fnc(); err != nil {
 			return err
