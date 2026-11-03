@@ -81,3 +81,23 @@ interface mimics the game and uses its fonts (`SMALLSET.DAT`, `BIGLETS.DAT`),
 which the editor converts to TrueType (see `resources.BitmapFont.TTF`). The
 frontend (Svelte) is in `cmd/savegame-editor/frontend`; run `npm run build`
 there after changing it, the build output is embedded into the binary.
+
+### Desktop application
+
+The editor can also be built as a native desktop application with
+[Wails](https://wails.io) (build tag `desktop`). It uses the same frontend and
+API, but shows them in a native window instead of the browser. If no folder
+is given on the command line, it asks for the game folder on startup; another
+folder can be opened via *File → Open Game Folder…*.
+
+```sh
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+cd cmd/savegame-editor
+wails build -skipbindings   # creates build/bin/ (an .app bundle on macOS)
+wails dev -skipbindings -appargs path/to/game   # live reload of the frontend
+```
+
+Without the Wails CLI, build it with `go build -tags desktop,production`
+(on macOS additionally with `CGO_LDFLAGS="-framework UniformTypeIdentifiers"`).
+The desktop build needs cgo and the platform's webview (WebKit on macOS and
+Linux, WebView2 on Windows), so it is not cross-compiled by goreleaser.
