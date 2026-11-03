@@ -14,7 +14,7 @@ const maxBases = 8
 // Each base entry is 292 bytes long.
 const baseByteLength = 292
 
-// BaseFile has all of the base layout and contents information, as well as
+// BaseFile (BASE.DAT) has all of the base layout and contents information, as well as
 // base name info.
 //
 // https://www.ufopaedia.org/index.php/BASE.DAT
@@ -22,10 +22,12 @@ type BaseFile struct {
 	Bases []BaseData
 }
 
+// SizeOf implemtents the restruct.Sizer interface.
 func (s BaseFile) SizeOf() int {
 	return baseByteLength * maxBases
 }
 
+// Pack implements the restruct.Packer interface.
 func (s BaseFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	for i := 0; i < maxBases; i++ {
 		data, err := restruct.Pack(order, &s.Bases[i])
@@ -40,6 +42,7 @@ func (s BaseFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	return buf, nil
 }
 
+// Unpack implements the restruct.Unpacker interface.
 func (s *BaseFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 	s.Bases = make([]BaseData, maxBases)
 	for i := 0; i < maxBases; i++ {
@@ -54,29 +57,27 @@ func (s *BaseFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 
 type BaseData struct {
 
-    // 00-0E: BaseData Name, pretty obvious
-    // 0F: Presumably the Null character if the BaseData Name uses all 15 characters
+	// 00-0E: BaseData Name, pretty obvious
+	// 0F: Presumably the Null character if the BaseData Name uses all 15 characters
 	Name internal.NullString `struct:"[16]byte"`
 
 	// Logical values for the detection capabilities:
 	//
-	//10 short, 0 long: This base has small radar(s) only.
+	// 10 short, 0 long: This base has small radar(s) only.
+	// 20 short, 20 long: This base has large radar(s) only.
+	// 30 short, 20 long: This base has small and large radar(s).
+	// 100 hyperwave: This base has a hyperwave decoder(s).
 	//
-	//20 short, 20 long: This base has large radar(s) only.
-	//
-	//30 short, 20 long: This base has small and large radar(s).
-	//
-	//100 hyperwave: This base has a hyperwave decoder(s).
-	//
-	//The radar values can be set to 100 for perfect short range detection (presumably -- it definitely makes UFOs appear more often), but these reset to the correct values any time you complete a build in that base.
+	// The radar values can be set to 100 for perfect short range detection (presumably -- it definitely makes
+	// UFOs appear more often), but these reset to the correct values any time you complete a build in that base.
 
-    // 10-11: BaseData's short range detection capability.
+	// 10-11: BaseData's short range detection capability.
 	ShortRange int `struct:"int16"`
 
-    // 12-13: BaseData's long range detection capability.
+	// 12-13: BaseData's long range detection capability.
 	LongRange int `struct:"int16"`
 
-    // 14-15: BaseData's hyperwave detection capability.
+	// 14-15: BaseData's hyperwave detection capability.
 	Hyperwave int `struct:"int16"`
 
 	// 16-39: The next offsets are arranged so they're easier to understand. They are for facilities in the base:
@@ -85,13 +86,16 @@ type BaseData struct {
 	// 3A-5D: The next offsets represent the days until a facility is completed. They're set up the same way:
 	DaysToCompletion [36]uint `struct:"[36]uint8"`
 
-	Engineers  int `struct:"int8"`
+	// Number of engineers in the base.
+	Engineers int `struct:"int8"`
+
+	// Number of scientists in the base.
 	Scientists int `struct:"int8"`
 
 	// 60-11E inventory
 	Inventory [96]int `struct:"[96]int16"`
 
-    // 0120-0123: Active/Inactive BaseData, stored as a 4-byte integer.
+	// 0120-0123: Active/Inactive BaseData, stored as a 4-byte integer.
 	// Inactive entries have a value of 1. Active entries have a value of 0.
 	// Creating a new base will overwrite the first inactive entry. If a base is
 	// dismantled, the only change to the record is this value so it is possible
@@ -99,37 +103,37 @@ type BaseData struct {
 	Active bool `struct:"int32,invertedbool"`
 }
 
-
 type Facility uint
 
 const (
-	AccessLift Facility = iota  // Access Lift
-	LivingQuarters  // Living Quarters
+	AccessLift     Facility = iota // Access Lift
+	LivingQuarters                 // Living Quarters
 	Laboratory
 	Workshop
-	SmallRadarSystem  // Small Radar System
-	LargeRadarSystem  // Large Radar System
-	MissileDefense  // Missile Defense
-	GeneralStores  // General Stores
-	AlienContainment  // Alien Containment
-	LaserDefense  // Laser Defense
-	PlasmaDefense  // Plasma Defense
-	FusionBallDefense  // Fusion Ball Defense
-	GravShield  // Grav Shield
-	MindShield  // Mind Shield
-	PsionicLaboratory  // Psionic laboratory
-	HyperwaveDecoder  // Hyperwave Decoder
-	HangarTopLeft  // Hangar (top left)
-	HangarTopRight// Hangar (top right)
-	HangarBottomLeft  // Hangar (bottom left)
-	HangarBottomRight  // Hangar (bottom right)
-	Empty Facility = 0xff
+	SmallRadarSystem           // Small Radar System
+	LargeRadarSystem           // Large Radar System
+	MissileDefense             // Missile Defense
+	GeneralStores              // General Stores
+	AlienContainment           // Alien Containment
+	LaserDefense               // Laser Defense
+	PlasmaDefense              // Plasma Defense
+	FusionBallDefense          // Fusion Ball Defense
+	GravShield                 // Grav Shield
+	MindShield                 // Mind Shield
+	PsionicLaboratory          // Psionic laboratory
+	HyperwaveDecoder           // Hyperwave Decoder
+	HangarTopLeft              // Hangar (top left)
+	HangarTopRight             // Hangar (top right)
+	HangarBottomLeft           // Hangar (bottom left)
+	HangarBottomRight          // Hangar (bottom right)
+	Empty             Facility = 0xff
 )
 
 type Inventory int
+
 const (
-	InventoryStingrayLauncher Inventory = iota // stingray launcher
-	InventoryAvalancheLauncher // avalanche launcher
+	InventoryStingrayLauncher  Inventory = iota // stingray launcher
+	InventoryAvalancheLauncher                  // avalanche launcher
 	InventoryCannon
 	InventoryFusionBallLauncher
 	InventoryLaserCannon
@@ -225,5 +229,3 @@ const (
 	InventoryHWPRockets
 	InventoryHWPFusionBomb
 )
-
-

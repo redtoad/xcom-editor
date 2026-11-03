@@ -52,11 +52,24 @@ func (game *Savegame) saveCrafts() error {
 	return internal.SaveDATFile(filePath, game.craftsFile)
 }
 
-// Crafts returns all active craft (skipping EntryNotUsed slots).
+// Crafts returns all existing X-COM craft and UFOs, ordered by their index
+// in CRAFT.DAT.
+//
+// Like the game, only crafts referenced by a location in LOC.DAT are
+// considered to exist. Unused entries in CRAFT.DAT are not reliably marked
+// as unused (some savegames contain zeroed entries, which would be read as
+// Skyrangers).
 func (game *Savegame) Crafts() []*Craft {
+	used := make(map[int]bool)
+	for _, obj := range game.locationFile.Objects {
+		if obj.Type != geoscape.XCOMShip && obj.Type != geoscape.AlienShip {
+			continue
+		}
+		used[int(obj.TableReference)] = true
+	}
 	crafts := make([]*Craft, 0)
 	for idx, data := range game.craftsFile.Crafts {
-		if data.Type == geoscape.EntryNotUsed {
+		if !used[idx] || data.Type == geoscape.EntryNotUsed {
 			continue
 		}
 		crafts = append(crafts, &Craft{
@@ -144,6 +157,9 @@ func (c *Craft) MissionZone() string {
 }
 
 func (game *Savegame) Craft(offset int) *Craft {
+	if offset < 0 || offset >= len(game.craftsFile.Crafts) {
+		return nil
+	}
 	craft := game.craftsFile.Crafts[offset]
 	if craft.Type == geoscape.EntryNotUsed {
 		return nil
@@ -152,4 +168,64 @@ func (game *Savegame) Craft(offset int) *Craft {
 		offset: offset,
 		game:   game,
 	}
+}
+
+// Altitude returns the craft's current altitude.
+func (c *Craft) Altitude() geoscape.Altitude {
+	return c.game.craftsFile.Crafts[c.offset].Altitude
+}
+
+// alienRaces maps CraftData.AlienRace to the race names.
+var alienRaces = []string{"Sectoid", "Snakeman", "Ethereal", "Muton", "Floater", "Mixed"}
+
+// AlienRace returns the alien race on board of a UFO, or "" for X-COM craft.
+func (c *Craft) AlienRace() string {
+	if c.Type() < geoscape.SmallScout {
+		return ""
+	}
+	race := c.game.craftsFile.Crafts[c.offset].AlienRace
+	if race < 0 || race >= len(alienRaces) {
+		return ""
+	}
+	return alienRaces[race]
+}
+
+// DestinationLocation returns the location (LOC.DAT) the craft is heading
+// to, or nil if the craft is stationary.
+func (c *Craft) DestinationLocation() *Location {
+	data := c.game.craftsFile.Crafts[c.offset]
+	if data.Speed == 0 || data.FlightMode == geoscape.NoDestination {
+		return nil
+	}
+	idx := data.Destination
+	if idx < 0 || idx >= len(c.game.locationFile.Objects) {
+		return nil
+	}
+	obj := c.game.locationFile.Objects[idx]
+	return &Location{
+		Type:           obj.Type,
+		TableReference: int(obj.TableReference),
+		X:              obj.X,
+		Y:              obj.Y,
+		CountSuffix:    obj.CountSuffix,
+	}
+}
+
+// Damaged returns true if the craft exists (it is referenced by LOC.DAT) but
+// its entry in CRAFT.DAT is (nearly) empty, e.g. because the file was
+// overwritten with zeros. The values of such a craft are meaningless.
+func (c *Craft) Damaged() bool {
+	data, err := internal.Marshall(&c.game.craftsFile.Crafts[c.offset])
+	if err != nil {
+		return true
+	}
+	nonZero := 0
+	for _, b := range data {
+		if b != 0 {
+			nonZero++
+		}
+	}
+	// valid entries always contain several values (weapons, fuel, base,
+	// location, ...), damaged ones only leftovers.
+	return nonZero <= 2
 }

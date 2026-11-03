@@ -1,3 +1,13 @@
+export interface MissionInfo {
+  turn: number;
+  craftName: string;
+  xcomAlive: number;
+  xcomTotal: number;
+  aliensAlive: number;
+  aliensTotal: number;
+  score: number;
+}
+
 export interface GameSummary {
   slot: string;
   title: string;
@@ -5,6 +15,7 @@ export interface GameSummary {
   soldierCount: number;
   baseCount: number;
   craftCount: number;
+  mission: MissionInfo | null;
 }
 
 export interface GameDetail {
@@ -15,6 +26,7 @@ export interface GameDetail {
   baseCount: number;
   craftCount: number;
   balance: number;
+  mission: MissionInfo | null;
 }
 
 export interface SoldierSummary {
@@ -85,6 +97,17 @@ export interface BaseDetail {
   coord: string;
   tiles: TileInfo[];
   inventory: Record<string, number>;
+  // sprites to draw the base with the graphics of the game (ground,
+  // outlines, corridors, interiors, crafts), only if the game files are
+  // available
+  layers?: BaseSprite[][];
+}
+
+export interface BaseSprite {
+  sprite: number;
+  // position in pixels (of the original 32x32 tiles)
+  x: number;
+  y: number;
 }
 
 export interface TileInfo {
@@ -100,6 +123,8 @@ export interface CraftSummary {
   damage: number;
   fuel: number;
   baseName: string;
+  // the entry in CRAFT.DAT is (nearly) empty, its values are meaningless
+  damaged: boolean;
 }
 
 export interface TransferSummary {
@@ -124,4 +149,33 @@ export interface GlobeLocation {
   name: string;
   coord: { lat: number; lon: number };
   destCoord?: { lat: number; lon: number };
+  craft?: CraftDetails;
+}
+
+export interface CraftDetails {
+  type: string;
+  status: string;
+  altitude: string;
+  speed: number;
+  fuel: number;
+  damage: number;
+  baseName?: string;
+  mission?: string;
+  zone?: string;
+  race?: string;
+  destination?: string;
+  damaged?: boolean;
+}
+
+export interface WorldPolygon {
+  terrain: number;
+  points: [number, number][]; // [lon, lat]
+}
+
+export interface WorldData {
+  available: boolean;
+  ocean?: string;
+  polygons?: WorldPolygon[];
+  textureSets?: number;
+  terrains?: number;
 }

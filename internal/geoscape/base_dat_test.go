@@ -62,3 +62,17 @@ func Test_BASE_DAT_RoundTrip(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, data, encoded, "round-trip should produce identical bytes")
 }
+
+func TestBaseFile_Unpack(t *testing.T) {
+	buf := MustLoadTestFile(t, "PARTIAL", "BASE.DAT")
+	var bf geoscape.BaseFile
+	err := restruct.Unpack(buf, binary.LittleEndian, &bf)
+	assert.NoError(t, err)
+	assert.Equal(t, 8, len(bf.Bases))
+
+	base := bf.Bases[0]
+	assert.Equal(t, "Alpine HQ", base.Name.String())
+	assert.Equal(t, 10, base.ShortRange)
+	assert.Equal(t, 0, base.LongRange)
+	assert.Equal(t, 0, base.Hyperwave)
+}

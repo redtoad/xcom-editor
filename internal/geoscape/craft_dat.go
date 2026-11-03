@@ -9,30 +9,38 @@ import (
 	"github.com/go-restruct/restruct"
 )
 
-type CraftFile struct {
-	Crafts []CraftData
-}
-
 const maxCrafts = 50
 const craftByteLength = 104
 
+// CraftFile represents the CRAFT.DAT file with its fixed set of geoscape craft entries.
+type CraftFile struct {
+	Crafts [maxCrafts]CraftData
+}
+
+// SizeOf implements restruct.Sizer.
+func (cf CraftFile) SizeOf() int {
+	return maxCrafts * craftByteLength
+}
+
+// Pack implements restruct.Packer.
 func (cf CraftFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	for i := 0; i < maxCrafts; i++ {
+	for i := range maxCrafts {
 		data, err := restruct.Pack(order, &cf.Crafts[i])
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("could not pack CraftData: %w", err)
 		}
+
 		offset := i * craftByteLength
-		for j := 0; j < len(data); j++ {
+		for j := range data {
 			buf[offset+j] = data[j]
 		}
 	}
 	return buf, nil
 }
 
+// Unpack implements restruct.Unpacker.
 func (cf *CraftFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-	cf.Crafts = make([]CraftData, maxCrafts)
-	for i := 0; i < maxCrafts; i++ {
+	for i := range maxCrafts {
 		offset := i * craftByteLength
 		data := buf[offset : offset+craftByteLength]
 		if err := restruct.Unpack(data, order, &cf.Crafts[i]); err != nil {
@@ -40,10 +48,6 @@ func (cf *CraftFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) 
 		}
 	}
 	return buf[cf.SizeOf():], nil
-}
-
-func (cf *CraftFile) SizeOf() int {
-	return maxCrafts * craftByteLength
 }
 
 type CraftData struct {
@@ -152,13 +156,81 @@ type CraftData struct {
 	// 42-43	0x2A-0x2B	Craft status. Is an index within ENGLISH.DAT for the string (268 + this value).
 	Status CraftStatus `struct:"int16"`
 
-	// 44-103: Cargo items and flags. Offsets 44-98 contain item counts on board the craft
-	// (mapping to OBDATA.DAT entries). Offsets 100-103 contain a bitfield for craft state flags.
+	// Bytes 44-103: on-board item quantities (bytes 44-99) and status bitfield (bytes 100-103).
+	// The rest of the known values detail the items on board of the craft. 49-98 refer to offsets 0-49 in OBDATA.DAT.
+	// 44	0x2C	Tank/Cannon
+	// 45	0x2D	Tank/Rocket Launcher
+	// 46	0x2E	Tank/Laser Cannon
+	// 47	0x2F	Hover Tank/Plasma
+	// 48	0x30	Hover Tank/Launcher
+	// 49	0x31	PISTOL
+	// 50	0x32	PISTOL CLIP
+	// 51	0x33	RIFLE
+	// 52	0x34	RIFLE CLIP
+	// 53	0x35	HEAVY CANNON
+	// 54	0x36	CANNON AP-AMMO
+	// 55	0x37	CANNON HE-AMMO
+	// 56	0x38	CANNON I-AMMO
+	// 57	0x39	AUTO-CANNON
+	// 58	0x3A	AUTO-CANNON AP-AMMO
+	// 59	0x3B	AUTO-CANNON HE-AMMO
+	// 60	0x3C	AUTO-CANNON I-AMMO
+	// 61	0x3D	ROCKET LAUNCHER
+	// 62	0x3E	SMALL ROCKET
+	// 63	0x3F	LARGE ROCKET
+	// 64	0x40	INCENDIARY ROCKET
+	// 65	0x41	LASER PISTOL
+	// 66	0x42	LASER GUN
+	// 67	0x43	HEAVY LASER
+	// 68	0x44	GRENADE
+	// 69	0x45	SMOKE GRENADE
+	// 70	0x46	PROXIMITY GRENADE
+	// 71	0x47	HIGH EXPLOSIVE
+	// 72	0x48	MOTION SCANNER
+	// 73	0x49	MEDI-KIT
+	// 74	0x4A	PSI-AMP
+	// 75	0x4B	STUN ROD
+	// 76	0x4C	Flare
+	// 77	0x4D	empty
+	// 78	0x4E	empty
+	// 79	0x4F	empty
+	// 80	0x50	CORPSE
+	// 81	0x51	CORPSE & ARMOUR
+	// 82	0x52	CORPSE & POWER SUIT
+	// 83	0x53	Heavy Plasma
+	// 84	0x54	Heavy Plasma Clip
+	// 85	0x55	Plasma Rifle
+	// 86	0x56	Plasma Rifle Clip
+	// 87	0x57	Plasma Pistol
+	// 88	0x58	Plasma Pistol Clip
+	// 89	0x59	BLASTER LAUNCHER
+	// 90	0x5A	BLASTER BOMB
+	// 91	0x5B	SMALL LAUNCHER
+	// 92	0x5C	STUN MISSILE
+	// 93	0x5D	ALIEN GRENADE
+	// 94	0x5E	ELERIUM-115
+	// 95	0x5F	MIND PROBE
+	// 96	0x60	>>UNDEFINED <<
+	// 97	0x61	>> empty <<
+	// 98	0x62	>> empty <<
+	// 99	0x63	No known use for this offset.
+
+	// 100-103	0x64-0x67	Bitfield (only 1st byte is used):
+	// bit 0  (1): Craft is in hangar (0=craft's been flew away)
+	// bit 1  (2): Want to go home (set after mission or when out of fuel), blocks craft
+	//             from re-targeting
+	// bit 2  (4): [runtime] Out of elerium (0=fueled)
+	// bit 3  (8): [runtime] Out of left ammo (0=left weapon rearmed)
+	// bit 4 (16): [runtime] Out of right ammo (0=right weapon rearmed)
+	// bit 5 (32): [runtime] Flag of processed UFO in interception window, to avoid
+	//             multiple escape/attack timers decrementing in case when UFO is
+	//             pursued in more than 1 window at once.
+	// bit 6 (64): Hyperwaved extra info
 	Cargo [60]byte `struct:"[60]byte"`
 }
 
 // SizeOf implements restruct.Sizer
-func (c CraftData) SizeOf() int {
+func (c *CraftData) SizeOf() int {
 	return 104
 }
 

@@ -97,6 +97,21 @@ func main() {
 		log.Fatal("No savegames found in ", root)
 	}
 
+	// The globe terrain and base graphics are optional, they are only
+	// available if root is the game folder (with GEODATA and GEOGRAPH).
+	if w, err := loadWorld(root); err != nil {
+		log.Printf("Globe terrain not available (%v), using a generic map instead", err)
+	} else {
+		world = w
+		log.Printf("Loaded globe terrain: %d polygons", len(w.Polygons))
+	}
+	if bits, err := loadBaseBits(root); err != nil {
+		log.Printf("Base graphics not available (%v)", err)
+	} else {
+		baseBits = bits
+		log.Printf("Loaded base graphics: %d sprites", len(bits))
+	}
+
 	r := mux.NewRouter()
 
 	// API routes
@@ -119,6 +134,9 @@ func main() {
 	api.HandleFunc("/games/{slot}/actions/speedup-deliveries", handleSpeedupDeliveries).Methods("POST")
 	api.HandleFunc("/games/{slot}/save", handleSave).Methods("POST")
 	api.HandleFunc("/games/{slot}/reload", handleReload).Methods("POST")
+	api.HandleFunc("/world", handleGetWorld).Methods("GET")
+	api.HandleFunc("/world/textures/{set}/{terrain}.png", handleGetTexture).Methods("GET")
+	api.HandleFunc("/basebits/{sprite}.png", handleGetBaseBit).Methods("GET")
 
 	// SPA fallback: serve frontend for all non-API routes
 	frontendContent, err := fs.Sub(frontendFS, "frontend/dist")

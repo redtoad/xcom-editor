@@ -24,6 +24,7 @@ type WorldFile struct {
 	Polygons []Polygon
 }
 
+// Unpack implements the restruct.Unpacker interface.
 func (w *WorldFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
 
 	reader := bytes.NewReader(buf)

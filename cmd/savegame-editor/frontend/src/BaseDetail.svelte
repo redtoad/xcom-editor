@@ -1,10 +1,15 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import { getBase, updateBase } from './lib/api';
+  import { getBase, updateBase, baseBitURL } from './lib/api';
   import type { BaseDetail } from './lib/types';
 
   export let gameSlot: string;
   export let baseIdx: number;
+
+  // Base sprites are 32x32 pixels (some are taller), drawn with doubled
+  // pixels like on the original 320x200 screen.
+  const SCALE = 2;
+  const TILE = 32 * SCALE;
 
   const dispatch = createEventDispatcher();
 
@@ -59,6 +64,33 @@
   </div>
 
   <h4>Facility Grid (6x6)</h4>
+  {#if base.layers}
+    <div class="base-view" style="width:{6 * TILE}px; height:{6 * TILE}px">
+      {#each base.layers as layer}
+        {#each layer as s}
+          <img
+            class="sprite"
+            src={baseBitURL(s.sprite)}
+            alt=""
+            style="left:{s.x * SCALE}px; top:{s.y * SCALE}px; width:{TILE}px"
+          />
+        {/each}
+      {/each}
+      {#each base.tiles as tile, i}
+        {#if tile.type !== 'Empty'}
+          <div
+            class="base-tile"
+            style="left:{(i % 6) * TILE}px; top:{Math.floor(i / 6) * TILE}px; width:{TILE}px; height:{TILE}px"
+            title={tile.type + (tile.daysToCompletion > 0 ? ` (${tile.daysToCompletion} days)` : '')}
+          >
+            {#if tile.daysToCompletion > 0}
+              <span class="base-days">{tile.daysToCompletion}d</span>
+            {/if}
+          </div>
+        {/if}
+      {/each}
+    </div>
+  {:else}
   <div class="grid">
     {#each { length: 6 } as _, y}
       <div class="grid-row">
@@ -79,6 +111,7 @@
       </div>
     {/each}
   </div>
+  {/if}
 
   {#if Object.keys(base.inventory).length > 0}
     <h4>Inventory</h4>
@@ -142,6 +175,33 @@
     width: 80px;
   }
   input:focus { outline: none; border-color: #00ff41; }
+  .base-view {
+    position: relative;
+    /* some sprites are taller than a tile */
+    margin-bottom: 16px;
+  }
+  .sprite {
+    position: absolute;
+    height: auto;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+  .base-tile {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .base-tile:hover {
+    outline: 2px solid #00ff41;
+    outline-offset: -2px;
+  }
+  .base-days {
+    color: #ffaa44;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 0 0 3px #000, 0 0 3px #000;
+  }
   .grid {
     display: flex;
     flex-direction: column;

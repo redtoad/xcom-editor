@@ -29,7 +29,12 @@
     class:selected={selectedSlot === game.slot}
     on:click={() => dispatch('select', game.slot)}
   >
-    <div class="slot">{game.slot.replace('_', ' ')}</div>
+    <div class="slot">
+      {game.slot.replace('_', ' ')}
+      {#if game.mission}
+        <span class="mission-badge" title="Saved during a mission (turn {game.mission.turn})">In mission</span>
+      {/if}
+    </div>
     <div class="title">{game.title}</div>
     <div class="meta">
       <span>{game.time}</span>
@@ -69,6 +74,16 @@
     font-size: 11px;
     color: #888;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .mission-badge {
+    float: right;
+    background: #5c0a0a;
+    border: 1px solid #ff4444;
+    color: #ff8888;
+    border-radius: 3px;
+    padding: 0 5px;
+    font-size: 10px;
     letter-spacing: 0.5px;
   }
   .title {

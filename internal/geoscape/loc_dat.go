@@ -2,7 +2,17 @@ package geoscape
 
 //go:generate stringer -type=LocationType -output=loc_dat_string.go -linecomment
 
-import "fmt"
+import (
+	"encoding/binary"
+	"fmt"
+
+	"github.com/go-restruct/restruct"
+)
+
+const (
+	maxLocations  = 50
+	locByteLength = 20
+)
 
 // LocFile provides location Data for bases and crafts
 //
@@ -11,70 +21,104 @@ import "fmt"
 //
 // https://www.ufopaedia.org/index.php/LOC.DAT
 type LocFile struct {
-    Objects [50]LocationData
+	Objects [50]LocationData
+}
+
+// SizeOf implements the restruct.Sizer interface.
+func (lf LocFile) SizeOf() int {
+	return maxLocations * locByteLength
+}
+
+// Pack implements the restruct.Packer interface.
+func (lf LocFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	for i := range maxLocations {
+		data, err := restruct.Pack(order, &lf.Objects[i])
+		if err != nil {
+			return nil, fmt.Errorf("could not pack LocationData: %w", err)
+		}
+		offset := i * locByteLength
+		for j := range data {
+			buf[offset+j] = data[j]
+		}
+	}
+	return buf, nil
+}
+
+// Unpack implements the restruct.Unpacker interface.
+func (lf *LocFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	for i := range maxLocations {
+		offset := i * locByteLength
+		data := buf[offset : offset+locByteLength]
+		if err := restruct.Unpack(data, order, &lf.Objects[i]); err != nil {
+			return nil, fmt.Errorf("could not unpack LocationData: %w", err)
+		}
+	}
+	return buf[lf.SizeOf():], nil
 }
 
 type LocationData struct {
-    // Object type
-    Type LocationType `struct:"uint8"`
+	// Object type
+	Type LocationType `struct:"uint8"`
 
-    // Object table reference - Possible values - 00 to FF - Just a reference. This just shows how many there are of
-    // this type on the geoscape. If the object is either a UFO (Alien Ship for TFTD) or X-COM craft, then this is the
-    // index into CRAFT.DAT. If the object is an X-Com base, then this is the index into BASE.DAT and if it is an Alien
-    // Base this byte contains the race.
-    TableReference uint `struct:"uint8"`
+	// Object table reference - Possible values - 00 to FF - Just a reference. This just shows how many there are of
+	// this type on the geoscape. If the object is either a UFO (Alien Ship for TFTD) or X-COM craft, then this is the
+	// index into CRAFT.DAT. If the object is an X-Com base, then this is the index into BASE.DAT and if it is an Alien
+	// Base this byte contains the race.
+	TableReference uint `struct:"uint8"`
 
-    // Horizontal coordinates or longitude (low bit then high bit respectively). Value range: 0 - 2880
-    X int `struct:"int16"`
+	// Horizontal coordinates or longitude (low bit then high bit respectively). Value range: 0 - 2880
+	X int `struct:"int16"`
 
-    // Vertical coordinates or latitude (low bit then high bit respectively). Value range: -720 - 720
-    Y int `struct:"int16"`
+	// Vertical coordinates or latitude (low bit then high bit respectively). Value range: -720 - 720
+	Y int `struct:"int16"`
 
-    // For crash site or terror site - countdown timer (in hours). For moving objects - how many game ticks (5s) have to
-    // pass until craft moved to next globe coordinate (cell_size div speed). Note that ground UFOs are treated as moving
-    // objects, except for speed = 0.
-    Timer int `struct:"int16"`
+	// For crash site or terror site - countdown timer (in hours). For moving objects - how many game ticks (5s) have to
+	// pass until craft moved to next globe coordinate (cell_size div speed). Note that ground UFOs are treated as moving
+	// objects, except for speed = 0.
+	Timer int `struct:"int16"`
 
-    // Fractional part of how much is left to the next globe coordinate (cell_size mod speed), used only for moving objects.
-    Fraction int `struct:"int16"`
+	// Fractional part of how much is left to the next globe coordinate (cell_size mod speed), used only for moving objects.
+	Fraction int `struct:"int16"`
 
-    // Count suffix of the item, eg: Skyranger-1 or Crash Site-47. It appears to have no meaning for XCOM Bases, but for
-    // other types where it is set, 0B is the high byte for when you go over 255 UFO's or crafts, etc.
-    CountSuffix int `struct:"int16"`
+	// Count suffix of the item, eg: Skyranger-1 or Crash Site-47. It appears to have no meaning for XCOM Bases, but for
+	// other types where it is set, 0B is the high byte for when you go over 255 UFO's or crafts, etc.
+	CountSuffix int `struct:"int16"`
 
-    // unused
-    _ int `struct:"int16"`
+	// Note: The following field are only used for crafts and bases, but they are still present in the file for all records. They
+	// are ignored for other types of objects. They are used for both UFOs and XCOM crafts, but they are not used for UFOs
+	Unused1 int `struct:"int16"`
 
-    // CraftData transfer mode
-    TransferMode int `struct:"int8"`
+	// CraftData transfer mode
+	TransferMode int `struct:"int8"`
 
-    // unused
-    _ int `struct:"int8"`
+	// Note: The following field are only used for crafts and bases, but they are still present in the file for all records. They
+	// are ignored for other types of objects. They are used for both UFOs and XCOM crafts, but they are not used for UFOs
+	Unused2 int `struct:"int8"`
 
-    // Globe object visiblity/mobility bitfield
-    Visibility int `struct:"int32"`
+	// Globe object visiblity/mobility bitfield
+	Visibility int `struct:"int32"`
 }
 
-// SizeOf implemtents the restruct.Sizer interface.
-func (o LocationData) SizeOf() uint {
-    return 20
+// SizeOf implements the restruct.Sizer interface.
+func (o LocationData) SizeOf() int {
+	return 20
 }
 
 func (o LocationData) String() string {
-    return fmt.Sprintf("{%v %v}", o.Type, o.TableReference)
+	return fmt.Sprintf("{%v %v}", o.Type, o.TableReference)
 }
 
-// LocationType is the the type of object for which a location is stored.
+// LocationType is the the type of object for which a location is stored in file LOC.DAT.
 type LocationType uint
 
 const (
-    Unused    LocationType = iota
-    AlienShip              // Alien Ship
-    XCOMShip               // X-COM Ship
-    XCOMBase               // X-COM Base
-    AlienBase              // Alien Base
-    CrashSite              // Crash Site
-    LandedUFO              // Landed UFO
-    Waypoint
-    TerrorSite
+	Unused     LocationType = iota
+	AlienShip               // Alien Ship
+	XCOMShip                // X-COM Ship
+	XCOMBase                // X-COM Base
+	AlienBase               // Alien Base
+	CrashSite               // Crash Site
+	LandedUFO               // Landed UFO
+	Waypoint                // Waypoint
+	TerrorSite              // Terror Site
 )

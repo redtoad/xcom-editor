@@ -6,7 +6,8 @@ import (
 	"unicode"
 )
 
-func loadHex(str string) ([]byte, error) {
+// MustLoadFromHex loads a file content from a hex-encoded string.
+func MustLoadFromHex(str string) []byte {
 	txt := strings.Map(func(r rune) rune {
 		if unicode.IsSpace(r) {
 			// if the character is a space, drop it
@@ -15,5 +16,9 @@ func loadHex(str string) ([]byte, error) {
 		// else keep it in the string
 		return r
 	}, str)
-	return hex.DecodeString(txt)
+	buffer, err := hex.DecodeString(txt)
+	if err != nil {
+		panic(err)
+	}
+	return buffer
 }

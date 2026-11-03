@@ -1,9 +1,54 @@
 package geoscape
 
 import (
-    "encoding/binary"
-    "github.com/go-restruct/restruct"
+	"encoding/binary"
+
+	"github.com/go-restruct/restruct"
 )
+
+const (
+	maxInterceptions       = 4
+	interceptionByteLength = 142
+)
+
+// InterFile details the specifics of any interceptions
+// currently occurring on the Geoscape.
+type InterFile struct {
+	Interceptions []InterceptionData
+}
+
+// Pack implements the restruct.Packer interface.
+func (if_ InterFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	for i := range maxInterceptions {
+		data, err := restruct.Pack(order, &if_.Interceptions[i])
+		if err != nil {
+			return nil, err
+		}
+		offset := i * interceptionByteLength
+		for j := range data {
+			buf[offset+j] = data[j]
+		}
+	}
+	return buf, nil
+}
+
+// Unpack implements the restruct.Unpacker interface.
+func (s *InterFile) Unpack(buf []byte, order binary.ByteOrder) ([]byte, error) {
+	s.Interceptions = make([]InterceptionData, maxInterceptions)
+	for i := range maxInterceptions {
+		offset := i * interceptionByteLength
+		data := buf[offset : offset+interceptionByteLength]
+		if err := restruct.Unpack(data, order, &s.Interceptions[i]); err != nil {
+			return nil, err
+		}
+	}
+	return buf[s.SizeOf():], nil
+}
+
+// SizeOf implemtents the restruct.Sizer interface.
+func (if_ InterFile) SizeOf() int {
+	return maxInterceptions * interceptionByteLength
+}
 
 type InterceptionData struct {
 
@@ -52,28 +97,10 @@ type InterceptionData struct {
 	// 0x82 (dword): pointer to attacking craft right weapon stats offset
 	// 0x86 (dword): pointer to CRAFT.DAT offset of the attacked UFO
 	// 0x8A (dword): pointer to UFO stats offset
+	RawData [141]byte `struct:"[141]uint8"`
 }
 
+// SizeOf implemtents the restruct.Sizer interface.
 func (id InterceptionData) SizeOf() int {
-    return 142
-}
-
-// InterFile details the specifics of any interceptions
-// currently occurring on the Geoscape.
-type InterFile struct {
-    Interceptions []InterceptionData
-}
-
-func (if_ InterFile) Pack(buf []byte, order binary.ByteOrder) ([]byte, error) {
-    for i := 0; i < maxCrafts; i++ {
-        data, err := restruct.Pack(order, &if_.Interceptions[i])
-        if err != nil {
-            return nil, err
-        }
-        offset := i * craftByteLength
-        for j := 0; j < len(data); j++ {
-            buf[offset+j] = data[j]
-        }
-    }
-    return buf, nil
+	return 142
 }
