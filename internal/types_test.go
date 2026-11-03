@@ -113,3 +113,24 @@ func TestNullString_Pack(t *testing.T) {
 		})
 	}
 }
+
+func TestNullString_PreservesBytesAfterTerminator(t *testing.T) {
+	type nullStringStruct struct {
+		Name internal.NullString `struct:"[10]byte"`
+	}
+	data := []byte{0x41, 0x62, 0x00, 0xde, 0xad, 0xbe, 0xef, 0x00, 0x01, 0x02}
+
+	var value nullStringStruct
+	assert.NoError(t, restruct.Unpack(data, binary.LittleEndian, &value))
+	assert.Equal(t, "Ab", value.Name.String())
+
+	packed, err := restruct.Pack(binary.LittleEndian, &value)
+	assert.NoError(t, err)
+	assert.Equal(t, data, packed)
+}
+
+func TestNewNullString(t *testing.T) {
+	assert.Equal(t, internal.NullString{0x41, 0x62, 0x00, 0x00}, internal.NewNullString("Ab", 4))
+	// values that do not fit are truncated to keep the trailing null byte
+	assert.Equal(t, internal.NullString{0x41, 0x62, 0x63, 0x00}, internal.NewNullString("Abcdef", 4))
+}

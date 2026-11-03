@@ -9,14 +9,14 @@ import (
 )
 
 type Savegame struct {
-	Path          string
-	meta          geoscape.SaveinfoFile
-	Financials    geoscape.LiglobFile
-	BasesData     geoscape.BaseFile
-	locationFile  geoscape.LocFile
-	soldierFile   geoscape.SoldierFile
-	transferFile  geoscape.TransferFile
-	craftsFile    geoscape.CraftFile
+	Path         string
+	meta         geoscape.SaveinfoFile
+	Financials   geoscape.LiglobFile
+	BasesData    geoscape.BaseFile
+	locationFile geoscape.LocFile
+	soldierFile  geoscape.SoldierFile
+	transferFile geoscape.TransferFile
+	craftsFile   geoscape.CraftFile
 }
 
 type loadOrSaveFunc func() error

@@ -67,7 +67,7 @@ func main() {
 	savegamePath := path.Join(*rootPath, "GAME_1")
 	log.Printf("loading savegame %s...", savegamePath)
 	currentSavegame, _ = savegame.Load(savegamePath)
-	curr := currency.USD.Amount(currentSavegame.FinancialData.CurrentBalance)
+	curr := currency.USD.Amount(currentSavegame.Financials.CurrentBalance)
 	p := message.NewPrinter(language.AmericanEnglish)
 	p.Printf("%v\n", curr)
 
