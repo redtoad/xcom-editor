@@ -20,13 +20,12 @@ type ResearchTopic struct {
 	// AlienRank. If byte 2 or 3 is not 0, the item must be in stores before
 	// the topic can be researched.
 	Topic [3]uint8
-	// 5: Unknown, 0 in the initial table and only set for live alien topics
-	// during the game (values up to 21 seen). It changes between savegames
-	// but does not match the number of such aliens in ASTORE.DAT. No code in
-	// GEOSCAPE.EXE references this byte directly or relative to the table
-	// (code only accesses bytes 0, 2-4, 6-8, 10, 14 and 18) and TACTICAL.EXE
-	// only copies the file, so it is probably changed by an indirect or
-	// out-of-bounds write that has not been found yet.
+	// 5: Unknown, 0 in the initial table. For live alien topics this is the
+	// index in ASTORE.DAT of the first matching alien (same race and rank)
+	// in the current base. GEOSCAPE.EXE stores it while building the
+	// research list of a base (0x19fd3) and does not update it afterwards,
+	// so it may be stale (e.g. after the alien was researched). No code
+	// reading it has been found.
 	Unknown1 uint8
 	// 6: UFOpaedia category.
 	UfopaediaCategory uint8
