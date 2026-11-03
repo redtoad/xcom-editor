@@ -36,6 +36,7 @@ func TestSavegame_RoundTrip(t *testing.T) {
 
 			entries, err := os.ReadDir(dir)
 			require.NoError(t, err)
+			require.Len(t, entries, 27)
 			for _, e := range entries {
 				original, err := os.ReadFile(filepath.Join("..", "testdata", game, e.Name()))
 				require.NoError(t, err)
@@ -56,10 +57,14 @@ func TestSavegame_SaveGeoscapeFiles(t *testing.T) {
 
 	sg.Counters.MonthlyScores[0] = -100
 	sg.ZonePriorities.Priorities[0] = 0
+	sg.Countries.Countries[0].Satisfaction = 3
+	sg.ResearchTopics.Topics[0].Time = 1
 	require.NoError(t, sg.Save())
 
 	reloaded, err := savegame.Load(dir)
 	require.NoError(t, err)
 	assert.Equal(t, int16(-100), reloaded.Counters.MonthlyScores[0])
 	assert.Equal(t, uint8(0), reloaded.ZonePriorities.Priorities[0])
+	assert.Equal(t, int16(3), reloaded.Countries.Countries[0].Satisfaction)
+	assert.Equal(t, uint16(1), reloaded.ResearchTopics.Topics[0].Time)
 }

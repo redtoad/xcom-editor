@@ -17,6 +17,21 @@ func (game *Savegame) geoscapeFiles() map[string]any {
 		"ZONAL.DAT":  &game.ZonePriorities,
 		"ACTS.DAT":   &game.AlienActs,
 		"XBASES.DAT": &game.AlienBaseTargets,
+
+		"MISSIONS.DAT": &game.AlienMissions,
+		"AKNOW.DAT":    &game.AlienKnowledge,
+		"ASTORE.DAT":   &game.AlienContainment,
+		"IGLOB.DAT":    &game.GameState,
+		"INTER.DAT":    &game.Interceptions,
+		"LEASE.DAT":    &game.GlobeView,
+		"DIPLOM.DAT":   &game.Countries,
+		"FACIL.DAT":    &game.Facilities,
+		"PRODUCT.DAT":  &game.Products,
+		"BPROD.DAT":    &game.Production,
+		"RESEARCH.DAT": &game.ResearchTopics,
+		"PROJECT.DAT":  &game.Research,
+		"PURCHASE.DAT": &game.Purchases,
+		"UP.DAT":       &game.Ufopaedia,
 	}
 }
 

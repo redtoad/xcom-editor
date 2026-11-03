@@ -32,23 +32,40 @@ func TestSavegameFilesRoundTrip(t *testing.T) {
 		obj  func() any
 	}{
 		{"ACTS.DAT", func() any { return &geoscape.ActsFile{} }},
+		{"AKNOW.DAT", func() any { return &geoscape.AknowFile{} }},
 		{"ALIEN.DAT", func() any { return &geoscape.AlienFile{} }},
+		{"ASTORE.DAT", func() any { return &geoscape.AstoreFile{} }},
 		{"BASE.DAT", func() any { return &geoscape.BaseFile{} }},
+		{"BPROD.DAT", func() any { return &geoscape.BprodFile{} }},
 		{"CRAFT.DAT", func() any { return &geoscape.CraftFile{} }},
+		{"DIPLOM.DAT", func() any { return &geoscape.DiplomFile{} }},
+		{"FACIL.DAT", func() any { return &geoscape.FacilFile{} }},
 		{"IGLOB.DAT", func() any { return &geoscape.IglobFile{} }},
 		{"INTER.DAT", func() any { return &geoscape.InterFile{} }},
+		{"LEASE.DAT", func() any { return &geoscape.LeaseFile{} }},
 		{"LIGLOB.DAT", func() any { return &geoscape.LiglobFile{} }},
 		{"LOC.DAT", func() any { return &geoscape.LocFile{} }},
+		{"MISSIONS.DAT", func() any { return &geoscape.MissionsFile{} }},
+		{"PRODUCT.DAT", func() any { return &geoscape.ProductFile{} }},
+		{"PROJECT.DAT", func() any { return &geoscape.ProjectFile{} }},
+		{"PURCHASE.DAT", func() any { return &geoscape.PurchaseFile{} }},
+		{"RESEARCH.DAT", func() any { return &geoscape.ResearchFile{} }},
 		{"SAVEINFO.DAT", func() any { return &geoscape.SaveinfoFile{} }},
 		{"SOLDIER.DAT", func() any { return &geoscape.SoldierFile{} }},
 		{"TRANSFER.DAT", func() any { return &geoscape.TransferFile{} }},
 		{"UIGLOB.DAT", func() any { return &geoscape.UiglobFile{} }},
+		{"UP.DAT", func() any { return &geoscape.UpFile{} }},
 		{"XBASES.DAT", func() any { return &geoscape.XbasesFile{} }},
 		{"XCOM.DAT", func() any { return &geoscape.XcomFile{} }},
 		{"ZONAL.DAT", func() any { return &geoscape.ZonalFile{} }},
 	}
 
 	for _, game := range savegameDirs {
+		// make sure that every file of the savegame is covered
+		entries, err := os.ReadDir(filepath.Join("..", "..", "testdata", game))
+		require.NoError(t, err)
+		require.Len(t, files, len(entries), "not all files of %s are tested", game)
+
 		for _, f := range files {
 			t.Run(game+"/"+f.name, func(t *testing.T) {
 				buf := MustLoadTestFile(t, game, f.name)

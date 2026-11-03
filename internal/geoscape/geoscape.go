@@ -3,13 +3,17 @@
 // These are savegame files used by the Geoscape portion of the game.
 // This can be considered a *standard* save.
 //
-// Supported files: ACTS.DAT, ALIEN.DAT, BASE.DAT, CRAFT.DAT, IGLOB.DAT,
-// INTER.DAT, LIGLOB.DAT, LOC.DAT, SAVEINFO.DAT, SOLDIER.DAT, TRANSFER.DAT,
-// UIGLOB.DAT, XBASES.DAT, XCOM.DAT and ZONAL.DAT.
+// All 27 files of a Geoscape savegame (GAME_1 ... GAME_10) are supported:
+// ACTS.DAT, AKNOW.DAT, ALIEN.DAT, ASTORE.DAT, BASE.DAT, BPROD.DAT, CRAFT.DAT,
+// DIPLOM.DAT, FACIL.DAT, IGLOB.DAT, INTER.DAT, LEASE.DAT, LIGLOB.DAT, LOC.DAT,
+// MISSIONS.DAT, PRODUCT.DAT, PROJECT.DAT, PURCHASE.DAT, RESEARCH.DAT,
+// SAVEINFO.DAT, SOLDIER.DAT, TRANSFER.DAT, UIGLOB.DAT, UP.DAT, XBASES.DAT,
+// XCOM.DAT and ZONAL.DAT.
 //
-// Not yet supported: AKNOW.DAT, ASTORE.DAT, BPROD.DAT, DIPLOM.DAT, FACIL.DAT,
-// LEASE.DAT, MISSIONS.DAT, PRODUCT.DAT, PROJECT.DAT, PURCHASE.DAT,
-// RESEARCH.DAT and UP.DAT.
+// Undocumented parts of a file (e.g. all of AKNOW.DAT) are kept as raw bytes,
+// so that every file can be saved byte-identical to the original.
+//
+// Battlescape files (only found in MISSDAT) are not supported yet.
 //
 // Real savegames used for round-trip tests are stored in testdata/ at the
 // repository root.

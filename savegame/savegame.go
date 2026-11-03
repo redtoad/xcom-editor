@@ -30,6 +30,34 @@ type Savegame struct {
 	AlienActs geoscape.ActsFile
 	// AlienBaseTargets holds the alien targeting of X-COM bases per zone (XBASES.DAT).
 	AlienBaseTargets geoscape.XbasesFile
+	// AlienMissions holds the ongoing alien missions per zone (MISSIONS.DAT).
+	AlienMissions geoscape.MissionsFile
+	// AlienKnowledge holds whether the aliens know about X-COM bases (AKNOW.DAT).
+	AlienKnowledge geoscape.AknowFile
+	// AlienContainment holds the live aliens in containment (ASTORE.DAT).
+	AlienContainment geoscape.AstoreFile
+	// GameState holds the current date and time and some counters (IGLOB.DAT).
+	GameState geoscape.IglobFile
+	// Interceptions holds the open interception windows (INTER.DAT).
+	Interceptions geoscape.InterFile
+	// GlobeView holds the rotation and zoom of the Geoscape globe (LEASE.DAT).
+	GlobeView geoscape.LeaseFile
+	// Countries holds the relations to the funding countries (DIPLOM.DAT).
+	Countries geoscape.DiplomFile
+	// Facilities holds the stats of the base facility types (FACIL.DAT).
+	Facilities geoscape.FacilFile
+	// Products holds the manufacturing data of all items (PRODUCT.DAT).
+	Products geoscape.ProductFile
+	// Production holds the manufacturing progress per base (BPROD.DAT).
+	Production geoscape.BprodFile
+	// ResearchTopics holds all research topics (RESEARCH.DAT).
+	ResearchTopics geoscape.ResearchFile
+	// Research holds the research progress per base (PROJECT.DAT).
+	Research geoscape.ProjectFile
+	// Purchases holds prices and transfer times of all items (PURCHASE.DAT).
+	Purchases geoscape.PurchaseFile
+	// Ufopaedia holds the UFOpaedia entries (UP.DAT).
+	Ufopaedia geoscape.UpFile
 }
 
 type loadOrSaveFunc func() error
