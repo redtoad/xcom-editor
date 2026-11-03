@@ -1,32 +1,11 @@
 package geoscape
 
-//go:generate stringer -type=Zone -output=zonal_dat_string.go -linecomment
-
-// Zone is one of the 12 geographical zones (regions) the aliens plan their
-// missions for. The order is the canonical order used by ZONAL.DAT, ACTS.DAT
-// and XBASES.DAT.
-type Zone int
-
-const (
-	ZoneNorthAmerica   Zone = 0  // North America
-	ZoneArctic         Zone = 1  // Arctic
-	ZoneAntarctica     Zone = 2  // Antarctica
-	ZoneSouthAmerica   Zone = 3  // South America
-	ZoneEurope         Zone = 4  // Europe
-	ZoneNorthAfrica    Zone = 5  // North Africa
-	ZoneSouthernAfrica Zone = 6  // Southern Africa
-	ZoneCentralAsia    Zone = 7  // Central Asia
-	ZoneSoutheastAsia  Zone = 8  // South East Asia
-	ZoneSiberia        Zone = 9  // Siberia
-	ZoneAustralasia    Zone = 10 // Australasia
-	ZonePacific        Zone = 11 // Pacific
-)
-
-// NumZones is the number of zones in ZONAL.DAT, ACTS.DAT and XBASES.DAT.
+// NumZones is the number of zones (see MissionZone) in ZONAL.DAT, ACTS.DAT,
+// XBASES.DAT and MISSIONS.DAT. The zones are stored in the order of MissionZone.
 const NumZones = 12
 
 // ZonalFile is a dynamic list of the chances that the aliens will conduct a
-// mission in a particular zone (indexed by Zone).
+// mission in a particular zone (indexed by MissionZone).
 //
 // A zone with priority 0 will only get terror attacks. Once research, harvest,
 // abduction, infiltration and base creation missions have all been performed

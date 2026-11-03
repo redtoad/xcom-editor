@@ -1,7 +1,7 @@
 package geoscape
 
 // XbasesFile holds information about alien attacks on X-COM bases, one record
-// for each zone (indexed by Zone).
+// for each zone (indexed by MissionZone).
 //
 // The format is only partially documented. The file is 48 bytes long
 // (12 zones * 4 bytes).

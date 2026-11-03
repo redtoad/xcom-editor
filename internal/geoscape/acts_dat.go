@@ -1,7 +1,7 @@
 package geoscape
 
 // ActsFile holds the priorities of the alien missions ("acts") for each zone
-// (indexed by Zone). A priority of 0 means the act will not be selected. When
+// (indexed by MissionZone). A priority of 0 means the act will not be selected. When
 // an act is selected in a month, its priority is set to 0. If it was the last
 // non-zero act of the zone, the zone's priority in ZONAL.DAT is set to 0 too.
 //

@@ -14,11 +14,11 @@ func TestZonalFile_Unpack(t *testing.T) {
 	var f geoscape.ZonalFile
 	require.NoError(t, restruct.Unpack(MustLoadTestFile(t, "GAME_1", "ZONAL.DAT"), binary.LittleEndian, &f))
 
-	assert.Equal(t, uint8(0x12), f.Priorities[geoscape.ZoneNorthAmerica])
-	assert.Equal(t, uint8(0x04), f.Priorities[geoscape.ZoneArctic])
-	assert.Equal(t, uint8(0x10), f.Priorities[geoscape.ZoneEurope])
-	assert.Equal(t, uint8(0x05), f.Priorities[geoscape.ZonePacific])
-	assert.Equal(t, "South East Asia", geoscape.ZoneSoutheastAsia.String())
+	assert.Equal(t, uint8(0x12), f.Priorities[geoscape.NorthAmerica])
+	assert.Equal(t, uint8(0x04), f.Priorities[geoscape.Arctic])
+	assert.Equal(t, uint8(0x10), f.Priorities[geoscape.Europe])
+	assert.Equal(t, uint8(0x05), f.Priorities[geoscape.Pacific])
+	assert.Equal(t, "South East Asia", geoscape.SouthEastAsia.String())
 }
 
 func TestActsFile_Unpack(t *testing.T) {
@@ -27,10 +27,10 @@ func TestActsFile_Unpack(t *testing.T) {
 
 	assert.Equal(t, geoscape.ZoneActs{
 		Research: 0x0e, Harvest: 0x10, Abduction: 0x14, Infiltration: 0x14, Base: 0x14,
-	}, f.Zones[geoscape.ZoneNorthAmerica])
+	}, f.Zones[geoscape.NorthAmerica])
 	// no abductions in Antarctica
-	assert.Equal(t, uint8(0), f.Zones[geoscape.ZoneAntarctica].Abduction)
-	assert.Equal(t, uint8(0x1c), f.Zones[geoscape.ZonePacific].Base)
+	assert.Equal(t, uint8(0), f.Zones[geoscape.Antarctica].Abduction)
+	assert.Equal(t, uint8(0x1c), f.Zones[geoscape.Pacific].Base)
 }
 
 func TestXbasesFile_Unpack(t *testing.T) {
@@ -38,7 +38,7 @@ func TestXbasesFile_Unpack(t *testing.T) {
 	require.NoError(t, restruct.Unpack(MustLoadTestFile(t, "GAME_1", "XBASES.DAT"), binary.LittleEndian, &f))
 
 	for zone, target := range f.Zones {
-		assert.Equal(t, geoscape.XbaseTarget{}, target, "zone %v", geoscape.Zone(zone))
+		assert.Equal(t, geoscape.XbaseTarget{}, target, "zone %v", geoscape.MissionZone(zone))
 	}
 }
 
