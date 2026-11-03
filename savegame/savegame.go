@@ -17,6 +17,19 @@ type Savegame struct {
 	soldierFile  geoscape.SoldierFile
 	transferFile geoscape.TransferFile
 	craftsFile   geoscape.CraftFile
+
+	// AlienActivity holds the monthly alien activity per country and region (ALIEN.DAT).
+	AlienActivity geoscape.AlienFile
+	// XcomActivity holds the monthly X-COM activity per country and region (XCOM.DAT).
+	XcomActivity geoscape.XcomFile
+	// Counters holds the naming counters, current year and monthly scores (UIGLOB.DAT).
+	Counters geoscape.UiglobFile
+	// ZonePriorities holds the chances of alien missions per zone (ZONAL.DAT).
+	ZonePriorities geoscape.ZonalFile
+	// AlienActs holds the alien mission priorities per zone (ACTS.DAT).
+	AlienActs geoscape.ActsFile
+	// AlienBaseTargets holds the alien targeting of X-COM bases per zone (XBASES.DAT).
+	AlienBaseTargets geoscape.XbasesFile
 }
 
 type loadOrSaveFunc func() error
@@ -33,6 +46,7 @@ func Load(root string) (*Savegame, error) {
 		game.loadCrafts,
 		game.loadLocations,
 		game.loadFinancials,
+		game.loadGeoscapeFiles,
 	} {
 		if err := fnc(); err != nil {
 			return nil, err
@@ -51,6 +65,7 @@ func (game *Savegame) Reload() error {
 		game.loadCrafts,
 		game.loadLocations,
 		game.loadFinancials,
+		game.loadGeoscapeFiles,
 	} {
 		if err := fnc(); err != nil {
 			return err
@@ -80,6 +95,7 @@ func (game *Savegame) Save() error {
 		game.saveTransfers,
 		game.saveCrafts,
 		game.saveFinancials,
+		game.saveGeoscapeFiles,
 	} {
 		if err := fnc(); err != nil {
 			return err
