@@ -647,7 +647,7 @@ func handleSave(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	entry.markCurrent()
+	entry.markSaved()
 	log.Printf("Saved game: %s", mux.Vars(r)["slot"])
 	writeJSON(w, map[string]string{"status": "ok"})
 }
@@ -748,11 +748,10 @@ func handleReload(w http.ResponseWriter, r *http.Request) {
 	}
 	entry.mu.Lock()
 	defer entry.mu.Unlock()
-	if err := entry.sg.Reload(); err != nil {
+	if err := entry.reload(); err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	entry.markCurrent()
 	log.Printf("Reloaded game: %s", slot)
 	writeJSON(w, map[string]string{"status": "ok"})
 }

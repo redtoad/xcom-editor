@@ -153,3 +153,47 @@ func TestScanGames_SavingInEditorIsNotAChange(t *testing.T) {
 	scanGames()
 	assert.Equal(t, map[string]bool{"GAME_1": false}, listStale(t))
 }
+
+func TestReadStamped(t *testing.T) {
+	root := t.TempDir()
+	old := time.Now().Add(-time.Hour)
+	dir := copyGame(t, root, "GAME_1", old)
+
+	stamp, changed, err := readStamped(dir, func() error { return nil })
+	require.NoError(t, err)
+	assert.False(t, changed)
+	assert.True(t, stamp.Equal(old))
+
+	// the game saves while the files are read: the time from before is
+	// kept, so the next scan notices the change
+	stamp, changed, err = readStamped(dir, func() error {
+		touch(t, dir, "SOLDIER.DAT", time.Now())
+		return nil
+	})
+	require.NoError(t, err)
+	assert.True(t, changed)
+	assert.True(t, stamp.Equal(old))
+}
+
+func TestScanGames_WaitsForSaveInEditor(t *testing.T) {
+	root := watchRoot(t)
+	dir := copyGame(t, root, "GAME_1", time.Now().Add(-time.Hour))
+	scanGames()
+	entry := games["GAME_1"]
+	require.NotNil(t, entry)
+
+	// the editor saves the savegame while a scan is running
+	entry.mu.Lock()
+	done := make(chan struct{})
+	go func() {
+		scanGames()
+		close(done)
+	}()
+	time.Sleep(50 * time.Millisecond) // let the scan wait for the lock
+	touch(t, dir, "SAVEINFO.DAT", time.Now())
+	entry.markSaved()
+	entry.mu.Unlock()
+	<-done
+
+	assert.Equal(t, map[string]bool{"GAME_1": false}, listStale(t))
+}

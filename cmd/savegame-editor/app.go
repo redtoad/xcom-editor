@@ -61,13 +61,13 @@ func loadRoot(root string) error {
 		if _, err := os.Stat(filepath.Join(gamePath, "SAVEINFO.DAT")); os.IsNotExist(err) {
 			continue
 		}
-		sg, err := savegame.Load(gamePath)
+		entry, err := loadGame(gamePath)
 		if err != nil {
 			log.Printf("Warning: could not load %s: %v", slot, err)
 			continue
 		}
-		loaded[slot] = newGameEntry(sg)
-		log.Printf("Loaded %s: %s", slot, sg.Title())
+		loaded[slot] = entry
+		log.Printf("Loaded %s: %s", slot, entry.sg.Title())
 	}
 
 	if len(loaded) == 0 {

@@ -13,7 +13,8 @@
 
   // Svelte reserves "slot" as a keyword, use a different prop name
   export let slot: string;
-  // the savegame was changed on disk (e.g. saved in the game)
+  // the savegame was changed on disk (e.g. saved in the game), as reported
+  // by the list of savegames in the sidebar
   export let stale = false;
 
   const dispatch = createEventDispatcher<{ changed: void }>();
@@ -25,6 +26,10 @@
   // incremented after every action, re-creates the active tab so that it
   // shows the current data
   let version = 0;
+
+  // The sidebar and the detail view poll at different times, the savegame
+  // is stale if either of them saw it changed.
+  $: changedOnDisk = stale || (game?.stale ?? false);
 
   const tabs = [
     { id: 'soldiers', label: 'Soldiers' },
@@ -76,7 +81,7 @@
   }
 
   function save() {
-    if (stale && !confirm('This savegame was changed on disk. Saving overwrites these changes. Save anyway?')) {
+    if (changedOnDisk && !confirm('This savegame was changed on disk. Saving overwrites these changes. Save anyway?')) {
       return;
     }
     doAction('Saving', saveWithPendingChanges);
@@ -103,7 +108,7 @@
 {/if}
 
 {#if game}
-  {#if stale}
+  {#if changedOnDisk}
     <div class="stale-notice">
       <span>This savegame was changed on disk (e.g. saved in the game). Reload it to see the changes; saving in the editor would overwrite them.</span>
       <button class="action reload" on:click={() => doAction('Reloading', reloadAndRefresh)}>Reload</button>
