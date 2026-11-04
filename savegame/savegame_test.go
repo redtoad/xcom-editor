@@ -234,3 +234,27 @@ func TestBattle_CraftAreas(t *testing.T) {
 	assert.Equal(t, "Skyranger", sg.Battle.CraftAreas()[0].Name())
 	assert.Equal(t, "large scout", sg.Battle.CraftAreas()[1].Name())
 }
+
+func TestBattle_MatchTerrainSets(t *testing.T) {
+	sg, err := savegame.Load(copySavegame(t, "GAME_4"))
+	require.NoError(t, err)
+	b := sg.Battle
+	// a small map of two terrain sets: BLANKS (2 records) and a set with
+	// a floor (2), a west wall (3), a north wall (4) and an object (5)
+	b.Globals.SizeX, b.Globals.SizeY, b.Globals.SizeZ = 2, 1, 1
+	b.Globals.MCDRecords = 6
+	b.Map.Tiles = []battlescape.MapTile{{Ground: 2, WestWall: 3, NorthWall: 4, Object: 5}, {Ground: 2}}
+
+	blanks := savegame.TerrainSet{Name: "BLANKS", TileTypes: []uint8{0, 0}}
+	match := savegame.TerrainSet{Name: "MATCH", TileTypes: []uint8{0, 1, 2, 3}}
+	// same size, but the walls are swapped
+	swapped := savegame.TerrainSet{Name: "SWAPPED", TileTypes: []uint8{0, 2, 1, 3}}
+	other := savegame.TerrainSet{Name: "OTHER", TileTypes: []uint8{0, 0, 0}}
+
+	sets, err := b.MatchTerrainSets([]savegame.TerrainSet{other, swapped, match, blanks})
+	require.NoError(t, err)
+	assert.Equal(t, []string{"BLANKS", "MATCH"}, sets)
+
+	_, err = b.MatchTerrainSets([]savegame.TerrainSet{blanks, swapped})
+	assert.Error(t, err, "no combination matches")
+}

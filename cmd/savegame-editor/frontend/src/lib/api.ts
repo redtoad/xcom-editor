@@ -1,7 +1,7 @@
 import type {
   GameSummary, GameDetail, SoldierSummary, SoldierDetail,
   BaseSummary, BaseDetail, CraftSummary, TransferSummary, Financials,
-  GlobeLocation, WorldData, BattleMap
+  GlobeLocation, WorldData, BattleMap, BattleTerrain
 } from './types';
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
@@ -107,6 +107,15 @@ export async function listLocations(slot: string): Promise<GlobeLocation[]> {
 
 export async function getBattleMap(slot: string): Promise<BattleMap> {
   return fetchJSON(`/api/games/${slot}/battle`);
+}
+
+/** Returns the sprites of the map, fails if the game graphics are not available. */
+export async function getBattleTerrain(slot: string): Promise<BattleTerrain> {
+  return fetchJSON(`/api/games/${slot}/battle/terrain`);
+}
+
+export function terrainSheetURL(name: string): string {
+  return `/api/terrain/${name}.png`;
 }
 
 export async function getWorld(): Promise<WorldData> {

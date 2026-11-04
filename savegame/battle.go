@@ -288,3 +288,93 @@ func (b *Battle) CraftAreas() []CraftArea {
 	}
 	return areas
 }
+
+// TerrainSet is a terrain file (TERRAIN/*.MCD) with the tile type of each
+// record (0 = floor, 1 = west wall, 2 = north wall, 3 = object).
+type TerrainSet struct {
+	Name      string
+	TileTypes []uint8
+}
+
+// maxTerrainSearch limits the number of combinations MatchTerrainSets tries.
+const maxTerrainSearch = 1_000_000
+
+// MatchTerrainSets returns the terrain sets the map is built from, in the
+// order of the MCD indices in MAP.DAT.
+//
+// The savegame does not name the terrain files, it only stores the total
+// number of MCD records (WGLOB.DAT). The sets are determined by searching
+// for a sequence of sets with this number of records in which the type of
+// each record matches the part of the tile it is used for (floor, walls or
+// object). A few mismatches are tolerated (e.g. for destroyed parts).
+func (b *Battle) MatchTerrainSets(sets []TerrainSet) ([]string, error) {
+	total := int(b.Globals.MCDRecords)
+	// how often each MCD index is used as floor, west wall, north wall or object
+	used := make([][4]int, 256)
+	for _, tile := range b.Map.Tiles[:min(b.Globals.Tiles(), len(b.Map.Tiles))] {
+		for part, idx := range []uint8{tile.Ground, tile.WestWall, tile.NorthWall, tile.Object} {
+			if idx != 0 {
+				used[idx][part]++
+			}
+		}
+	}
+
+	var (
+		best      []string
+		bestScore = -1
+		nodes     int
+		seq       []int
+		types     []uint8
+		taken     = make([]bool, len(sets))
+	)
+	// score returns the number of matching and mismatching uses of the
+	// records from index start on.
+	score := func(start int) (ok, bad int) {
+		for idx := start; idx < len(types) && idx < len(used); idx++ {
+			for part, n := range used[idx] {
+				if int(types[idx]) == part {
+					ok += n
+				} else {
+					bad += n
+				}
+			}
+		}
+		return
+	}
+	var search func(ok, bad int)
+	search = func(ok, bad int) {
+		nodes++
+		if len(types) == total && ok-bad > bestScore {
+			bestScore = ok - bad
+			best = make([]string, len(seq))
+			for i, s := range seq {
+				best[i] = sets[s].Name
+			}
+		}
+		if len(types) >= total || nodes > maxTerrainSearch {
+			return
+		}
+		for i, set := range sets {
+			if taken[i] || len(types)+len(set.TileTypes) > total {
+				continue
+			}
+			start := len(types)
+			types = append(types, set.TileTypes...)
+			o, b := score(start)
+			// tolerate about 1% mismatches
+			if (bad+b)*100 <= ok+o+100 {
+				taken[i] = true
+				seq = append(seq, i)
+				search(ok+o, bad+b)
+				seq = seq[:len(seq)-1]
+				taken[i] = false
+			}
+			types = types[:start]
+		}
+	}
+	search(0, 0)
+	if best == nil {
+		return nil, fmt.Errorf("no combination of terrain sets matches the map (%d MCD records)", total)
+	}
+	return best, nil
+}

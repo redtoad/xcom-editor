@@ -227,3 +227,21 @@ export interface BattleMap {
   units: BattleUnit[];
   crafts: BattleCraft[];
 }
+
+export interface BattleTerrainPart {
+  /** Index of the terrain set in BattleTerrain.sets. */
+  set: number;
+  /** Sprite in the sheet of the set (32x40 pixels per sprite). */
+  frame: number;
+  /** Vertical offset of the sprite in pixels. */
+  y: number;
+}
+
+export interface BattleTerrain {
+  /** Terrain sets of the map, their sprites are served at terrainSheetURL(name). */
+  sets: string[];
+  /** Sprite of each MCD index. */
+  parts: BattleTerrainPart[];
+  /** MCD indices of floor, west wall, north wall and object of each tile (4 per tile, order of BattleMap.tiles). */
+  tiles: number[];
+}

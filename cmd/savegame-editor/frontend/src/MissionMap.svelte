@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { getBattleMap } from './lib/api';
-  import type { BattleMap, BattleUnit } from './lib/types';
+  import { getBattleMap, getBattleTerrain } from './lib/api';
+  import type { BattleMap, BattleTerrain, BattleUnit } from './lib/types';
   import { TILE_GROUND, TILE_WEST_WALL, TILE_NORTH_WALL, TILE_OBJECT, TILE_SEEN, tileAt, levelLabel } from './lib/battle';
   import IsoMap from './IsoMap.svelte';
 
@@ -17,6 +17,9 @@
   let level = 0;
   let view: 'top' | 'iso' = 'top';
   let zoom = 1;
+  // sprites of the map, null if the game graphics are not available
+  let terrain: BattleTerrain | null = null;
+  let graphics = true;
   const ZOOMS = [0.5, 0.75, 1, 1.5, 2];
   let fogOfWar = false;
   let showDead = true;
@@ -31,6 +34,8 @@
     try {
       map = await getBattleMap(slot);
       error = '';
+      // the game graphics are optional (only if the editor runs on the game folder)
+      getBattleTerrain(slot).then(t => terrain = t, () => terrain = null);
       // start on the level with the most X-COM units
       const counts = new Array(map.sizeZ).fill(0);
       map.units.filter(u => u.owner === 'xcom' && u.alive).forEach(u => counts[u.z]++);
@@ -44,7 +49,7 @@
   $: load(gameSlot);
 
   // The terrain of a level is drawn as one path per kind of tile part.
-  function terrain(m: BattleMap, z: number, fog: boolean) {
+  function topDownPaths(m: BattleMap, z: number, fog: boolean) {
     let ground = '', objects = '', walls = '', unseen = '';
     for (let y = 0; y < m.sizeY; y++) {
       for (let x = 0; x < m.sizeX; x++) {
@@ -60,7 +65,7 @@
     return { ground, objects, walls, unseen };
   }
 
-  $: paths = map ? terrain(map, level, fogOfWar) : null;
+  $: paths = map ? topDownPaths(map, level, fogOfWar) : null;
 
   $: units = map
     ? map.units
@@ -140,6 +145,9 @@
     {#if view === 'top'}
       <label><input type="checkbox" bind:checked={showOtherLevels} /> Other levels</label>
     {:else}
+      {#if terrain}
+        <label><input type="checkbox" bind:checked={graphics} /> Game graphics</label>
+      {/if}
       <span class="zoom">
         <button class="tab" disabled={zoom === ZOOMS[0]} on:click={() => zoom = ZOOMS[ZOOMS.indexOf(zoom) - 1]}>&minus;</button>
         <span>{zoom * 100}%</span>
@@ -212,6 +220,7 @@
       {:else}
         <IsoMap
           {map} {level} {fogOfWar} {showDead} {selected} {zoom}
+          terrain={graphics ? terrain : null}
           on:hover={e => onHover(e.detail.event, e.detail.unit)}
           on:select={e => select(e.detail)}
         />

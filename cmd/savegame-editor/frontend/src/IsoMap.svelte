@@ -1,9 +1,11 @@
 <script lang="ts">
   // Isometric view of the Battlescape map, similar to the view of the game.
-  // The map is drawn with simple shapes (the game graphics are not used):
-  // floors are diamonds, walls and objects are blocks, units are pillars.
+  // The terrain is drawn with the sprites of the game if they are available
+  // (see terrain), otherwise with simple shapes: floors are diamonds, walls
+  // and objects are blocks. Units are always drawn as pillars.
   import { createEventDispatcher, onMount } from 'svelte';
-  import type { BattleMap, BattleUnit } from './lib/types';
+  import type { BattleMap, BattleTerrain, BattleUnit } from './lib/types';
+  import { terrainSheetURL } from './lib/api';
   import { TILE_GROUND, TILE_WEST_WALL, TILE_NORTH_WALL, TILE_OBJECT, TILE_SEEN, tileAt, darken } from './lib/battle';
 
   export let map: BattleMap;
@@ -14,6 +16,8 @@
   export let selected: BattleUnit | null = null;
   // scale of the map (1 = one canvas pixel per CSS pixel)
   export let zoom = 1;
+  // sprites of the map, null to draw the terrain with simple shapes
+  export let terrain: BattleTerrain | null = null;
 
   const dispatch = createEventDispatcher<{
     hover: { event: MouseEvent; unit: BattleUnit | null };
@@ -25,12 +29,49 @@
   const TH = 16;
   const LH = 24;
   const PAD = 8;
+  // space above the top level for walls and objects reaching higher
+  const TOP = PAD + 2 * LH;
+  // size of a terrain sprite, the north corner of the floor is at (16, 24)
+  const SPRITE_W = 32;
+  const SPRITE_H = 40;
+  const SPRITE_FLOOR_Y = 24;
 
   let canvas: HTMLCanvasElement;
   let scroller: HTMLDivElement;
   let colors: Record<string, string> = {};
   // screen areas of the drawn units, used to find the unit under the mouse
   let hitAreas: { unit: BattleUnit; x: number; y: number; w: number; h: number }[] = [];
+  // sprite sheets of the terrain sets, in normal and darkened (fog of war)
+  // colors, null until they are loaded
+  let sheets: { normal: CanvasImageSource; dark: CanvasImageSource }[] | null = null;
+
+  $: loadSheets(terrain);
+
+  async function loadSheets(t: BattleTerrain | null) {
+    sheets = null;
+    if (!t) return;
+    const loaded = await Promise.all(t.sets.map(name => new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`could not load terrain ${name}`));
+      img.src = terrainSheetURL(name);
+    })));
+    if (t !== terrain) return; // changed while loading
+    sheets = loaded.map(img => ({ normal: img, dark: darkened(img) }));
+  }
+
+  // returns a copy of the image with darkened colors
+  function darkened(img: HTMLImageElement): HTMLCanvasElement {
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext('2d')!;
+    ctx.drawImage(img, 0, 0);
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, c.width, c.height);
+    return c;
+  }
 
   onMount(() => {
     const style = getComputedStyle(canvas);
@@ -65,7 +106,7 @@
   // keep the selected unit in view
   $: if (selected && scroller) centerOn(selected);
 
-  $: if (canvas && colors.floor) draw(map, level, fogOfWar, showDead, selected, zoom);
+  $: if (canvas && colors.floor) draw(map, level, fogOfWar, showDead, selected, zoom, sheets);
 
   // height of level z above the ground
   function height(z: number): number {
@@ -73,13 +114,13 @@
   }
 
   $: width = (map.sizeX + map.sizeY) * (TW / 2) + 2 * PAD;
-  $: canvasHeight = (map.sizeX + map.sizeY) * (TH / 2) + (map.sizeZ - 1) * LH + LH + 2 * PAD;
+  $: canvasHeight = TOP + (map.sizeZ - 1) * LH + (map.sizeX + map.sizeY) * (TH / 2) + PAD;
 
   // screen position of the north corner of tile (x, y) at height h
   function project(x: number, y: number, h: number): [number, number] {
     return [
       PAD + map.sizeY * (TW / 2) + (x - y) * (TW / 2),
-      PAD + LH + (map.sizeZ - 1) * LH + (x + y) * (TH / 2) - h * LH,
+      TOP + (map.sizeZ - 1) * LH + (x + y) * (TH / 2) - h * LH,
     ];
   }
 
@@ -120,7 +161,9 @@
     canvas.height = canvasHeight * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, canvasHeight);
+    ctx.imageSmoothingEnabled = false;
     hitAreas = [];
+    const tileCount = map.sizeX * map.sizeY;
 
     // units by tile, large units are drawn at their lower right tile so that
     // they are not hidden by the floors of the other 3 tiles
@@ -140,6 +183,21 @@
           const y = d - x;
           const t = tileAt(map, x, y, z);
           const unseen = fogOfWar && !(t & TILE_SEEN);
+          if (terrain && sheets) {
+            // floor, west wall, north wall and object with the game sprites
+            const base = (z * tileCount + y * map.sizeX + x) * 4;
+            const [nx, ny] = project(x, y, h);
+            for (let p = 0; p < 4; p++) {
+              const part = terrain.parts[terrain.tiles[base + p]];
+              if (!terrain.tiles[base + p] || !part) continue;
+              const sheet = sheets[part.set];
+              ctx.drawImage(unseen ? sheet.dark : sheet.normal,
+                part.frame * SPRITE_W, 0, SPRITE_W, SPRITE_H,
+                nx - SPRITE_W / 2, ny - SPRITE_FLOOR_Y - part.y, SPRITE_W, SPRITE_H);
+            }
+            for (const u of unitsAt.get(`${x},${y},${z}`) ?? []) drawUnit(ctx, u, h);
+            continue;
+          }
           if (t & TILE_GROUND) {
             const floor = (x + y) % 2 ? colors.floor : colors.floorDark;
             polygon(ctx, [project(x, y, h), project(x + 1, y, h), project(x + 1, y + 1, h), project(x, y + 1, h)],
@@ -164,7 +222,7 @@
     // outlines of the crafts on the ground level
     ctx.setLineDash([6, 4]);
     ctx.lineWidth = 2;
-    for (const c of map.crafts) {
+    for (const c of terrain && sheets ? [] : map.crafts) {
       const pts = [project(c.x, c.y, 0), project(c.x + c.width, c.y, 0),
                    project(c.x + c.width, c.y + c.height, 0), project(c.x, c.y + c.height, 0)];
       ctx.beginPath();
