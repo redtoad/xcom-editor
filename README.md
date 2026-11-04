@@ -102,8 +102,9 @@ The editor watches the savegame folder: savegames that are saved in the game
 appear in the sidebar, and if a loaded savegame is overwritten (e.g. saved
 again in the game), it is marked as changed and can be reloaded.
 Each tab offers quick actions: on *Soldiers* "Heal All" and "All With Personal
-Armour" (equips every living soldier without armour) and a "Resurrect" button
-for each dead soldier, on *Bases* "Complete
+Armour" (equips every living soldier without armour), a "Heal" button for
+each wounded soldier and a "Resurrect" button for each dead soldier, on
+*Bases* "Complete
 Constructions", on *Transfers* "Speed Up Deliveries", and on *Financials* a
 "Max" button sets the current balance to its maximum ($2,147,483,647). Dead
 soldiers come back with the rank they had before. The game does not keep it,

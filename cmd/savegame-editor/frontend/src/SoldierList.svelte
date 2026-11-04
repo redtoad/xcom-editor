@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { listSoldiers, resurrectSoldier } from './lib/api';
+  import { listSoldiers, resurrectSoldier, healSoldier } from './lib/api';
   import type { SoldierSummary } from './lib/types';
   import SoldierEdit from './SoldierEdit.svelte';
 
@@ -25,6 +25,15 @@
   async function resurrect(idx: number) {
     try {
       await resurrectSoldier(gameSlot, idx);
+      await load();
+    } catch (e: any) {
+      error = e.message;
+    }
+  }
+
+  async function heal(idx: number) {
+    try {
+      await healSoldier(gameSlot, idx);
       await load();
     } catch (e: any) {
       error = e.message;
@@ -78,7 +87,9 @@
             {#if s.isDead}
               <span class="badge dead">DEAD</span>
               <button class="resurrect" title="Comes back as {s.lastRank}" on:click|stopPropagation={() => resurrect(s.index)}>Resurrect</button>
-            {:else if s.isWounded}<span class="badge wounded">WOUNDED</span>
+            {:else if s.isWounded}
+              <span class="badge wounded">WOUNDED</span>
+              <button class="heal" title="Recovers immediately" on:click|stopPropagation={() => heal(s.index)}>Heal</button>
             {:else}<span class="badge ok">OK</span>
             {/if}
           </td>
@@ -96,5 +107,5 @@
   .badge.wounded { color: var(--warning); }
   .badge.ok { color: var(--ok); }
   .back { margin-bottom: 12px; }
-  .resurrect { margin-left: 8px; }
+  .resurrect, .heal { margin-left: 8px; }
 </style>

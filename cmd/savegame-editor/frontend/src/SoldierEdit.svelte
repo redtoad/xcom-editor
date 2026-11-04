@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-  import { getSoldier, updateSoldier, resurrectSoldier, soldierImageURL } from './lib/api';
+  import { getSoldier, updateSoldier, resurrectSoldier, healSoldier, soldierImageURL } from './lib/api';
   import { registerForm, ChangeTracker } from './lib/pending';
   import type { SoldierDetail } from './lib/types';
 
@@ -105,6 +105,16 @@
     }
   }
 
+  async function heal() {
+    try {
+      await apply();
+      await healSoldier(gameSlot, soldierIdx);
+      await load();
+    } catch (e: any) {
+      error = e.message;
+    }
+  }
+
   // images of the soldier without armour and in the selected armour
   $: images = soldier?.images ?? null;
   $: armorImage = images && armor !== 'None' ? images[armor] : undefined;
@@ -132,7 +142,10 @@
     {/if}
     <div class="info">
       Missions: {soldier.missions} &middot; Kills: {soldier.kills}
-      {#if soldier.recoveryDays > 0} &middot; Recovery: {soldier.recoveryDays} days{/if}
+      {#if soldier.recoveryDays > 0 && !soldier.isDead}
+        &middot; Recovery: {soldier.recoveryDays} days
+        <button class="heal" title="Recovers immediately" on:click={heal}>Heal</button>
+      {/if}
     </div>
 
     {#if images?.['None']}
@@ -219,6 +232,7 @@
     color: var(--danger);
     text-transform: uppercase;
   }
+  .heal { margin-left: 8px; }
   .info {
     color: var(--muted);
     margin-bottom: 2px;

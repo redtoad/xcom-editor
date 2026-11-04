@@ -50,6 +50,11 @@ func (s *Soldier) RecoveryDays() int {
 	return s.game.soldierFile.Soldiers[s.offset].RecoveryDays
 }
 
+// SetRecoveryDays sets the number of wound recovery days remaining.
+func (s *Soldier) SetRecoveryDays(days int) {
+	s.game.soldierFile.Soldiers[s.offset].RecoveryDays = days
+}
+
 // TimeUnits returns total time units (initial + improvement).
 func (s *Soldier) TimeUnits() int {
 	d := s.game.soldierFile.Soldiers[s.offset]
@@ -288,6 +293,17 @@ func (s *Soldier) IsWounded() bool {
 // dead.
 func (s *Soldier) Resurrect() bool {
 	if !s.IsDead() {
+		return false
+	}
+	s.Heal()
+	return true
+}
+
+// HealWounds lets a wounded soldier recover immediately and returns them to
+// their original craft. It returns false if the soldier is not wounded (dead
+// soldiers are not resurrected, see Resurrect).
+func (s *Soldier) HealWounds() bool {
+	if !s.IsWounded() {
 		return false
 	}
 	s.Heal()

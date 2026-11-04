@@ -132,6 +132,45 @@ func TestSoldierResurrect(t *testing.T) {
 	}
 }
 
+func TestSoldierHealWounds(t *testing.T) {
+	game := &Savegame{}
+	game.soldierFile.Soldiers = make([]geoscape.SoldierData, 3)
+	for i := range game.soldierFile.Soldiers {
+		game.soldierFile.Soldiers[i].Name = internal.NewNullString(fmt.Sprintf("Soldier %d", i), 25)
+		game.soldierFile.Soldiers[i].Rank = geoscape.Captain
+		game.soldierFile.Soldiers[i].Craft = NoCraft
+		game.soldierFile.Soldiers[i].CraftBefore = 2
+	}
+	game.soldierFile.Soldiers[0].RecoveryDays = 12
+	game.soldierFile.Soldiers[2].Rank = geoscape.DeadOrUnused
+	game.soldierFile.Soldiers[2].RecoveryDays = 5
+
+	wounded := &Soldier{game: game, offset: 0}
+	healthy := &Soldier{game: game, offset: 1}
+	dead := &Soldier{game: game, offset: 2}
+
+	if !wounded.HealWounds() {
+		t.Fatal("HealWounds() of a wounded soldier = false, want true")
+	}
+	if wounded.IsWounded() || wounded.RecoveryDays() != 0 || wounded.Rank() != Captain {
+		t.Errorf("healed soldier: wounded=%v recovery=%d rank=%v, want Captain without recovery",
+			wounded.IsWounded(), wounded.RecoveryDays(), wounded.Rank())
+	}
+	// healed soldiers are returned to their original craft
+	if got := game.soldierFile.Soldiers[0].Craft; got != 2 {
+		t.Errorf("healed soldier: craft = %d, want 2", got)
+	}
+	if healthy.HealWounds() {
+		t.Error("HealWounds() of a healthy soldier = true, want false")
+	}
+	if dead.HealWounds() {
+		t.Error("HealWounds() of a dead soldier = true, want false")
+	}
+	if !dead.IsDead() {
+		t.Error("HealWounds() must not resurrect dead soldiers")
+	}
+}
+
 func TestSoldierRank_Dead(t *testing.T) {
 	game := &Savegame{}
 	game.soldierFile.Soldiers = make([]geoscape.SoldierData, 1)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -232,4 +233,46 @@ func TestHandleGetBattleMap(t *testing.T) {
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/games/GAME_1/battle", nil))
 	assert.Equal(t, http.StatusNotFound, rec.Code)
+}
+
+func TestHandleHealSoldier(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+	sg := games["GAME_1"].sg
+
+	var wounded, healthy *savegame.Soldier
+	for _, s := range sg.Soldiers() {
+		if s.IsDead() {
+			continue
+		}
+		if wounded == nil {
+			wounded = s
+		} else if healthy == nil {
+			healthy = s
+		}
+	}
+	require.NotNil(t, wounded)
+	require.NotNil(t, healthy)
+	wounded.SetRecoveryDays(14)
+	healthy.SetRecoveryDays(0)
+
+	post := func(path string) *httptest.ResponseRecorder {
+		r := mux.NewRouter()
+		r.HandleFunc("/api/games/{slot}/soldiers/{idx}/heal", handleHealSoldier)
+		rec := httptest.NewRecorder()
+		r.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, path, nil))
+		return rec
+	}
+	url := func(s *savegame.Soldier) string {
+		return fmt.Sprintf("/api/games/GAME_1/soldiers/%d/heal", s.Index())
+	}
+
+	rec := post(url(wounded))
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	assert.False(t, wounded.IsWounded())
+	assert.Equal(t, 0, wounded.RecoveryDays())
+
+	// healthy soldiers cannot be healed
+	assert.Equal(t, http.StatusBadRequest, post(url(healthy)).Code)
+	assert.Equal(t, http.StatusNotFound, post("/api/games/GAME_1/soldiers/999/heal").Code)
+	assert.Equal(t, http.StatusBadRequest, post("/api/games/GAME_1/soldiers/x/heal").Code)
 }
