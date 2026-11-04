@@ -14,6 +14,23 @@
 // All bytes are kept, so that every file can be saved byte-identical to the
 // original.
 //
+// The temporary files in MISSDAT are not supported:
+//
+//   - GEOSCAPE.EXE writes GEODATA.DAT, MISSION.DAT (format of MISDATA.DAT),
+//     UNIPOS.DAT, UNIREF.DAT and OBPOSREF.DAT before a mission. The last three
+//     use the record formats of UNITPOS.DAT, UNITREF.DAT and OBPOS.DAT, but
+//     only contain the used records. TACTICAL.EXE loads them into its
+//     UNITPOS/UNITREF/OBPOS tables.
+//   - TACTICAL.EXE writes UNITPOS.DAT, UNIREF2.DAT, MISSION2.DAT, OBPOS2.DAT
+//     (full tables), CODE.DAT and OPTION.DAT at the end of a mission.
+//   - CODE.DAT is always written as uint16 1 and is not read by any program.
+//   - OPTION.DAT holds the Battlescape options (layout of WGLOB.DAT bytes
+//     32-43) and is read by TACTICAL.EXE at startup.
+//
+// References (linear addresses): GEOSCAPE.EXE writes the pre-mission files at
+// 0x34f50, TACTICAL.EXE reads them at 0x31c7c and writes the post-mission
+// files at 0x2b4c0 (CODE.DAT at 0x2b75f).
+//
 // https://www.ufopaedia.org/index.php/Saved_Game_Files
 package battlescape
 

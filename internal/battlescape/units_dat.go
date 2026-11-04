@@ -35,13 +35,17 @@ type UnitposFile struct {
 
 // UnitPosition holds the position of a single unit.
 type UnitPosition struct {
-	// 0-2: Position, Y is 0xFF if the slot is unused.
+	// 0-2: Position. Unused slots (Unit.Type is 0xFF in UNITREF.DAT) may
+	// contain arbitrary values here.
 	Y uint8
 	X uint8
 	Z uint8
-	// 3: Unknown.
+	// 3: Unknown, always 0.
 	Unknown1 uint8
-	// 4-7: Memory address of the UNITREF.DAT entry (not used on disk).
+	// 4-7: Memory address of the UNITREF.DAT entry (not used on disk;
+	// TACTICAL.EXE recalculates it after loading MISSDAT/UNIPOS.DAT at
+	// 0x31cbb; the four entries of a large unit (UnitLarge) all point to
+	// the same UNITREF.DAT entry).
 	UnitRef uint32
 	// 8: Turns since the unit was last spotted.
 	TurnsSinceSpotted uint8
@@ -50,7 +54,7 @@ type UnitPosition struct {
 	Owner uint8
 	// 10: Flags (see UnitVisible etc.).
 	Flags uint8
-	// 11-13: Unknown.
+	// 11-13: Unknown, always 0.
 	Unknown2 [3]uint8
 }
 
@@ -110,7 +114,8 @@ type Unit struct {
 	Value uint8
 	// 40: Index in SOLDIER.DAT, 0xFF if the unit is not a soldier.
 	Soldier uint8
-	// 41: Animation frame counter.
+	// 41: Animation frame counter. TACTICAL.EXE resets it for all units after
+	// loading MISSDAT/UNIREF.DAT (0x31ca4).
 	AnimationFrame uint8
 	// 42: Rank, 0xFF if dead or unused.
 	Rank uint8
@@ -190,7 +195,7 @@ type Unit struct {
 	// 117-118: Tank turret weapon (0xFF if unused) and ammunition.
 	TurretWeapon uint8
 	TurretAmmo   uint8
-	// 119: Unknown.
+	// 119: Unknown, always 0.
 	Unknown uint8
 	// 120-123: Flags: 1 = moving, 2 = can fly, 4 = flying, 8 = selected this
 	// turn, 16 = selection disabled, 32 = right hand item selected,
