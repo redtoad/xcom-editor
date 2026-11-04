@@ -79,7 +79,9 @@ the isometric map is drawn with the terrain graphics of the game
 the map, they are determined by matching the tile types of the MCD records
 against the map (see `savegame.Battle.MatchTerrainSets`). Soldiers, Sectoids,
 Snakemen, Mutons, Chryssalids, Cyberdiscs and civilians are drawn with their
-sprites (`UNITS/*.PCK`), other units as markers. Otherwise the map is drawn
+sprites (`UNITS/*.PCK`), other units as markers. The sprites use the
+Battlescape palette of `PALETTES.DAT` with the last 16 colors replaced by the
+grey gradient the game sets at runtime (see `resources.BattlescapePalette`). Otherwise the map is drawn
 with simple shapes. The map shows the floors, walls and objects of the
 map (`MAP.DAT`), the fog of war (`SEEMAP.DAT`), all soldiers, aliens and
 civilians (`UNITPOS.DAT`, `UNITREF.DAT`) and the area of the X-COM craft and

@@ -112,6 +112,7 @@ func TestLoadUnitSheets(t *testing.T) {
 	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/unitsprites/sectoid.png", nil))
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "image/png", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "no-cache", rec.Header().Get("Cache-Control"), "the sprites depend on the game folder")
 	rec = httptest.NewRecorder()
 	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/unitsprites/nope.png", nil))
 	assert.Equal(t, http.StatusNotFound, rec.Code)

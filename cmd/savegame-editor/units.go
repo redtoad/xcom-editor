@@ -39,6 +39,7 @@ func loadUnitSheets(root string) (map[string][]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not load PALETTES.DAT: %w", err)
 	}
+	palette := resources.BattlescapePalette(palettes)
 	sheets := make(map[string][]byte)
 	for _, name := range unitSheetFiles {
 		base := filepath.Join(root, "UNITS", name)
@@ -56,7 +57,7 @@ func loadUnitSheets(root string) (map[string][]byte, error) {
 			if err != nil {
 				return nil, fmt.Errorf("could not load sprite %d of %s: %w", i, name, err)
 			}
-			img := sprite.Image(palettes[battlescapePalette])
+			img := sprite.Image(palette)
 			draw.Draw(sheet, img.Bounds().Add(image.Pt(i*unitSpriteWidth, 0)), img, image.Point{}, draw.Src)
 		}
 		var buf bytes.Buffer
@@ -227,6 +228,7 @@ func handleGetUnitSheet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "image/png")
-	w.Header().Set("Cache-Control", "max-age=86400")
+	// the sprites depend on the game folder, which can be switched
+	w.Header().Set("Cache-Control", "no-cache")
 	_, _ = w.Write(sheet)
 }

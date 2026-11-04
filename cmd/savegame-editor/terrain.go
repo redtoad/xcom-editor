@@ -17,10 +17,6 @@ import (
 	"github.com/redtoad/xcom-editor/savegame"
 )
 
-// battlescapePalette is the palette used for the Battlescape (see
-// PALETTES.DAT).
-const battlescapePalette = 4
-
 // Size of a terrain sprite in pixels.
 const (
 	terrainSpriteWidth  = 32
@@ -54,7 +50,7 @@ func loadTerrain(root string) (map[string]*terrainSet, error) {
 	sets := make(map[string]*terrainSet)
 	for _, file := range files {
 		base := strings.TrimSuffix(file, filepath.Ext(file))
-		set, err := loadTerrainSet(base, palettes[battlescapePalette])
+		set, err := loadTerrainSet(base, resources.BattlescapePalette(palettes))
 		if err != nil {
 			return nil, fmt.Errorf("could not load %s: %w", filepath.Base(base), err)
 		}
@@ -194,6 +190,7 @@ func handleGetTerrainSheet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "image/png")
-	w.Header().Set("Cache-Control", "max-age=86400")
+	// the sprites depend on the game folder, which can be switched
+	w.Header().Set("Cache-Control", "no-cache")
 	_, _ = w.Write(set.sheet)
 }
