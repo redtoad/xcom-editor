@@ -1,15 +1,10 @@
 <script lang="ts">
   import { getBattleMap } from './lib/api';
   import type { BattleMap, BattleUnit } from './lib/types';
+  import { TILE_GROUND, TILE_WEST_WALL, TILE_NORTH_WALL, TILE_OBJECT, TILE_SEEN, tileAt, levelLabel } from './lib/battle';
+  import IsoMap from './IsoMap.svelte';
 
   export let gameSlot: string;
-
-  // flags of the tiles (see battleMapJS in api.go)
-  const TILE_GROUND = 1;
-  const TILE_WEST_WALL = 2;
-  const TILE_NORTH_WALL = 4;
-  const TILE_OBJECT = 8;
-  const TILE_SEEN = 16;
 
   // size of a tile in SVG units
   const T = 12;
@@ -18,7 +13,11 @@
 
   let map: BattleMap | null = null;
   let error = '';
+  // the shown level in the order of MAP.DAT (0 = top level)
   let level = 0;
+  let view: 'top' | 'iso' = 'top';
+  let zoom = 1;
+  const ZOOMS = [0.5, 0.75, 1, 1.5, 2];
   let fogOfWar = false;
   let showDead = true;
   let showOtherLevels = true;
@@ -44,16 +43,12 @@
 
   $: load(gameSlot);
 
-  function tile(m: BattleMap, x: number, y: number, z: number): number {
-    return m.tiles[z * m.sizeX * m.sizeY + y * m.sizeX + x];
-  }
-
   // The terrain of a level is drawn as one path per kind of tile part.
   function terrain(m: BattleMap, z: number, fog: boolean) {
     let ground = '', objects = '', walls = '', unseen = '';
     for (let y = 0; y < m.sizeY; y++) {
       for (let x = 0; x < m.sizeX; x++) {
-        const t = tile(m, x, y, z);
+        const t = tileAt(m, x, y, z);
         const px = x * T, py = y * T;
         if (t & TILE_GROUND) ground += `M${px},${py}h${T}v${T}h${-T}z`;
         if (t & TILE_OBJECT) objects += `M${px + 2},${py + 2}h${T - 4}v${T - 4}h${-(T - 4)}z`;
@@ -102,10 +97,6 @@
     return 'Alive';
   }
 
-  function levelLabel(z: number): string {
-    return `Level ${z + 1}`;
-  }
-
   function onHover(event: MouseEvent, u: BattleUnit | null) {
     hovered = u;
     if (u && wrapper) {
@@ -134,13 +125,27 @@
 {#if map && paths && counts}
   <div class="controls">
     <span class="levels">
-      {#each Array(map.sizeZ) as _, z}
-        <button class="tab" class:active={level === z} on:click={() => level = z}>{levelLabel(z)}</button>
+      <button class="tab" class:active={view === 'top'} on:click={() => view = 'top'}>Top-down</button>
+      <button class="tab" class:active={view === 'iso'} on:click={() => view = 'iso'}>Isometric</button>
+    </span>
+    <span class="levels">
+      <!-- from the ground level up -->
+      {#each Array(map.sizeZ) as _, i}
+        {@const z = map.sizeZ - 1 - i}
+        <button class="tab" class:active={level === z} on:click={() => level = z}>{levelLabel(map, z)}</button>
       {/each}
     </span>
     <label><input type="checkbox" bind:checked={fogOfWar} /> Fog of war</label>
     <label><input type="checkbox" bind:checked={showDead} /> Dead units</label>
-    <label><input type="checkbox" bind:checked={showOtherLevels} /> Other levels</label>
+    {#if view === 'top'}
+      <label><input type="checkbox" bind:checked={showOtherLevels} /> Other levels</label>
+    {:else}
+      <span class="zoom">
+        <button class="tab" disabled={zoom === ZOOMS[0]} on:click={() => zoom = ZOOMS[ZOOMS.indexOf(zoom) - 1]}>&minus;</button>
+        <span>{zoom * 100}%</span>
+        <button class="tab" disabled={zoom === ZOOMS[ZOOMS.length - 1]} on:click={() => zoom = ZOOMS[ZOOMS.indexOf(zoom) + 1]}>+</button>
+      </span>
+    {/if}
     <span class="summary">
       Turn <b>{map.turn}</b>
       &middot; <span class="xcom">X-COM {counts.xcom[0]}/{counts.xcom[1]}</span>
@@ -151,6 +156,7 @@
 
   <div class="layout">
     <div class="map-wrapper" bind:this={wrapper}>
+      {#if view === 'top'}
       <svg viewBox="-1 -1 {map.sizeX * T + 2} {map.sizeY * T + 2}" role="img" aria-label="Mission map">
         <rect class="void" x="0" y="0" width={map.sizeX * T} height={map.sizeY * T} />
         <path class="ground" d={paths.ground} />
@@ -203,6 +209,13 @@
           </g>
         {/each}
       </svg>
+      {:else}
+        <IsoMap
+          {map} {level} {fogOfWar} {showDead} {selected} {zoom}
+          on:hover={e => onHover(e.detail.event, e.detail.unit)}
+          on:select={e => select(e.detail)}
+        />
+      {/if}
 
       {#if hovered}
         <div class="tooltip" style="left:{tooltipX}px; top:{tooltipY}px">
@@ -210,7 +223,7 @@
           <div class="tooltip-type">{ownerLabel(hovered)}</div>
           <dl>
             <dt>State</dt><dd>{state(hovered)}</dd>
-            <dt>Position</dt><dd>{hovered.x}, {hovered.y}, {levelLabel(hovered.z)}</dd>
+            <dt>Position</dt><dd>{hovered.x}, {hovered.y}, {levelLabel(map, hovered.z)}</dd>
             <dt>Health</dt><dd>{hovered.health}/{hovered.maxHealth}</dd>
             <dt>Time units</dt><dd>{hovered.timeUnits}/{hovered.maxTimeUnits}</dd>
             <dt>Morale</dt><dd>{hovered.morale}</dd>
@@ -232,7 +245,7 @@
             on:click={() => select(u)}
           >
             <span class="name">{u.name || '(unnamed)'}</span>
-            <span class="where">{u.x},{u.y} L{u.z + 1}</span>
+            <span class="where">{u.x},{u.y} L{map.sizeZ - u.z}</span>
           </button>
         </li>
       {/each}
@@ -245,7 +258,11 @@
     <span class="legend-item"><span class="swatch civilian"></span> Civilian</span>
     <span class="legend-item"><span class="swatch large"></span> Large unit</span>
     <span class="legend-item">&times; Dead</span>
-    <span class="legend-item">▲▼ Other level</span>
+    {#if view === 'top'}
+      <span class="legend-item">▲▼ Other level</span>
+    {:else}
+      <span class="legend-item">Levels above the selected one are hidden</span>
+    {/if}
     {#if map.crafts.length}<span class="legend-item"><span class="swatch craft"></span> Craft (approx. area)</span>{/if}
   </div>
 {/if}
@@ -265,6 +282,11 @@
   .tab.active {
     background: var(--button-dark);
     color: var(--value);
+  }
+  .zoom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .summary {
     color: var(--muted);
@@ -287,7 +309,7 @@
   .map-wrapper {
     position: relative;
     flex: 1 1 480px;
-    max-width: 760px;
+    max-width: 960px;
   }
   svg {
     display: block;

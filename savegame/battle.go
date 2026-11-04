@@ -148,7 +148,8 @@ type MapUnit struct {
 	// Index is the slot in UNITPOS.DAT and UNITREF.DAT.
 	Index int
 	// X, Y and Z is the position of the unit. Z is the map level in the
-	// order of MAP.DAT. Large units are placed at their upper left tile.
+	// order of MAP.DAT, i.e. 0 is the top level and SizeZ-1 the ground level.
+	// Large units are placed at their upper left tile.
 	X, Y, Z int
 	// Owner is battlescape.OwnerXcom, OwnerAlien, OwnerCivilian or 3 for
 	// X-COM units left behind on a previous stage.
@@ -218,8 +219,8 @@ func (b *Battle) tileIndex(x, y, z int) int {
 }
 
 // Tile returns the tile at the given position and whether X-COM has seen
-// any part of it. Z is the map level in the order of MAP.DAT (the same as
-// MapUnit.Z).
+// any part of it. Z is the map level in the order of MAP.DAT (0 = top level,
+// the same as MapUnit.Z).
 func (b *Battle) Tile(x, y, z int) (tile battlescape.MapTile, seen bool) {
 	idx := b.tileIndex(x, y, z)
 	if idx < 0 || idx >= len(b.Map.Tiles) {

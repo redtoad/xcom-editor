@@ -880,7 +880,7 @@ type battleMapJS struct {
 	SizeY int `json:"sizeY"`
 	SizeZ int `json:"sizeZ"`
 	// Tiles holds the flags (see tileGround etc.) of all tiles, ordered
-	// along X, then Y, then Z (the same as the Z of the units).
+	// along X, then Y, then Z (the same as the Z of the units, 0 = top level).
 	Tiles  []int           `json:"tiles"`
 	Units  []battleUnitJS  `json:"units"`
 	Crafts []battleCraftJS `json:"crafts"`

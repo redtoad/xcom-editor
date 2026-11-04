@@ -70,11 +70,13 @@ go run ./cmd/savegame-editor path/to/game   # folder containing GAME_1 ... GAME_
 ```
 
 It shows whether a savegame was saved during a mission (with turn, surviving
-units and score). For those savegames the *Mission* tab shows a top-down map
-of the Battlescape, level by level, with the floors, walls and objects of the
-map (`MAP.DAT`), the fog of war (`SEEMAP.DAT`), all soldiers, aliens and
-civilians (`UNITPOS.DAT`, `UNITREF.DAT`) and the area of the X-COM craft and
-the UFO (`GEODATA.DAT`, the size of the crafts is approximate). Edits to
+units and score). For those savegames the *Mission* tab shows a map of the
+Battlescape, either top-down level by level or isometric like in the game
+(drawn with simple shapes, levels above the selected one are hidden), with the
+floors, walls and objects of the map (`MAP.DAT`), the fog of war
+(`SEEMAP.DAT`), all soldiers, aliens and civilians (`UNITPOS.DAT`,
+`UNITREF.DAT`) and the area of the X-COM craft and the UFO (`GEODATA.DAT`, the
+size of the crafts is approximate). Edits to
 soldiers, bases and the balance are applied with "Apply Changes" (or
 "Update"); "Save" writes the savegame to disk and also applies edits in an
 open form that were not applied yet, while "Reload" refreshes open forms with

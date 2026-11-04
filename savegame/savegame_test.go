@@ -196,6 +196,21 @@ func TestBattle_Tile(t *testing.T) {
 		tile, _ := sg.Battle.Tile(u.X, u.Y, u.Z)
 		assert.NotZero(t, tile.Ground, "unit %d", u.Index)
 	}
+	// levels are stored from the top down: only the upper level has tiles
+	// without a floor, the ground level has none
+	floorless := func(z int) (n int) {
+		for y := 0; y < sy; y++ {
+			for x := 0; x < sx; x++ {
+				if tile, _ := sg.Battle.Tile(x, y, z); tile.Ground == 0 {
+					n++
+				}
+			}
+		}
+		return n
+	}
+	assert.Equal(t, 813, floorless(0), "top level")
+	assert.Equal(t, 0, floorless(sz-1), "ground level")
+
 	_, seen := sg.Battle.Tile(41, 21, 0)
 	assert.True(t, seen, "X-COM has seen the tile of its own soldier")
 	tile, seen := sg.Battle.Tile(50, 0, 0)
