@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/redtoad/xcom-editor/internal/battlescape"
 	"github.com/redtoad/xcom-editor/savegame"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -159,4 +160,62 @@ func TestCraft_Damaged(t *testing.T) {
 			assert.Equal(t, want, c.Damaged(), "%s: %s (%d)", game, c.Name(), c.Index())
 		}
 	}
+}
+
+func TestBattle_MapUnits(t *testing.T) {
+	sg, err := savegame.Load(copySavegame(t, "GAME_4"))
+	require.NoError(t, err)
+	units := sg.Battle.MapUnits()
+	require.Len(t, units, 21, "14 X-COM units and 7 aliens (large units only once)")
+
+	first := units[0]
+	assert.Equal(t, 0, first.Index)
+	assert.Equal(t, "Rudi Richter", first.Unit.Name.String())
+	assert.Equal(t, [3]int{41, 21, 0}, [3]int{first.X, first.Y, first.Z})
+	assert.True(t, first.Alive())
+
+	dead := units[8]
+	assert.Equal(t, "Shigeru Sato", dead.Unit.Name.String())
+	assert.False(t, dead.Alive())
+
+	disc := units[14]
+	assert.Equal(t, "Cyberdisc", disc.Unit.Name.String())
+	assert.True(t, disc.Large)
+	assert.Equal(t, uint8(battlescape.OwnerAlien), disc.Owner)
+	assert.Equal(t, 18, units[15].Index, "the 3 other slots of the large unit are skipped")
+}
+
+func TestBattle_Tile(t *testing.T) {
+	sg, err := savegame.Load(copySavegame(t, "GAME_4"))
+	require.NoError(t, err)
+	sx, sy, sz := sg.Battle.Size()
+	assert.Equal(t, [3]int{50, 50, 2}, [3]int{sx, sy, sz})
+
+	// every unit stands on a tile with a floor
+	for _, u := range sg.Battle.MapUnits() {
+		tile, _ := sg.Battle.Tile(u.X, u.Y, u.Z)
+		assert.NotZero(t, tile.Ground, "unit %d", u.Index)
+	}
+	_, seen := sg.Battle.Tile(41, 21, 0)
+	assert.True(t, seen, "X-COM has seen the tile of its own soldier")
+	tile, seen := sg.Battle.Tile(50, 0, 0)
+	assert.Equal(t, battlescape.MapTile{}, tile)
+	assert.False(t, seen)
+}
+
+func TestBattle_CraftAreas(t *testing.T) {
+	sg, err := savegame.Load(copySavegame(t, "GAME_4"))
+	require.NoError(t, err)
+	assert.Empty(t, sg.Battle.CraftAreas(), "no crafts on the map in this mission")
+
+	g := &sg.Battle.Geodata
+	g.Crafts = 2
+	g.XcomCraft, g.XcomCraftX, g.XcomCraftY = 0, 1, 2
+	g.AlienCraft, g.AlienCraftX, g.AlienCraftY = 2, 3, 0
+	assert.Equal(t, []savegame.CraftArea{
+		{Alien: false, Type: 0, X: 10, Y: 20, Width: 10, Height: 20},
+		{Alien: true, Type: 2, X: 30, Y: 0, Width: 20, Height: 20},
+	}, sg.Battle.CraftAreas())
+	assert.Equal(t, "Skyranger", sg.Battle.CraftAreas()[0].Name())
+	assert.Equal(t, "large scout", sg.Battle.CraftAreas()[1].Name())
 }

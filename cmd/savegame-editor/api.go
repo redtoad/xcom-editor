@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/redtoad/xcom-editor/internal/battlescape"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/redtoad/xcom-editor/savegame"
 )
@@ -830,4 +832,153 @@ func locationName(sg *savegame.Savegame, loc savegame.Location) string {
 	default:
 		return loc.Type.String()
 	}
+}
+
+// Flags of the tiles in battleMapJS.Tiles.
+const (
+	tileGround    = 1 << 0
+	tileWestWall  = 1 << 1
+	tileNorthWall = 1 << 2
+	tileObject    = 1 << 3
+	tileSeen      = 1 << 4
+)
+
+// battleUnitJS is a unit on the Battlescape map.
+type battleUnitJS struct {
+	Index       int    `json:"index"`
+	Name        string `json:"name"`
+	Owner       string `json:"owner"`
+	X           int    `json:"x"`
+	Y           int    `json:"y"`
+	Z           int    `json:"z"`
+	Large       bool   `json:"large"`
+	Alive       bool   `json:"alive"`
+	Unconscious bool   `json:"unconscious"`
+	Visible     bool   `json:"visible"`
+	Health      int    `json:"health"`
+	MaxHealth   int    `json:"maxHealth"`
+	TimeUnits   int    `json:"timeUnits"`
+	MaxTU       int    `json:"maxTimeUnits"`
+	Morale      int    `json:"morale"`
+	Tank        bool   `json:"tank"`
+}
+
+// battleCraftJS is the area covered by a craft on the Battlescape map.
+type battleCraftJS struct {
+	Alien  bool   `json:"alien"`
+	Name   string `json:"name"`
+	X      int    `json:"x"`
+	Y      int    `json:"y"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+}
+
+// battleMapJS is the Battlescape map of an ongoing mission.
+type battleMapJS struct {
+	Turn  int `json:"turn"`
+	SizeX int `json:"sizeX"`
+	SizeY int `json:"sizeY"`
+	SizeZ int `json:"sizeZ"`
+	// Tiles holds the flags (see tileGround etc.) of all tiles, ordered
+	// along X, then Y, then Z (the same as the Z of the units).
+	Tiles  []int           `json:"tiles"`
+	Units  []battleUnitJS  `json:"units"`
+	Crafts []battleCraftJS `json:"crafts"`
+}
+
+// ownerName returns the name of a unit owner in UNITPOS.DAT.
+func ownerName(owner uint8) string {
+	switch owner {
+	case battlescape.OwnerXcom:
+		return "xcom"
+	case battlescape.OwnerAlien:
+		return "alien"
+	case battlescape.OwnerCivilian:
+		return "civilian"
+	default:
+		return "left-behind"
+	}
+}
+
+// battleMap returns the Battlescape map of a savegame, or nil if it was not
+// saved during a mission.
+func battleMap(sg *savegame.Savegame) *battleMapJS {
+	b := sg.Battle
+	if b == nil {
+		return nil
+	}
+	sx, sy, sz := b.Size()
+	result := &battleMapJS{
+		Turn: int(b.Globals.Turn), SizeX: sx, SizeY: sy, SizeZ: sz,
+		Tiles:  make([]int, 0, sx*sy*sz),
+		Units:  []battleUnitJS{},
+		Crafts: []battleCraftJS{},
+	}
+	for z := 0; z < sz; z++ {
+		for y := 0; y < sy; y++ {
+			for x := 0; x < sx; x++ {
+				tile, seen := b.Tile(x, y, z)
+				flags := 0
+				if tile.Ground != 0 {
+					flags |= tileGround
+				}
+				if tile.WestWall != 0 {
+					flags |= tileWestWall
+				}
+				if tile.NorthWall != 0 {
+					flags |= tileNorthWall
+				}
+				if tile.Object != 0 {
+					flags |= tileObject
+				}
+				if seen {
+					flags |= tileSeen
+				}
+				result.Tiles = append(result.Tiles, flags)
+			}
+		}
+	}
+	for _, u := range b.MapUnits() {
+		result.Units = append(result.Units, battleUnitJS{
+			Index:       u.Index,
+			Name:        strings.Join(strings.Fields(u.Unit.Name.String()), " "),
+			Owner:       ownerName(u.Owner),
+			X:           u.X,
+			Y:           u.Y,
+			Z:           u.Z,
+			Large:       u.Large,
+			Alive:       u.Alive(),
+			Unconscious: u.Unconscious(),
+			Visible:     u.Visible,
+			Health:      int(u.Unit.Health),
+			MaxHealth:   int(u.Unit.MaxHealth),
+			TimeUnits:   int(u.Unit.TimeUnits),
+			MaxTU:       int(u.Unit.MaxTimeUnits),
+			Morale:      int(u.Unit.Morale),
+			Tank:        u.Unit.Tank != 0,
+		})
+	}
+	for _, c := range b.CraftAreas() {
+		result.Crafts = append(result.Crafts, battleCraftJS{
+			Alien: c.Alien, Name: c.Name(),
+			X: c.X, Y: c.Y, Width: c.Width, Height: c.Height,
+		})
+	}
+	return result
+}
+
+// GET /api/games/{slot}/battle
+func handleGetBattleMap(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	m := battleMap(entry.sg)
+	if m == nil {
+		writeError(w, http.StatusNotFound, "savegame was not saved during a mission")
+		return
+	}
+	writeJSON(w, m)
 }

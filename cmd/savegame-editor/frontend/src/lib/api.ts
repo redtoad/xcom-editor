@@ -1,7 +1,7 @@
 import type {
   GameSummary, GameDetail, SoldierSummary, SoldierDetail,
   BaseSummary, BaseDetail, CraftSummary, TransferSummary, Financials,
-  GlobeLocation, WorldData
+  GlobeLocation, WorldData, BattleMap
 } from './types';
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
@@ -103,6 +103,10 @@ export async function reloadGame(slot: string): Promise<void> {
 
 export async function listLocations(slot: string): Promise<GlobeLocation[]> {
   return fetchJSON(`/api/games/${slot}/locations`);
+}
+
+export async function getBattleMap(slot: string): Promise<BattleMap> {
+  return fetchJSON(`/api/games/${slot}/battle`);
 }
 
 export async function getWorld(): Promise<WorldData> {

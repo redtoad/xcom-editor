@@ -126,29 +126,164 @@ func (game *Savegame) MissionStatus() *MissionStatus {
 			status.Craft = game.Craft(int(loc.TableReference))
 		}
 	}
-	for i, pos := range b.UnitPositions.Units {
-		unit := b.Units.Units[i]
-		if pos.Y == 0xFF || unit.Type == 0xFF {
-			continue // unused slot
-		}
-		// large units occupy 4 slots, only count the upper left one
-		if pos.Flags&battlescape.UnitLarge != 0 &&
-			pos.Flags&(battlescape.UnitRightSection|battlescape.UnitLowerSection) != 0 {
-			continue
-		}
-		alive := pos.Flags&battlescape.UnitActive != 0 && unit.Health > 0
-		switch pos.Owner {
+	for _, u := range b.MapUnits() {
+		switch u.Owner {
 		case battlescape.OwnerXcom:
 			status.XcomTotal++
-			if alive {
+			if u.Alive() {
 				status.XcomAlive++
 			}
 		case battlescape.OwnerAlien:
 			status.AliensTotal++
-			if alive {
+			if u.Alive() {
 				status.AliensAlive++
 			}
 		}
 	}
 	return status
+}
+
+// MapUnit is a unit on the Battlescape map.
+type MapUnit struct {
+	// Index is the slot in UNITPOS.DAT and UNITREF.DAT.
+	Index int
+	// X, Y and Z is the position of the unit. Z is the map level in the
+	// order of MAP.DAT. Large units are placed at their upper left tile.
+	X, Y, Z int
+	// Owner is battlescape.OwnerXcom, OwnerAlien, OwnerCivilian or 3 for
+	// X-COM units left behind on a previous stage.
+	Owner uint8
+	// Large is set for units occupying 2x2 tiles.
+	Large bool
+	// Visible is set if the unit is visible to X-COM.
+	Visible bool
+	// Unit holds the stats of the unit (UNITREF.DAT).
+	Unit *battlescape.Unit
+	// active is set if the unit takes part in the battle (not dead).
+	active bool
+}
+
+// Alive reports whether the unit is still alive.
+func (u MapUnit) Alive() bool {
+	return u.active && u.Unit.Health > 0
+}
+
+// Unconscious reports whether the unit is alive, but stunned.
+func (u MapUnit) Unconscious() bool {
+	return u.Alive() && u.Unit.Stun >= u.Unit.Health
+}
+
+// MapUnits returns all units on the map. Unused slots and the additional
+// slots of large units (which occupy 4 slots) are skipped.
+func (b *Battle) MapUnits() []MapUnit {
+	var units []MapUnit
+	for i, pos := range b.UnitPositions.Units {
+		unit := &b.Units.Units[i]
+		if pos.Y == 0xFF || unit.Type == 0xFF {
+			continue // unused slot
+		}
+		large := pos.Flags&battlescape.UnitLarge != 0
+		// large units occupy 4 slots, only use the upper left one
+		if large && pos.Flags&(battlescape.UnitRightSection|battlescape.UnitLowerSection) != 0 {
+			continue
+		}
+		units = append(units, MapUnit{
+			Index:   i,
+			X:       int(pos.X),
+			Y:       int(pos.Y),
+			Z:       int(pos.Z),
+			Owner:   pos.Owner,
+			Large:   large,
+			Visible: pos.Flags&battlescape.UnitVisible != 0,
+			Unit:    unit,
+			active:  pos.Flags&battlescape.UnitActive != 0,
+		})
+	}
+	return units
+}
+
+// Size returns the dimensions of the map.
+func (b *Battle) Size() (x, y, z int) {
+	return int(b.Globals.SizeX), int(b.Globals.SizeY), int(b.Globals.SizeZ)
+}
+
+// tileIndex returns the index of a tile in MAP.DAT and SEEMAP.DAT, or -1 if
+// the position is outside the map.
+func (b *Battle) tileIndex(x, y, z int) int {
+	sx, sy, sz := b.Size()
+	if x < 0 || y < 0 || z < 0 || x >= sx || y >= sy || z >= sz {
+		return -1
+	}
+	return z*sx*sy + y*sx + x
+}
+
+// Tile returns the tile at the given position and whether X-COM has seen
+// any part of it. Z is the map level in the order of MAP.DAT (the same as
+// MapUnit.Z).
+func (b *Battle) Tile(x, y, z int) (tile battlescape.MapTile, seen bool) {
+	idx := b.tileIndex(x, y, z)
+	if idx < 0 || idx >= len(b.Map.Tiles) {
+		return battlescape.MapTile{}, false
+	}
+	if idx < len(b.FogOfWar.Tiles) {
+		seen = b.FogOfWar.Tiles[idx] != 0
+	}
+	return b.Map.Tiles[idx], seen
+}
+
+// CraftArea is the area of the map covered by a craft.
+type CraftArea struct {
+	// Alien is set for UFOs and unset for X-COM crafts.
+	Alien bool
+	// Type is the craft type as stored in GEODATA.DAT (0 = Skyranger,
+	// Lightning, Avenger for X-COM crafts, 0 = small scout, ... for UFOs).
+	Type int
+	// X, Y, Width and Height is the covered area in tiles. The size is
+	// derived from the craft type and is only approximate.
+	X, Y, Width, Height int
+}
+
+// moduleSize is the size of a map module in tiles.
+const moduleSize = 10
+
+// xcomCraftModules and ufoModules are the (approximate) sizes of the crafts
+// in map modules (width, height).
+var (
+	xcomCraftModules = [][2]int{{1, 2}, {2, 1}, {1, 2}}
+	ufoModules       = [][2]int{{1, 1}, {1, 1}, {2, 2}, {2, 2}, {2, 2}, {2, 2}, {3, 3}, {3, 3}}
+)
+
+// Name returns the name of the craft type.
+func (c CraftArea) Name() string {
+	t := geoscape.CraftType(c.Type)
+	if c.Alien {
+		t += geoscape.SmallScout
+	}
+	return t.String()
+}
+
+// CraftAreas returns the areas of the map covered by the X-COM craft and the
+// UFO (see GEODATA.DAT). Missions without crafts on the map (e.g. base
+// missions) return none.
+func (b *Battle) CraftAreas() []CraftArea {
+	g := b.Geodata
+	area := func(alien bool, typ, x, y int, sizes [][2]int) CraftArea {
+		size := [2]int{1, 1}
+		if typ >= 0 && typ < len(sizes) {
+			size = sizes[typ]
+		}
+		return CraftArea{
+			Alien: alien, Type: typ,
+			X: x * moduleSize, Y: y * moduleSize,
+			Width: size[0] * moduleSize, Height: size[1] * moduleSize,
+		}
+	}
+	var areas []CraftArea
+	if g.Crafts >= 1 {
+		areas = append(areas, area(false, int(g.XcomCraft), int(g.XcomCraftX), int(g.XcomCraftY), xcomCraftModules))
+	}
+	if g.Crafts >= 2 {
+		areas = append(areas, area(true, int(g.AlienCraft), int(g.AlienCraftX), int(g.AlienCraftY), ufoModules))
+	}
+	return areas
 }

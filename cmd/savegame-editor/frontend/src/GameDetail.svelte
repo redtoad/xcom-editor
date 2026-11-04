@@ -10,6 +10,7 @@
   import FinancialView from './FinancialView.svelte';
   import GlobeView from './GlobeView.svelte';
   import HemisphereMap from './HemisphereMap.svelte';
+  import MissionMap from './MissionMap.svelte';
 
   // Svelte reserves "slot" as a keyword, use a different prop name
   export let slot: string;
@@ -31,7 +32,8 @@
   // is stale if either of them saw it changed.
   $: changedOnDisk = stale || (game?.stale ?? false);
 
-  const tabs = [
+  const allTabs = [
+    { id: 'mission', label: 'Mission' },
     { id: 'soldiers', label: 'Soldiers' },
     { id: 'bases', label: 'Bases' },
     { id: 'craft', label: 'Crafts' },
@@ -40,6 +42,9 @@
     { id: 'map', label: 'Map' },
     { id: 'globe', label: 'Globe' },
   ];
+  // the mission map is only available for savegames saved during a mission
+  $: tabs = allTabs.filter(t => t.id !== 'mission' || game?.mission);
+  $: if (game && !tabs.some(t => t.id === activeTab)) activeTab = 'soldiers';
 
   async function load() {
     try {
@@ -146,7 +151,9 @@
 
   <div class="tab-content">
     {#key version}
-    {#if activeTab === 'soldiers'}
+    {#if activeTab === 'mission'}
+      <MissionMap gameSlot={slot} />
+    {:else if activeTab === 'soldiers'}
       <SoldierList gameSlot={slot} />
     {:else if activeTab === 'bases'}
       <BaseList gameSlot={slot} />

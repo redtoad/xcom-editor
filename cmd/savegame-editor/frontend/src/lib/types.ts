@@ -188,3 +188,42 @@ export interface WorldData {
   textureSets?: number;
   terrains?: number;
 }
+
+export interface BattleUnit {
+  index: number;
+  name: string;
+  owner: 'xcom' | 'alien' | 'civilian' | 'left-behind';
+  x: number;
+  y: number;
+  z: number;
+  large: boolean;
+  alive: boolean;
+  unconscious: boolean;
+  visible: boolean;
+  health: number;
+  maxHealth: number;
+  timeUnits: number;
+  maxTimeUnits: number;
+  morale: number;
+  tank: boolean;
+}
+
+export interface BattleCraft {
+  alien: boolean;
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface BattleMap {
+  turn: number;
+  sizeX: number;
+  sizeY: number;
+  sizeZ: number;
+  /** Flags per tile (see TILE_* in MissionMap.svelte), ordered along X, then Y, then Z. */
+  tiles: number[];
+  units: BattleUnit[];
+  crafts: BattleCraft[];
+}
