@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -135,5 +136,21 @@ func TestHandleListCraft_Damaged(t *testing.T) {
 	require.Len(t, result, 3)
 	for _, c := range result {
 		assert.Equal(t, c.Index != 0, c.Damaged, "craft %d", c.Index)
+	}
+}
+
+func TestHandlePersonalArmour(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+
+	r := mux.NewRouter()
+	r.HandleFunc("/api/games/{slot}/actions/personal-armour", handlePersonalArmour)
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/api/games/GAME_1/actions/personal-armour", nil))
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+
+	for _, s := range games["GAME_1"].sg.Soldiers() {
+		if !s.IsDead() {
+			assert.NotEqual(t, geoscape.NoArmor, s.Armor(), "soldier %s", s.Name())
+		}
 	}
 }

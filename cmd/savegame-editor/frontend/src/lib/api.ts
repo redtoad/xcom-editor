@@ -77,6 +77,10 @@ export async function healAll(slot: string): Promise<void> {
   await fetchJSON(`/api/games/${slot}/actions/heal-all`, { method: 'POST' });
 }
 
+export async function equipPersonalArmour(slot: string): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/actions/personal-armour`, { method: 'POST' });
+}
+
 export async function completeConstructions(slot: string): Promise<void> {
   await fetchJSON(`/api/games/${slot}/actions/complete-constructions`, { method: 'POST' });
 }

@@ -1,8 +1,10 @@
 package savegame
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 )
 
@@ -72,6 +74,29 @@ func TestSoldierSetInitialStat_ClampsToByteRange(t *testing.T) {
 		s.SetInitialFiringAccuracy(tt.in)
 		if got := s.InitialFiringAccuracy(); got != tt.want {
 			t.Errorf("SetInitialFiringAccuracy(%d): got %d, want %d", tt.in, got, tt.want)
+		}
+	}
+}
+
+func TestEquipPersonalArmour(t *testing.T) {
+	game := &Savegame{}
+	game.soldierFile.Soldiers = make([]geoscape.SoldierData, 4)
+	for i, armor := range []geoscape.Armor{geoscape.NoArmor, geoscape.PowerSuit, geoscape.NoArmor, geoscape.NoArmor} {
+		game.soldierFile.Soldiers[i].Name = internal.NewNullString(fmt.Sprintf("Soldier %d", i), 25)
+		game.soldierFile.Soldiers[i].Rank = geoscape.Squaddie
+		game.soldierFile.Soldiers[i].Armor = armor
+	}
+	// soldier 2 is dead, soldier 3 is an unused entry
+	game.soldierFile.Soldiers[2].Rank = geoscape.DeadOrUnused
+	game.soldierFile.Soldiers[3].Name = internal.NewNullString("", 25)
+
+	if got := game.EquipPersonalArmour(); got != 1 {
+		t.Errorf("EquipPersonalArmour() = %d, want 1", got)
+	}
+	want := []geoscape.Armor{geoscape.PersonalArmour, geoscape.PowerSuit, geoscape.NoArmor, geoscape.NoArmor}
+	for i, w := range want {
+		if got := game.soldierFile.Soldiers[i].Armor; got != w {
+			t.Errorf("soldier %d: armor = %v, want %v", i, got, w)
 		}
 	}
 }

@@ -611,6 +611,18 @@ func handleHealAll(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]string{"status": "ok"})
 }
 
+// POST /api/games/{slot}/actions/personal-armour
+func handlePersonalArmour(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	n := entry.sg.EquipPersonalArmour()
+	writeJSON(w, map[string]interface{}{"status": "ok", "equipped": n})
+}
+
 // POST /api/games/{slot}/actions/complete-constructions
 func handleCompleteConstructions(w http.ResponseWriter, r *http.Request) {
 	entry := getGameEntry(w, r)

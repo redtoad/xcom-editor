@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import { getGame, saveGame, reloadGame, healAll, completeConstructions, speedupDeliveries } from './lib/api';
+  import { getGame, saveGame, reloadGame, healAll, equipPersonalArmour, completeConstructions, speedupDeliveries } from './lib/api';
   import { applyPendingChanges, refreshForms } from './lib/pending';
   import type { GameDetail } from './lib/types';
   import SoldierList from './SoldierList.svelte';
@@ -155,7 +155,7 @@
     {:else if activeTab === 'transfers'}
       <TransferList gameSlot={slot} />
     {:else if activeTab === 'financials'}
-      <FinancialView gameSlot={slot} />
+      <FinancialView gameSlot={slot} on:saved={load} />
     {:else if activeTab === 'map'}
       <HemisphereMap gameSlot={slot} />
     {:else if activeTab === 'globe'}
@@ -165,9 +165,14 @@
   </div>
 
   <div class="action-bar">
-    <button class="action" on:click={() => doAction('Healing', withPendingChanges(healAll))}>Heal All</button>
-    <button class="action" on:click={() => doAction('Completing', withPendingChanges(completeConstructions))}>Complete Constructions</button>
-    <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupDeliveries))}>Speed Up Deliveries</button>
+    {#if activeTab === 'soldiers'}
+      <button class="action" on:click={() => doAction('Healing', withPendingChanges(healAll))}>Heal All</button>
+      <button class="action" on:click={() => doAction('Equipping', withPendingChanges(equipPersonalArmour))}>All With Personal Armour</button>
+    {:else if activeTab === 'bases'}
+      <button class="action" on:click={() => doAction('Completing', withPendingChanges(completeConstructions))}>Complete Constructions</button>
+    {:else if activeTab === 'transfers'}
+      <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupDeliveries))}>Speed Up Deliveries</button>
+    {/if}
     <div class="spacer"></div>
     <button class="action reload" on:click={() => doAction('Reloading', reloadAndRefresh)}>Reload</button>
     <button class="action save" on:click={save}>Save</button>

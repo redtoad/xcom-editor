@@ -1,16 +1,21 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { getFinancials, updateFinancials } from './lib/api';
   import { registerForm, ChangeTracker } from './lib/pending';
   import type { Financials } from './lib/types';
 
   export let gameSlot: string;
 
+  const dispatch = createEventDispatcher();
+
   let financials: Financials | null = null;
   let error = '';
   let balance = 0;
   let saving = false;
   let saved = false;
+
+  // CurrentBalance is stored as a signed 32-bit integer.
+  const MAX_BALANCE = 2_147_483_647;
 
   async function load() {
     try {
@@ -46,11 +51,17 @@
     try {
       await apply();
       saved = true;
+      dispatch('saved');
       setTimeout(() => saved = false, 2000);
     } catch (e: any) {
       error = e.message;
     }
     saving = false;
+  }
+
+  async function setMax() {
+    balance = MAX_BALANCE;
+    await save();
   }
 
   function formatCurrency(val: number): string {
@@ -73,6 +84,7 @@
         <button class="save-btn" on:click={save} disabled={saving}>
           {saving ? '...' : saved ? 'Saved!' : 'Update'}
         </button>
+        <button class="max-btn" on:click={setMax} disabled={saving}>Max</button>
       </div>
     </label>
     <div class="balance-display">{formatCurrency(balance)}</div>

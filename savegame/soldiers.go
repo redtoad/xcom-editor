@@ -301,6 +301,21 @@ func (game *Savegame) HealAllSoldiers() {
 	}
 }
 
+// EquipPersonalArmour gives every living soldier without armour a personal
+// armour. Soldiers already wearing better armour keep it. It returns the
+// number of soldiers that were equipped.
+func (game *Savegame) EquipPersonalArmour() int {
+	n := 0
+	for _, soldier := range game.Soldiers() {
+		if soldier.IsDead() || soldier.Armor() != geoscape.NoArmor {
+			continue
+		}
+		soldier.SetArmor(geoscape.PersonalArmour)
+		n++
+	}
+	return n
+}
+
 // statByte converts a stat value to the unsigned byte stored in SOLDIER.DAT,
 // clamping it to the valid range 0-255.
 func statByte(v int) uint8 {

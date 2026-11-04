@@ -144,6 +144,7 @@ func newRouter() (*mux.Router, error) {
 	api.HandleFunc("/games/{slot}/financials", handleGetFinancials).Methods("GET")
 	api.HandleFunc("/games/{slot}/financials", handleUpdateFinancials).Methods("PUT")
 	api.HandleFunc("/games/{slot}/actions/heal-all", handleHealAll).Methods("POST")
+	api.HandleFunc("/games/{slot}/actions/personal-armour", handlePersonalArmour).Methods("POST")
 	api.HandleFunc("/games/{slot}/actions/complete-constructions", handleCompleteConstructions).Methods("POST")
 	api.HandleFunc("/games/{slot}/actions/speedup-deliveries", handleSpeedupDeliveries).Methods("POST")
 	api.HandleFunc("/games/{slot}/save", handleSave).Methods("POST")
