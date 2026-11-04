@@ -36,6 +36,8 @@ export interface SoldierSummary {
   index: number;
   name: string;
   rank: string;
+  // (estimated) rank before being killed in action, see Soldier.LastRank
+  lastRank: string;
   baseName: string;
   craftName: string;
   isDead: boolean;
@@ -48,6 +50,8 @@ export interface SoldierDetail {
   index: number;
   name: string;
   rank: string;
+  // (estimated) rank before being killed in action, see Soldier.LastRank
+  lastRank: string;
   baseName: string;
   craftName: string;
   isDead: boolean;
@@ -69,6 +73,8 @@ export interface SoldierDetail {
   armor: string;
   gender: string;
   appearance: string;
+  // inventory images of the soldier by armour, missing without game files
+  images?: Record<string, string> | null;
   initialTimeUnits: number;
   initialHealth: number;
   initialEnergy: number;

@@ -125,13 +125,13 @@ func (s *Soldier) SetArmor(armor geoscape.Armor) {
 }
 
 // Gender returns the soldier's gender.
-func (s *Soldier) Gender() string {
-	return s.data().Sex.String()
+func (s *Soldier) Gender() geoscape.Gender {
+	return s.data().Sex
 }
 
 // Appearance returns the soldier's appearance.
-func (s *Soldier) Appearance() string {
-	return s.data().Appearance.String()
+func (s *Soldier) Appearance() geoscape.Appearance {
+	return s.data().Appearance
 }
 
 // InitialTimeUnits returns the soldier's initial time units (before improvements).
@@ -206,9 +206,16 @@ const (
 	Captain
 	Colonel
 	Commander
+	// Dead is the rank of soldiers killed in action, the game does not keep
+	// their former rank (see LastRank).
+	Dead Rank = -1
 )
 
+// Rank returns the soldier's rank, Dead for soldiers killed in action.
 func (s *Soldier) Rank() Rank {
+	if s.IsDead() {
+		return Dead
+	}
 	mapping := map[geoscape.Rank]Rank{
 		geoscape.Rookie:    Rookie,
 		geoscape.Squaddie:  Squaddie,
@@ -219,6 +226,32 @@ func (s *Soldier) Rank() Rank {
 	}
 	data := s.game.soldierFile.Soldiers[s.offset]
 	return mapping[data.Rank]
+}
+
+// LastRank returns the rank of a soldier before being killed in action (the
+// current rank for living soldiers).
+//
+// The game overwrites the rank of dead soldiers, so it is estimated from the
+// soldier value, which is 20 + missions + a rank bonus (Sergeant +1,
+// Captain +3, Colonel +6, Commander +10, see geoscape.SoldierData). Rookies
+// and Squaddies both have no bonus and are returned as Rookie. Edited
+// savegames may have soldier values that do not follow this rule.
+func (s *Soldier) LastRank() Rank {
+	if !s.IsDead() {
+		return s.Rank()
+	}
+	data := s.data()
+	switch bonus := data.SoldierValue - 20 - data.Missions; {
+	case bonus >= 10:
+		return Commander
+	case bonus >= 6:
+		return Colonel
+	case bonus >= 3:
+		return Captain
+	case bonus >= 1:
+		return Sergeant
+	}
+	return Rookie
 }
 
 func (s *Soldier) Base() *Base {
@@ -250,11 +283,22 @@ func (s *Soldier) IsWounded() bool {
 	return !s.IsDead() && data.RecoveryDays > 0
 }
 
+// Resurrect brings a dead soldier back to life, healthy and with the rank
+// they had before (see LastRank). It returns false if the soldier is not
+// dead.
+func (s *Soldier) Resurrect() bool {
+	if !s.IsDead() {
+		return false
+	}
+	s.Heal()
+	return true
+}
+
 func (s *Soldier) Heal() {
 	data := &s.game.soldierFile.Soldiers[s.offset]
-	// Dead soldiers are resurrected as Squaddies.
+	// Dead soldiers are resurrected with the rank they had before.
 	if s.IsDead() {
-		data.Rank = geoscape.Squaddie
+		data.Rank = geoscape.Rank(s.LastRank())
 	}
 	data.RecoveryDays = 0
 	// Soldiers are returned to their original craft.
@@ -299,6 +343,21 @@ func (game *Savegame) HealAllSoldiers() {
 	for _, soldier := range game.Soldiers() {
 		soldier.Heal()
 	}
+}
+
+// EquipPersonalArmour gives every living soldier without armour a personal
+// armour. Soldiers already wearing better armour keep it. It returns the
+// number of soldiers that were equipped.
+func (game *Savegame) EquipPersonalArmour() int {
+	n := 0
+	for _, soldier := range game.Soldiers() {
+		if soldier.IsDead() || soldier.Armor() != geoscape.NoArmor {
+			continue
+		}
+		soldier.SetArmor(geoscape.PersonalArmour)
+		n++
+	}
+	return n
 }
 
 // statByte converts a stat value to the unsigned byte stored in SOLDIER.DAT,

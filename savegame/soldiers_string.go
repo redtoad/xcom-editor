@@ -14,15 +14,16 @@ func _() {
 	_ = x[Captain-3]
 	_ = x[Colonel-4]
 	_ = x[Commander-5]
+	_ = x[Dead - -1]
 }
 
-const _Rank_name = "RookieSquaddieSergeantCaptainColonelCommander"
+const _Rank_name = "DeadRookieSquaddieSergeantCaptainColonelCommander"
 
-var _Rank_index = [...]uint8{0, 6, 14, 22, 29, 36, 45}
+var _Rank_index = [...]uint8{0, 4, 10, 18, 26, 33, 40, 49}
 
 func (i Rank) String() string {
-	idx := int(i) - 0
-	if i < 0 || idx >= len(_Rank_index)-1 {
+	idx := int(i) - -1
+	if i < -1 || idx >= len(_Rank_index)-1 {
 		return "Rank(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return _Rank_name[_Rank_index[idx]:_Rank_index[idx+1]]

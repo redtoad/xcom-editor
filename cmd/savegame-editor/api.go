@@ -159,6 +159,8 @@ func handleListSoldiers(w http.ResponseWriter, r *http.Request) {
 		Rank      string `json:"rank"`
 		BaseName  string `json:"baseName"`
 		CraftName string `json:"craftName"`
+		// LastRank is the (estimated) rank before being killed in action.
+		LastRank  string `json:"lastRank"`
 		IsDead    bool   `json:"isDead"`
 		IsWounded bool   `json:"isWounded"`
 		Missions  int    `json:"missions"`
@@ -179,6 +181,7 @@ func handleListSoldiers(w http.ResponseWriter, r *http.Request) {
 			Index:     s.Index(),
 			Name:      s.Name(),
 			Rank:      s.Rank().String(),
+			LastRank:  s.LastRank().String(),
 			BaseName:  baseName,
 			CraftName: craftName,
 			IsDead:    s.IsDead(),
@@ -220,6 +223,7 @@ func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
 				"index":            s.Index(),
 				"name":             s.Name(),
 				"rank":             s.Rank().String(),
+				"lastRank":         s.LastRank().String(),
 				"baseName":         baseName,
 				"craftName":        craftName,
 				"isDead":           s.IsDead(),
@@ -239,8 +243,9 @@ func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
 				"psionicSkill":     s.PsionicSkill(),
 				"bravery":          s.Bravery(),
 				"armor":            armorToString[s.Armor()],
-				"gender":           s.Gender(),
-				"appearance":       s.Appearance(),
+				"gender":           s.Gender().String(),
+				"appearance":       s.Appearance().String(),
+				"images":           soldierImagesFor(s.Gender(), s.Appearance()),
 				// Initial stats for editing
 				"initialTimeUnits":        s.InitialTimeUnits(),
 				"initialHealth":           s.InitialHealth(),
@@ -609,6 +614,46 @@ func handleHealAll(w http.ResponseWriter, r *http.Request) {
 	defer entry.mu.Unlock()
 	entry.sg.HealAllSoldiers()
 	writeJSON(w, map[string]string{"status": "ok"})
+}
+
+// POST /api/games/{slot}/soldiers/{idx}/resurrect
+func handleResurrectSoldier(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	idx, err := strconv.Atoi(mux.Vars(r)["idx"])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid soldier index")
+		return
+	}
+
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+
+	for _, s := range entry.sg.Soldiers() {
+		if s.Index() == idx {
+			if !s.Resurrect() {
+				writeError(w, http.StatusBadRequest, "soldier is not dead")
+				return
+			}
+			writeJSON(w, map[string]string{"status": "ok"})
+			return
+		}
+	}
+	writeError(w, http.StatusNotFound, "soldier not found")
+}
+
+// POST /api/games/{slot}/actions/personal-armour
+func handlePersonalArmour(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	n := entry.sg.EquipPersonalArmour()
+	writeJSON(w, map[string]interface{}{"status": "ok", "equipped": n})
 }
 
 // POST /api/games/{slot}/actions/complete-constructions

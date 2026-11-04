@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
+	"github.com/redtoad/xcom-editor/savegame"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -136,4 +138,69 @@ func TestHandleListCraft_Damaged(t *testing.T) {
 	for _, c := range result {
 		assert.Equal(t, c.Index != 0, c.Damaged, "craft %d", c.Index)
 	}
+}
+
+func TestHandlePersonalArmour(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+
+	r := mux.NewRouter()
+	r.HandleFunc("/api/games/{slot}/actions/personal-armour", handlePersonalArmour)
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/api/games/GAME_1/actions/personal-armour", nil))
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+
+	for _, s := range games["GAME_1"].sg.Soldiers() {
+		if !s.IsDead() {
+			assert.NotEqual(t, geoscape.NoArmor, s.Armor(), "soldier %s", s.Name())
+		}
+	}
+}
+
+func TestHandleResurrectSoldier(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+
+	// mark the first soldier as dead (rank 0xFFFF) and reload the savegame
+	path := filepath.Join(games["GAME_1"].sg.Path, "SOLDIER.DAT")
+	buf, err := os.ReadFile(path)
+	require.NoError(t, err)
+	buf[0], buf[1] = 0xff, 0xff
+	require.NoError(t, os.WriteFile(path, buf, 0644))
+	sg, err := savegame.Load(games["GAME_1"].sg.Path)
+	require.NoError(t, err)
+	games["GAME_1"].sg = sg
+	require.True(t, sg.Soldiers()[0].IsDead())
+
+	post := func(path string) *httptest.ResponseRecorder {
+		r := mux.NewRouter()
+		r.HandleFunc("/api/games/{slot}/soldiers/{idx}/resurrect", handleResurrectSoldier)
+		rec := httptest.NewRecorder()
+		r.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, path, nil))
+		return rec
+	}
+
+	type soldier struct {
+		Rank     string `json:"rank"`
+		LastRank string `json:"lastRank"`
+		IsDead   bool   `json:"isDead"`
+	}
+	var before soldier
+	getJSON(t, "/api/games/GAME_1/soldiers/0", handleGetSoldier, "/api/games/{slot}/soldiers/{idx}", &before)
+	assert.Equal(t, "Dead", before.Rank)
+	assert.True(t, before.IsDead)
+	assert.Equal(t, sg.Soldiers()[0].LastRank().String(), before.LastRank)
+
+	rec := post("/api/games/GAME_1/soldiers/0/resurrect")
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	assert.False(t, sg.Soldiers()[0].IsDead())
+
+	// the soldier comes back with the estimated rank
+	var after soldier
+	getJSON(t, "/api/games/GAME_1/soldiers/0", handleGetSoldier, "/api/games/{slot}/soldiers/{idx}", &after)
+	assert.Equal(t, before.LastRank, after.Rank)
+	assert.Equal(t, after.Rank, after.LastRank)
+
+	// living soldiers cannot be resurrected
+	assert.Equal(t, http.StatusBadRequest, post("/api/games/GAME_1/soldiers/0/resurrect").Code)
+	assert.Equal(t, http.StatusNotFound, post("/api/games/GAME_1/soldiers/999/resurrect").Code)
+	assert.Equal(t, http.StatusBadRequest, post("/api/games/GAME_1/soldiers/x/resurrect").Code)
 }

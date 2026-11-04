@@ -37,6 +37,10 @@ export async function updateSoldier(slot: string, idx: number, updates: Partial<
   });
 }
 
+export async function resurrectSoldier(slot: string, idx: number): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/soldiers/${idx}/resurrect`, { method: 'POST' });
+}
+
 export async function listBases(slot: string): Promise<BaseSummary[]> {
   return fetchJSON(`/api/games/${slot}/bases`);
 }
@@ -77,6 +81,10 @@ export async function healAll(slot: string): Promise<void> {
   await fetchJSON(`/api/games/${slot}/actions/heal-all`, { method: 'POST' });
 }
 
+export async function equipPersonalArmour(slot: string): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/actions/personal-armour`, { method: 'POST' });
+}
+
 export async function completeConstructions(slot: string): Promise<void> {
   await fetchJSON(`/api/games/${slot}/actions/complete-constructions`, { method: 'POST' });
 }
@@ -107,4 +115,8 @@ export function textureURL(set: number, terrain: number): string {
 
 export function baseBitURL(sprite: number): string {
   return `/api/basebits/${sprite}.png`;
+}
+
+export function soldierImageURL(name: string): string {
+  return `/api/soldier-images/${name}.png`;
 }

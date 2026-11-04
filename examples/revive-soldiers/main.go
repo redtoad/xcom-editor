@@ -35,7 +35,7 @@ func main() {
 			craftName, soldier.Base().Name())
 		if soldier.IsDead() {
 			soldier.Heal()
-			fmt.Println(Red + line + " revived as Squaddie" + Reset)
+			fmt.Println(Red + line + " revived as " + soldier.Rank().String() + Reset)
 		} else if soldier.IsWounded() {
 			soldier.Heal()
 			fmt.Println(Red + line + " healed" + Reset)

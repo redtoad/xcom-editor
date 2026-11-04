@@ -45,13 +45,13 @@ var games map[string]*gameEntry
 // for new and changed savegames (see watchGames).
 var currentRoot string
 
-// stateMu guards games, currentRoot, world, fonts and baseBits. API requests hold a read
-// lock for their whole lifetime (see lockState), loadRoot replaces all of
-// them at once under the write lock.
+// stateMu guards games, currentRoot, world, fonts, baseBits and
+// soldierImages. API requests hold a read lock for their whole lifetime (see
+// lockState), loadRoot replaces all of them at once under the write lock.
 var stateMu sync.RWMutex
 
 // loadRoot loads all savegames (GAME_1 through GAME_10) and the optional
-// game resources (globe terrain, fonts, base graphics) from root. If no
+// game resources (globe terrain, fonts, base graphics, soldier images) from root. If no
 // savegame can be loaded, the current state is kept.
 func loadRoot(root string) error {
 	loaded := make(map[string]*gameEntry)
@@ -97,10 +97,17 @@ func loadRoot(root string) error {
 	} else {
 		log.Printf("Loaded base graphics: %d sprites", len(bits))
 	}
+	images, err := loadSoldierImages(root)
+	if err != nil {
+		log.Printf("Soldier images not available (%v)", err)
+		images = nil
+	} else {
+		log.Printf("Loaded soldier images: %d images", len(images))
+	}
 
 	stateMu.Lock()
 	defer stateMu.Unlock()
-	games, currentRoot, world, fonts, baseBits = loaded, root, w, f, bits
+	games, currentRoot, world, fonts, baseBits, soldierImages = loaded, root, w, f, bits, images
 	return nil
 }
 
@@ -135,6 +142,7 @@ func newRouter() (*mux.Router, error) {
 	api.HandleFunc("/games/{slot}/soldiers", handleListSoldiers).Methods("GET")
 	api.HandleFunc("/games/{slot}/soldiers/{idx}", handleGetSoldier).Methods("GET")
 	api.HandleFunc("/games/{slot}/soldiers/{idx}", handleUpdateSoldier).Methods("PUT")
+	api.HandleFunc("/games/{slot}/soldiers/{idx}/resurrect", handleResurrectSoldier).Methods("POST")
 	api.HandleFunc("/games/{slot}/bases", handleListBases).Methods("GET")
 	api.HandleFunc("/games/{slot}/bases/{idx}", handleGetBase).Methods("GET")
 	api.HandleFunc("/games/{slot}/bases/{idx}", handleUpdateBase).Methods("PUT")
@@ -144,12 +152,14 @@ func newRouter() (*mux.Router, error) {
 	api.HandleFunc("/games/{slot}/financials", handleGetFinancials).Methods("GET")
 	api.HandleFunc("/games/{slot}/financials", handleUpdateFinancials).Methods("PUT")
 	api.HandleFunc("/games/{slot}/actions/heal-all", handleHealAll).Methods("POST")
+	api.HandleFunc("/games/{slot}/actions/personal-armour", handlePersonalArmour).Methods("POST")
 	api.HandleFunc("/games/{slot}/actions/complete-constructions", handleCompleteConstructions).Methods("POST")
 	api.HandleFunc("/games/{slot}/actions/speedup-deliveries", handleSpeedupDeliveries).Methods("POST")
 	api.HandleFunc("/games/{slot}/save", handleSave).Methods("POST")
 	api.HandleFunc("/games/{slot}/reload", handleReload).Methods("POST")
 	api.HandleFunc("/world", handleGetWorld).Methods("GET")
 	api.HandleFunc("/world/textures/{set}/{terrain}.png", handleGetTexture).Methods("GET")
+	api.HandleFunc("/soldier-images/{name}.png", handleGetSoldierImage).Methods("GET")
 	api.HandleFunc("/basebits/{sprite}.png", handleGetBaseBit).Methods("GET")
 	api.HandleFunc("/fonts/{name}.ttf", handleGetFont).Methods("GET")
 

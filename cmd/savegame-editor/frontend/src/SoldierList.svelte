@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { listSoldiers } from './lib/api';
+  import { listSoldiers, resurrectSoldier } from './lib/api';
   import type { SoldierSummary } from './lib/types';
   import SoldierEdit from './SoldierEdit.svelte';
 
@@ -21,6 +21,15 @@
 
   onMount(load);
   $: if (gameSlot) { selectedIdx = null; load(); }
+
+  async function resurrect(idx: number) {
+    try {
+      await resurrectSoldier(gameSlot, idx);
+      await load();
+    } catch (e: any) {
+      error = e.message;
+    }
+  }
 
   function handleBack() {
     selectedIdx = null;
@@ -56,13 +65,19 @@
           on:click={() => selectedIdx = s.index}
         >
           <td class="name">{s.name}</td>
-          <td>{s.rank}</td>
+          {#if s.isDead}
+            <td title="Estimated rank before being killed in action">{s.lastRank}?</td>
+          {:else}
+            <td>{s.rank}</td>
+          {/if}
           <td>{s.baseName}</td>
           <td>{s.craftName}</td>
           <td class="num">{s.missions}</td>
           <td class="num">{s.kills}</td>
           <td>
-            {#if s.isDead}<span class="badge dead">DEAD</span>
+            {#if s.isDead}
+              <span class="badge dead">DEAD</span>
+              <button class="resurrect" title="Comes back as {s.lastRank}" on:click|stopPropagation={() => resurrect(s.index)}>Resurrect</button>
             {:else if s.isWounded}<span class="badge wounded">WOUNDED</span>
             {:else}<span class="badge ok">OK</span>
             {/if}
@@ -81,4 +96,5 @@
   .badge.wounded { color: var(--warning); }
   .badge.ok { color: var(--ok); }
   .back { margin-bottom: 12px; }
+  .resurrect { margin-left: 8px; }
 </style>
