@@ -35,8 +35,14 @@ type gameEntry struct {
 // games holds all loaded savegames indexed by slot name (e.g. "GAME_1").
 var games map[string]*gameEntry
 
+// stateMu guards games, world, fonts and baseBits. API requests hold a read
+// lock for their whole lifetime (see lockState), loadRoot replaces all of
+// them at once under the write lock.
+var stateMu sync.RWMutex
+
 // loadRoot loads all savegames (GAME_1 through GAME_10) and the optional
-// game resources (globe terrain, fonts, base graphics) from root.
+// game resources (globe terrain, fonts, base graphics) from root. If no
+// savegame can be loaded, the current state is kept.
 func loadRoot(root string) error {
 	loaded := make(map[string]*gameEntry)
 	for i := 1; i <= 10; i++ {
@@ -57,32 +63,45 @@ func loadRoot(root string) error {
 	if len(loaded) == 0 {
 		return fmt.Errorf("no savegames found in %s", root)
 	}
-	games = loaded
 
 	// The globe terrain and base graphics are optional, they are only
 	// available if root is the game folder (with GEODATA and GEOGRAPH).
-	world = nil
-	if w, err := loadWorld(root); err != nil {
+	w, err := loadWorld(root)
+	if err != nil {
 		log.Printf("Globe terrain not available (%v), using a generic map instead", err)
+		w = nil
 	} else {
-		world = w
 		log.Printf("Loaded globe terrain: %d polygons", len(w.Polygons))
 	}
-	fonts = map[string][]byte{}
-	if f, err := loadFonts(root); err != nil {
+	f, err := loadFonts(root)
+	if err != nil {
 		log.Printf("Game fonts not available (%v)", err)
+		f = map[string][]byte{}
 	} else {
-		fonts = f
 		log.Printf("Loaded game fonts")
 	}
-	baseBits = nil
-	if bits, err := loadBaseBits(root); err != nil {
+	bits, err := loadBaseBits(root)
+	if err != nil {
 		log.Printf("Base graphics not available (%v)", err)
+		bits = nil
 	} else {
-		baseBits = bits
 		log.Printf("Loaded base graphics: %d sprites", len(bits))
 	}
+
+	stateMu.Lock()
+	defer stateMu.Unlock()
+	games, world, fonts, baseBits = loaded, w, f, bits
 	return nil
+}
+
+// lockState holds a read lock on the loaded savegames and resources while
+// a request is handled, so loadRoot cannot replace them in the meantime.
+func lockState(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		stateMu.RLock()
+		defer stateMu.RUnlock()
+		next.ServeHTTP(w, r)
+	})
 }
 
 // newRouter returns the handler serving the API and the embedded frontend.
@@ -91,6 +110,7 @@ func newRouter() (*mux.Router, error) {
 
 	// API routes
 	api := r.PathPrefix("/api").Subrouter()
+	api.Use(lockState)
 	api.HandleFunc("/games", handleListGames).Methods("GET")
 	api.HandleFunc("/games/{slot}", handleGetGame).Methods("GET")
 	api.HandleFunc("/games/{slot}/soldiers", handleListSoldiers).Methods("GET")
