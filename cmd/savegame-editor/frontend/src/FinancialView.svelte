@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { getFinancials, updateFinancials } from './lib/api';
-  import { registerPendingChanges } from './lib/pending';
+  import { registerForm, ChangeTracker } from './lib/pending';
   import type { Financials } from './lib/types';
 
   export let gameSlot: string;
@@ -16,7 +16,7 @@
     try {
       financials = await getFinancials(gameSlot);
       balance = financials.currentBalance;
-      appliedBalance = balance;
+      tracker.reset(balance);
       error = '';
     } catch (e: any) {
       error = e.message;
@@ -26,20 +26,20 @@
   onMount(load);
   $: if (gameSlot) load();
 
-  // Balance last loaded from or sent to the server.
-  let appliedBalance = 0;
+  // Tracks which balance the server has, so only changes are sent.
+  const tracker = new ChangeTracker((value: number) =>
+    updateFinancials(gameSlot, { currentBalance: value }));
 
   // apply sends the balance to the server if it changed since it was last
   // loaded or applied.
   async function apply() {
-    if (!financials || balance === appliedBalance) return;
-    const value = balance;
-    await updateFinancials(gameSlot, { currentBalance: value });
-    appliedBalance = value;
+    if (!financials) return;
+    await tracker.apply(() => balance);
   }
 
-  // Let the global "Save" button apply changes not yet applied here.
-  onDestroy(registerPendingChanges(apply));
+  // Let the global "Save" button apply changes not yet applied here, and
+  // "Reload" refresh the form.
+  onDestroy(registerForm({ apply, refresh: load }));
 
   async function save() {
     saving = true;

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getGame, saveGame, reloadGame, healAll, completeConstructions, speedupDeliveries } from './lib/api';
-  import { applyPendingChanges } from './lib/pending';
+  import { applyPendingChanges, refreshForms } from './lib/pending';
   import type { GameDetail } from './lib/types';
   import SoldierList from './SoldierList.svelte';
   import BaseList from './BaseList.svelte';
@@ -43,9 +43,19 @@
 
   // Apply changes in open edit forms first, so values that were edited but
   // not applied with "Apply Changes" are not lost.
+  // The slot is captured first, so selecting another savegame while the
+  // changes are applied does not save the wrong game.
   async function saveWithPendingChanges() {
+    const target = slot;
     await applyPendingChanges();
-    await saveGame(slot);
+    await saveGame(target);
+  }
+
+  // After reloading from disk, refresh open edit forms so they neither show
+  // nor later re-apply discarded values.
+  async function reloadAndRefresh() {
+    await reloadGame(slot);
+    await refreshForms();
   }
 
   async function doAction(name: string, fn: () => Promise<void>) {
@@ -120,7 +130,7 @@
     <button class="action" on:click={() => doAction('Completing', () => completeConstructions(slot))}>Complete Constructions</button>
     <button class="action" on:click={() => doAction('Speeding up', () => speedupDeliveries(slot))}>Speed Up Deliveries</button>
     <div class="spacer"></div>
-    <button class="action reload" on:click={() => doAction('Reloading', () => reloadGame(slot))}>Reload</button>
+    <button class="action reload" on:click={() => doAction('Reloading', reloadAndRefresh)}>Reload</button>
     <button class="action save" on:click={() => doAction('Saving', saveWithPendingChanges)}>Save</button>
     {#if status}
       <span class="status">{status}</span>

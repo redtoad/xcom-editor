@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { getSoldier, updateSoldier } from './lib/api';
-  import { registerPendingChanges, snapshot } from './lib/pending';
+  import { registerForm, ChangeTracker } from './lib/pending';
   import type { SoldierDetail } from './lib/types';
 
   export let gameSlot: string;
@@ -42,7 +42,7 @@
       initialPsionicStrength = soldier.initialPsionicStrength;
       initialPsionicSkill = soldier.initialPsionicSkill;
       armor = soldier.armor;
-      applied = snapshot(values());
+      tracker.reset(values());
       error = '';
     } catch (e: any) {
       error = e.message;
@@ -51,8 +51,9 @@
 
   onMount(load);
 
-  // Snapshot of the values last loaded from or sent to the server.
-  let applied = '';
+  // Tracks which values the server has, so only changes are sent.
+  const tracker = new ChangeTracker((v: ReturnType<typeof values>) =>
+    updateSoldier(gameSlot, soldierIdx, v));
 
   function values() {
     return {
@@ -75,14 +76,12 @@
   // were last loaded or applied.
   async function apply() {
     if (!soldier) return;
-    const v = values();
-    if (snapshot(v) === applied) return;
-    await updateSoldier(gameSlot, soldierIdx, v);
-    applied = snapshot(v);
+    await tracker.apply(values);
   }
 
-  // Let the global "Save" button apply changes not yet applied here.
-  onDestroy(registerPendingChanges(apply));
+  // Let the global "Save" button apply changes not yet applied here, and
+  // "Reload" refresh the form.
+  onDestroy(registerForm({ apply, refresh: load }));
 
   async function save() {
     saving = true;
