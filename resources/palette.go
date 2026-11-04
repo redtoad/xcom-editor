@@ -81,3 +81,28 @@ func (p *Palette) Palette() *color.Palette {
 	}
 	return &palette
 }
+
+// BattlescapePaletteIndex is the palette of the Battlescape in PALETTES.DAT.
+const BattlescapePaletteIndex = 4
+
+// battlescapeGradient replaces the last 16 colors of the Battlescape palette.
+// The game sets them at runtime to a greyish gradient (used e.g. by the
+// X-COM crafts, roads and armours), PALETTES.DAT holds other colors there.
+// The values are the same as in OpenXcom.
+var battlescapeGradient = [16]color.NRGBA{
+	{140, 152, 148, 255}, {132, 136, 140, 255}, {116, 124, 132, 255}, {108, 116, 124, 255},
+	{92, 104, 108, 255}, {84, 92, 100, 255}, {76, 80, 92, 255}, {56, 68, 84, 255},
+	{48, 56, 68, 255}, {40, 48, 56, 255}, {32, 36, 48, 255}, {24, 28, 32, 255},
+	{16, 20, 24, 255}, {8, 12, 16, 255}, {3, 4, 8, 255}, {3, 3, 6, 255},
+}
+
+// BattlescapePalette returns the palette used by the Battlescape: the
+// Battlescape palette of PALETTES.DAT with the last 16 colors replaced by
+// the gradient the game uses.
+func BattlescapePalette(palettes []*Palette) *Palette {
+	result := *palettes[BattlescapePaletteIndex]
+	for i, c := range battlescapeGradient {
+		result.Colors[256-len(battlescapeGradient)+i] = c
+	}
+	return &result
+}

@@ -188,3 +188,79 @@ export interface WorldData {
   textureSets?: number;
   terrains?: number;
 }
+
+export interface BattleUnit {
+  index: number;
+  name: string;
+  owner: 'xcom' | 'alien' | 'civilian' | 'left-behind';
+  x: number;
+  y: number;
+  z: number;
+  large: boolean;
+  alive: boolean;
+  unconscious: boolean;
+  visible: boolean;
+  health: number;
+  maxHealth: number;
+  timeUnits: number;
+  maxTimeUnits: number;
+  morale: number;
+  tank: boolean;
+}
+
+export interface BattleCraft {
+  alien: boolean;
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface BattleMap {
+  turn: number;
+  sizeX: number;
+  sizeY: number;
+  sizeZ: number;
+  /** Flags per tile (see TILE_* in MissionMap.svelte), ordered along X, then Y, then Z. */
+  tiles: number[];
+  units: BattleUnit[];
+  crafts: BattleCraft[];
+}
+
+export interface BattleTerrainPart {
+  /** Index of the terrain set in BattleTerrain.sets. */
+  set: number;
+  /** Sprite in the sheet of the set (32x40 pixels per sprite). */
+  frame: number;
+  /** Vertical offset of the sprite in pixels. */
+  y: number;
+}
+
+export interface BattleTerrain {
+  /** Terrain sets of the map, their sprites are served at terrainSheetURL(name). */
+  sets: string[];
+  /** Sprite of each MCD index. */
+  parts: BattleTerrainPart[];
+  /** MCD indices of floor, west wall, north wall and object of each tile (4 per tile, order of BattleMap.tiles). */
+  tiles: number[];
+  /** Sprites of the units which can be drawn with the game graphics. */
+  units: BattleUnitSprites[];
+}
+
+export interface UnitSprite {
+  /** Sprite file, served at unitSheetURL(sheet). */
+  sheet: string;
+  /** Sprite in the sheet (32x40 pixels per sprite). */
+  frame: number;
+  /** Position relative to the sprite of the upper left tile of the unit, in pixels. */
+  dx: number;
+  dy: number;
+}
+
+export interface BattleUnitSprites {
+  /** BattleUnit.index */
+  index: number;
+  /** Sprites in the order they are drawn. */
+  sprites: UnitSprite[];
+}

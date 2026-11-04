@@ -45,13 +45,15 @@ var games map[string]*gameEntry
 // for new and changed savegames (see watchGames).
 var currentRoot string
 
-// stateMu guards games, currentRoot, world, fonts, baseBits and
-// soldierImages. API requests hold a read lock for their whole lifetime (see
-// lockState), loadRoot replaces all of them at once under the write lock.
+// stateMu guards games, currentRoot, world, fonts, baseBits, soldierImages,
+// terrain and unitSheets. API requests hold a read lock for their whole
+// lifetime (see lockState), loadRoot replaces all of them at once under the
+// write lock.
 var stateMu sync.RWMutex
 
 // loadRoot loads all savegames (GAME_1 through GAME_10) and the optional
-// game resources (globe terrain, fonts, base graphics, soldier images) from root. If no
+// game resources (globe terrain, fonts, base graphics, soldier images and
+// Battlescape graphics) from root. If no
 // savegame can be loaded, the current state is kept.
 func loadRoot(root string) error {
 	loaded := make(map[string]*gameEntry)
@@ -105,9 +107,25 @@ func loadRoot(root string) error {
 		log.Printf("Loaded soldier images: %d images", len(images))
 	}
 
+	ter, err := loadTerrain(root)
+	if err != nil {
+		log.Printf("Battlescape graphics not available (%v)", err)
+		ter = nil
+	} else {
+		log.Printf("Loaded Battlescape graphics: %d terrain sets", len(ter))
+	}
+
+	units, err := loadUnitSheets(root)
+	if err != nil {
+		log.Printf("Unit graphics not available (%v)", err)
+		units = nil
+	} else {
+		log.Printf("Loaded unit graphics: %d sprite files", len(units))
+	}
+
 	stateMu.Lock()
 	defer stateMu.Unlock()
-	games, currentRoot, world, fonts, baseBits, soldierImages = loaded, root, w, f, bits, images
+	games, currentRoot, world, fonts, baseBits, soldierImages, terrain, unitSheets = loaded, root, w, f, bits, images, ter, units
 	return nil
 }
 
@@ -149,6 +167,8 @@ func newRouter() (*mux.Router, error) {
 	api.HandleFunc("/games/{slot}/craft", handleListCraft).Methods("GET")
 	api.HandleFunc("/games/{slot}/transfers", handleListTransfers).Methods("GET")
 	api.HandleFunc("/games/{slot}/locations", handleListLocations).Methods("GET")
+	api.HandleFunc("/games/{slot}/battle", handleGetBattleMap).Methods("GET")
+	api.HandleFunc("/games/{slot}/battle/terrain", handleGetBattleTerrain).Methods("GET")
 	api.HandleFunc("/games/{slot}/financials", handleGetFinancials).Methods("GET")
 	api.HandleFunc("/games/{slot}/financials", handleUpdateFinancials).Methods("PUT")
 	api.HandleFunc("/games/{slot}/actions/heal-all", handleHealAll).Methods("POST")
@@ -161,6 +181,8 @@ func newRouter() (*mux.Router, error) {
 	api.HandleFunc("/world/textures/{set}/{terrain}.png", handleGetTexture).Methods("GET")
 	api.HandleFunc("/soldier-images/{name}.png", handleGetSoldierImage).Methods("GET")
 	api.HandleFunc("/basebits/{sprite}.png", handleGetBaseBit).Methods("GET")
+	api.HandleFunc("/terrain/{name}.png", handleGetTerrainSheet).Methods("GET")
+	api.HandleFunc("/unitsprites/{name}.png", handleGetUnitSheet).Methods("GET")
 	api.HandleFunc("/fonts/{name}.ttf", handleGetFont).Methods("GET")
 
 	// SPA fallback: serve frontend for all non-API routes

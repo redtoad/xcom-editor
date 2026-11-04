@@ -204,3 +204,32 @@ func TestHandleResurrectSoldier(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, post("/api/games/GAME_1/soldiers/999/resurrect").Code)
 	assert.Equal(t, http.StatusBadRequest, post("/api/games/GAME_1/soldiers/x/resurrect").Code)
 }
+
+func TestHandleGetBattleMap(t *testing.T) {
+	loadTestGames(t, "GAME_1", "GAME_4")
+
+	var m battleMapJS
+	getJSON(t, "/api/games/GAME_4/battle", handleGetBattleMap, "/api/games/{slot}/battle", &m)
+	assert.Equal(t, 2, m.Turn)
+	assert.Equal(t, [3]int{50, 50, 2}, [3]int{m.SizeX, m.SizeY, m.SizeZ})
+	assert.Len(t, m.Tiles, 50*50*2)
+	assert.Empty(t, m.Crafts)
+	require.Len(t, m.Units, 21)
+	assert.Equal(t, battleUnitJS{
+		Index: 0, Name: "Rudi Richter", Owner: "xcom", X: 41, Y: 21, Z: 0,
+		Alive: true, Visible: true, Health: 40, MaxHealth: m.Units[0].MaxHealth,
+		TimeUnits: m.Units[0].TimeUnits, MaxTU: m.Units[0].MaxTU, Morale: m.Units[0].Morale,
+	}, m.Units[0])
+	assert.Equal(t, "Sectoid Commander", m.Units[20].Name, "duplicate spaces are removed")
+	assert.Equal(t, "alien", m.Units[20].Owner)
+	// the tile of the first soldier has a floor and was seen by X-COM
+	tile := m.Tiles[21*50+41]
+	assert.NotZero(t, tile&tileGround)
+	assert.NotZero(t, tile&tileSeen)
+
+	r := mux.NewRouter()
+	r.HandleFunc("/api/games/{slot}/battle", handleGetBattleMap)
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/games/GAME_1/battle", nil))
+	assert.Equal(t, http.StatusNotFound, rec.Code)
+}

@@ -2,6 +2,7 @@ package resources
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"image"
@@ -78,17 +79,20 @@ func LoadTAB(path string, offsetSize int) ([]int, error) {
 
 // LoadPCK loads PCK image from path.
 func LoadPCK(path string, width int, offset int) (*ImageResource, error) {
-
-	fp, err := os.Open(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
+	return ParsePCK(data, width, offset)
+}
 
-	buf := bufio.NewReader(fp)
-	_, err = buf.Discard(offset)
-	if err != nil {
-		return nil, err
+// ParsePCK decodes the PCK image starting at offset in data (see LoadTAB
+// for the offsets of the images).
+func ParsePCK(data []byte, width int, offset int) (*ImageResource, error) {
+	if offset < 0 || offset > len(data) {
+		return nil, io.ErrUnexpectedEOF
 	}
+	buf := bufio.NewReader(bytes.NewReader(data[offset:]))
 
 	var spriteData []uint
 
