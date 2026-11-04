@@ -49,7 +49,8 @@ The result is:
 
 The `savegame` package loads and saves savegames (`GAME_1` ... `GAME_10`). All 27
 Geoscape data files are supported, as well as the 14 additional Battlescape files of
-savegames saved during a mission (available as `Savegame.Battle`). Every file is
+savegames saved during a mission (available as `Savegame.Battle`; Battlescape files
+left over from an earlier mission are ignored, see `TacticalSave` in `SAVEINFO.DAT`). Every file is
 written back byte-identical to the original. See [`internal/geoscape`](internal/geoscape)
 and [`internal/battlescape`](internal/battlescape) for the file formats.
 

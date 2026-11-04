@@ -66,9 +66,17 @@ func (b *Battle) battleFiles() map[string]any {
 }
 
 // loadBattle loads the Battlescape data if the savegame was saved during a
-// mission (i.e. it contains WGLOB.DAT). Otherwise game.Battle is nil.
+// mission (see SAVEINFO.DAT) and contains WGLOB.DAT. Otherwise game.Battle
+// is nil.
+//
+// The game does not delete the Battlescape files when a savegame is
+// overwritten on the Geoscape, so a savegame may contain the files of an
+// earlier mission. They are ignored (and left untouched on save).
 func (game *Savegame) loadBattle() error {
 	game.Battle = nil
+	if !game.meta.TacticalSave {
+		return nil
+	}
 	if _, err := os.Stat(path.Join(game.Path, "WGLOB.DAT")); errors.Is(err, fs.ErrNotExist) {
 		return nil
 	}

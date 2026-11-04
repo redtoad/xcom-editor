@@ -258,3 +258,27 @@ func TestBattle_MatchTerrainSets(t *testing.T) {
 	_, err = b.MatchTerrainSets([]savegame.TerrainSet{blanks, swapped})
 	assert.Error(t, err, "no combination matches")
 }
+
+func TestSavegame_LeftOverBattleFiles(t *testing.T) {
+	// a savegame overwritten on the Geoscape still contains the Battlescape
+	// files of the earlier mission, but SAVEINFO.DAT marks it as Geoscape save
+	dir := copySavegame(t, "GAME_4")
+	info := filepath.Join(dir, "SAVEINFO.DAT")
+	buf, err := os.ReadFile(info)
+	require.NoError(t, err)
+	buf[38], buf[39] = 0, 0 // TacticalSave
+	require.NoError(t, os.WriteFile(info, buf, 0644))
+
+	sg, err := savegame.Load(dir)
+	require.NoError(t, err)
+	assert.Nil(t, sg.Battle, "left-over Battlescape files are ignored")
+	assert.Nil(t, sg.MissionStatus())
+
+	// saving leaves the left-over files untouched
+	before, err := os.ReadFile(filepath.Join(dir, "UNITREF.DAT"))
+	require.NoError(t, err)
+	require.NoError(t, sg.Save())
+	after, err := os.ReadFile(filepath.Join(dir, "UNITREF.DAT"))
+	require.NoError(t, err)
+	assert.Equal(t, before, after)
+}
