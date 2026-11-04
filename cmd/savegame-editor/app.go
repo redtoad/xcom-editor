@@ -104,6 +104,15 @@ func lockState(next http.Handler) http.Handler {
 	})
 }
 
+// frontendAssets returns the embedded build of the frontend.
+func frontendAssets() (fs.FS, error) {
+	assets, err := fs.Sub(frontendFS, "frontend/dist")
+	if err != nil {
+		return nil, fmt.Errorf("could not access embedded frontend: %w", err)
+	}
+	return assets, nil
+}
+
 // newRouter returns the handler serving the API and the embedded frontend.
 func newRouter() (*mux.Router, error) {
 	r := mux.NewRouter()
@@ -135,9 +144,9 @@ func newRouter() (*mux.Router, error) {
 	api.HandleFunc("/fonts/{name}.ttf", handleGetFont).Methods("GET")
 
 	// SPA fallback: serve frontend for all non-API routes
-	frontendContent, err := fs.Sub(frontendFS, "frontend/dist")
+	frontendContent, err := frontendAssets()
 	if err != nil {
-		return nil, fmt.Errorf("could not access embedded frontend: %w", err)
+		return nil, err
 	}
 	fileServer := http.FileServer(http.FS(frontendContent))
 	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

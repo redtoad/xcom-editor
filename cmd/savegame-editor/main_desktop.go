@@ -92,18 +92,25 @@ func (a *desktopApp) showError(err error) {
 	})
 }
 
-// waitForGames holds back API requests until the savegames have been loaded.
-func (a *desktopApp) waitForGames(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api/") {
+// serveAPI returns a middleware for the asset server which passes API
+// requests to api (once the savegames have been loaded) and everything else
+// on to the frontend assets, which are served by the Vite dev server when
+// running with `wails dev`.
+func (a *desktopApp) serveAPI(api http.Handler) assetserver.Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if !strings.HasPrefix(r.URL.Path, "/api/") {
+				next.ServeHTTP(w, r)
+				return
+			}
 			select {
 			case <-a.ready:
 			case <-r.Context().Done():
 				return
 			}
-		}
-		next.ServeHTTP(w, r)
-	})
+			api.ServeHTTP(w, r)
+		})
+	}
 }
 
 func (a *desktopApp) menu() *menu.Menu {
@@ -140,6 +147,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	assets, err := frontendAssets()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = wails.Run(&options.App{
 		Title:            "X-COM Savegame Editor",
@@ -149,7 +160,8 @@ func main() {
 		MinHeight:        600,
 		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 255},
 		AssetServer: &assetserver.Options{
-			Handler: app.waitForGames(r),
+			Assets:     assets,
+			Middleware: app.serveAPI(r),
 		},
 		Menu:      app.menu(),
 		OnStartup: app.startup,
