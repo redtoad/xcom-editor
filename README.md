@@ -70,7 +70,10 @@ go run ./cmd/savegame-editor path/to/game   # folder containing GAME_1 ... GAME_
 ```
 
 It shows whether a savegame was saved during a mission (with turn, surviving
-units and score) and has a map of both hemispheres of the globe with all
+units and score). Edits to soldiers, bases and the balance are applied with
+"Apply Changes" (or "Update"); "Save" writes the savegame to disk and also
+applies edits in an open form that were not applied yet, while "Reload"
+refreshes open forms with the values read from disk. It has a map of both hemispheres of the globe with all
 bases, X-COM craft and UFOs, their flight paths and details on hover. If the
 folder is the game folder (containing `GEODATA` and `GEOGRAPH`), the map is
 drawn with the terrain and textures of the game (`WORLD.DAT`, `TEXTURE.DAT`)

@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { getBase, updateBase, baseBitURL } from './lib/api';
+  import { registerForm, ChangeTracker } from './lib/pending';
   import type { BaseDetail } from './lib/types';
 
   export let gameSlot: string;
@@ -24,6 +25,7 @@
       base = await getBase(gameSlot, baseIdx);
       engineers = base.engineers;
       scientists = base.scientists;
+      tracker.reset({ engineers, scientists });
       error = '';
     } catch (e: any) {
       error = e.message;
@@ -32,10 +34,25 @@
 
   onMount(load);
 
+  // Tracks which values the server has, so only changes are sent.
+  const tracker = new ChangeTracker((v: { engineers: number; scientists: number }) =>
+    updateBase(gameSlot, baseIdx, v));
+
+  // apply sends the form values to the server if they changed since they
+  // were last loaded or applied.
+  async function apply() {
+    if (!base) return;
+    await tracker.apply(() => ({ engineers, scientists }));
+  }
+
+  // Let the global "Save" button apply changes not yet applied here, and
+  // "Reload" refresh the form.
+  onDestroy(registerForm({ apply, refresh: load }));
+
   async function save() {
     saving = true;
     try {
-      await updateBase(gameSlot, baseIdx, { engineers, scientists });
+      await apply();
       dispatch('saved');
     } catch (e: any) {
       error = e.message;
