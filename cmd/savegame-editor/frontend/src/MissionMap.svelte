@@ -3,6 +3,7 @@
   import type { BattleMap, BattleTerrain, BattleUnit } from './lib/types';
   import { TILE_GROUND, TILE_WEST_WALL, TILE_NORTH_WALL, TILE_OBJECT, TILE_SEEN, tileAt, levelLabel } from './lib/battle';
   import IsoMap from './IsoMap.svelte';
+  import UnitDetails from './UnitDetails.svelte';
 
   export let gameSlot: string;
 
@@ -30,20 +31,32 @@
   let tooltipY = 0;
   let wrapper: HTMLDivElement;
 
+  // incremented with every load, responses of superseded loads (e.g. after
+  // switching to another savegame) are ignored
+  let loadId = 0;
+
   async function load(slot: string) {
+    const id = ++loadId;
+    let loaded: BattleMap | null = null;
     try {
-      map = await getBattleMap(slot);
-      error = '';
-      // the game graphics are optional (only if the editor runs on the game folder)
-      getBattleTerrain(slot).then(t => terrain = t, () => terrain = null);
-      // start on the level with the most X-COM units
-      const counts = new Array(map.sizeZ).fill(0);
-      map.units.filter(u => u.owner === 'xcom' && u.alive).forEach(u => counts[u.z]++);
-      level = counts.indexOf(Math.max(...counts));
+      loaded = await getBattleMap(slot);
     } catch (e: any) {
+      if (id !== loadId) return;
       error = e.message;
-      map = null;
     }
+    if (id !== loadId) return;
+    map = loaded;
+    terrain = null;
+    selected = null;
+    hovered = null;
+    if (!loaded) return;
+    error = '';
+    // the game graphics are optional (only if the editor runs on the game folder)
+    getBattleTerrain(slot).then(t => { if (id === loadId) terrain = t; }, () => {});
+    // start on the level with the most X-COM units
+    const counts = new Array(loaded.sizeZ).fill(0);
+    loaded.units.filter(u => u.owner === 'xcom' && u.alive).forEach(u => counts[u.z]++);
+    level = counts.indexOf(Math.max(...counts));
   }
 
   $: load(gameSlot);
@@ -85,21 +98,6 @@
       if (u.alive) c[u.owner][0]++;
     }
     return c;
-  }
-
-  function ownerLabel(u: BattleUnit): string {
-    switch (u.owner) {
-      case 'xcom': return u.tank ? 'X-COM tank' : 'X-COM soldier';
-      case 'alien': return 'Alien';
-      case 'civilian': return 'Civilian';
-      default: return 'Left behind';
-    }
-  }
-
-  function state(u: BattleUnit): string {
-    if (!u.alive) return 'Dead';
-    if (u.unconscious) return 'Unconscious';
-    return 'Alive';
   }
 
   function onHover(event: MouseEvent, u: BattleUnit | null) {
@@ -227,30 +225,30 @@
       {/if}
 
       {#if hovered}
-        <div class="tooltip" style="left:{tooltipX}px; top:{tooltipY}px">
-          <div class="tooltip-title {hovered.owner}">{hovered.name || '(unnamed)'}</div>
-          <div class="tooltip-type">{ownerLabel(hovered)}</div>
-          <dl>
-            <dt>State</dt><dd>{state(hovered)}</dd>
-            <dt>Position</dt><dd>{hovered.x}, {hovered.y}, {levelLabel(map, hovered.z)}</dd>
-            <dt>Health</dt><dd>{hovered.health}/{hovered.maxHealth}</dd>
-            <dt>Time units</dt><dd>{hovered.timeUnits}/{hovered.maxTimeUnits}</dd>
-            <dt>Morale</dt><dd>{hovered.morale}</dd>
-            {#if hovered.owner !== 'xcom'}
-              <dt>Spotted</dt><dd>{hovered.visible ? 'Yes' : 'No'}</dd>
-            {/if}
-          </dl>
+        <div class="tooltip" style="left:{tooltipX}px; top:{tooltipY}px" aria-hidden="true">
+          <UnitDetails unit={hovered} {map} />
         </div>
       {/if}
     </div>
 
-    <ul class="unit-list">
+    <div class="side">
+    <!-- details of the selected unit, also for keyboard users (the tooltip
+         needs the mouse) -->
+    <section class="unit-panel" aria-live="polite" aria-label="Selected unit">
+      {#if selected}
+        <UnitDetails unit={selected} {map} />
+      {:else}
+        <span class="hint">Select a unit to see its details.</span>
+      {/if}
+    </section>
+    <ul class="unit-list" aria-label="Units">
       {#each listed as u (u.index)}
         <li>
           <button
             class="unit-entry {u.owner}"
             class:dead={!u.alive}
             class:selected={selected?.index === u.index}
+            aria-pressed={selected?.index === u.index}
             on:click={() => select(u)}
           >
             <span class="name">{u.name || '(unnamed)'}</span>
@@ -259,6 +257,7 @@
         </li>
       {/each}
     </ul>
+    </div>
   </div>
 
   <div class="legend">
@@ -406,29 +405,23 @@
     border: 2px solid var(--dialog-border);
     color: var(--dialog-text);
   }
-  .tooltip-title { color: var(--value); }
-  .tooltip-type {
-    color: var(--muted);
-    text-transform: uppercase;
+
+  .side {
+    flex: 0 1 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
-  .tooltip dl {
-    display: grid;
-    grid-template-columns: auto auto;
-    gap: 0 12px;
-    margin: 4px 0 0 0;
-  }
-  .tooltip dt {
+  .unit-panel {
+    min-height: 140px;
+    padding: 6px 10px;
+    background: var(--dialog);
+    border: 2px solid var(--dialog-border);
     color: var(--dialog-text);
-    white-space: nowrap;
   }
-  .tooltip dd {
-    margin: 0;
-    white-space: nowrap;
-    color: var(--value);
-  }
+  .unit-panel .hint { color: var(--muted); }
 
   .unit-list {
-    flex: 0 1 300px;
     list-style: none;
     margin: 0;
     padding: 0;
