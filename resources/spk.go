@@ -10,8 +10,8 @@ import (
 
 func readInt16(rd *bufio.Reader) (int, error) {
 	buf := make([]byte, 2)
-	_, err := rd.Read(buf)
-	if err != nil {
+	// rd.Read may return fewer bytes at the end of the buffer
+	if _, err := io.ReadFull(rd, buf); err != nil {
 		return -1, err
 	}
 	return int(binary.LittleEndian.Uint16(buf)), nil
@@ -29,6 +29,7 @@ func LoadSPK(path string) (*ImageResource, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer fp.Close()
 
 	buf := bufio.NewReader(fp)
 

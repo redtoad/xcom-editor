@@ -32,15 +32,19 @@ func TestLoadRoot(t *testing.T) {
 	root := t.TempDir()
 	copySlot(t, root, "GAME_1")
 	writeFakeGameFiles(t, root)
+	writeFakeSoldierImages(t, root)
+	t.Cleanup(func() { soldierImages = nil })
 
 	require.NoError(t, loadRoot(root))
 	assert.Len(t, games, 1)
 	assert.NotNil(t, world)
+	assert.Len(t, soldierImages, 18)
 
 	// a folder without savegames keeps the current state
 	assert.Error(t, loadRoot(t.TempDir()))
 	assert.Len(t, games, 1)
 	assert.NotNil(t, world)
+	assert.Len(t, soldierImages, 18)
 }
 
 // TestLoadRoot_ConcurrentRequests switches between a folder with and one
@@ -49,17 +53,18 @@ func TestLoadRoot_ConcurrentRequests(t *testing.T) {
 	withGameFiles := t.TempDir()
 	copySlot(t, withGameFiles, "GAME_1")
 	writeFakeGameFiles(t, withGameFiles)
+	writeFakeSoldierImages(t, withGameFiles)
 	savegamesOnly := t.TempDir()
 	copySlot(t, savegamesOnly, "GAME_2")
 	require.NoError(t, loadRoot(withGameFiles))
-	t.Cleanup(func() { world = nil; baseBits = nil; fonts = map[string][]byte{} })
+	t.Cleanup(func() { world = nil; baseBits = nil; soldierImages = nil; fonts = map[string][]byte{} })
 
 	r, err := newRouter()
 	require.NoError(t, err)
 
 	var wg sync.WaitGroup
 	done := make(chan struct{})
-	for _, path := range []string{"/api/games", "/api/world", "/api/world/textures/1/0.png", "/api/basebits/0.png"} {
+	for _, path := range []string{"/api/games", "/api/world", "/api/world/textures/1/0.png", "/api/basebits/0.png", "/api/soldier-images/MAN_2.png"} {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

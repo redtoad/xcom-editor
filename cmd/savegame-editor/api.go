@@ -239,8 +239,9 @@ func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
 				"psionicSkill":     s.PsionicSkill(),
 				"bravery":          s.Bravery(),
 				"armor":            armorToString[s.Armor()],
-				"gender":           s.Gender(),
-				"appearance":       s.Appearance(),
+				"gender":           s.Gender().String(),
+				"appearance":       s.Appearance().String(),
+				"images":           soldierImagesFor(s.Gender(), s.Appearance()),
 				// Initial stats for editing
 				"initialTimeUnits":        s.InitialTimeUnits(),
 				"initialHealth":           s.InitialHealth(),

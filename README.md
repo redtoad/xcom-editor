@@ -78,7 +78,8 @@ bases, X-COM craft and UFOs, their flight paths and details on hover. If the
 folder is the game folder (containing `GEODATA` and `GEOGRAPH`), the map is
 drawn with the terrain and textures of the game (`WORLD.DAT`, `TEXTURE.DAT`)
 and bases are shown like on the base screen of the game, including the crafts
-in their hangars (`BASEBITS.PCK`),
+in their hangars (`BASEBITS.PCK`), and each soldier is shown like on the
+inventory screen, without armour next to the selected armour (`MAN_*.SPK`),
 otherwise a generic world map and a simple facility grid are used.
 The editor watches the savegame folder: savegames that are saved in the game
 appear in the sidebar, and if a loaded savegame is overwritten (e.g. saved

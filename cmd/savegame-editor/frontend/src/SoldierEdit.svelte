@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-  import { getSoldier, updateSoldier } from './lib/api';
+  import { getSoldier, updateSoldier, soldierImageURL } from './lib/api';
   import { registerForm, ChangeTracker } from './lib/pending';
   import type { SoldierDetail } from './lib/types';
 
@@ -94,6 +94,10 @@
     saving = false;
   }
 
+  // images of the soldier without armour and in the selected armour
+  $: images = soldier?.images ?? null;
+  $: armorImage = images && armor !== 'None' ? images[armor] : undefined;
+
   const armorOptions = ['None', 'Personal Armour', 'Power Suit', 'Flying Suit'];
 </script>
 
@@ -113,6 +117,21 @@
       Missions: {soldier.missions} &middot; Kills: {soldier.kills}
       {#if soldier.recoveryDays > 0} &middot; Recovery: {soldier.recoveryDays} days{/if}
     </div>
+
+    {#if images?.['None']}
+      <div class="portraits">
+        <figure>
+          <img src={soldierImageURL(images['None'])} alt="{soldier.name} without armour" />
+          <figcaption>No Armour</figcaption>
+        </figure>
+        {#if armorImage}
+          <figure>
+            <img src={soldierImageURL(armorImage)} alt="{soldier.name} in {armor}" />
+            <figcaption>{armor}</figcaption>
+          </figure>
+        {/if}
+      </div>
+    {/if}
 
     <div class="fields">
       <label>
@@ -178,6 +197,28 @@
   .info {
     color: var(--muted);
     margin-bottom: 2px;
+  }
+  .portraits {
+    display: flex;
+    gap: 24px;
+    margin: 12px 0 4px 0;
+  }
+  .portraits figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .portraits img {
+    /* pixel art, scaled up without blurring */
+    zoom: 2;
+    image-rendering: pixelated;
+  }
+  .portraits figcaption {
+    color: var(--muted);
+    text-transform: uppercase;
   }
   .fields {
     display: flex;

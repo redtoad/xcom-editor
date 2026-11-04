@@ -125,13 +125,13 @@ func (s *Soldier) SetArmor(armor geoscape.Armor) {
 }
 
 // Gender returns the soldier's gender.
-func (s *Soldier) Gender() string {
-	return s.data().Sex.String()
+func (s *Soldier) Gender() geoscape.Gender {
+	return s.data().Sex
 }
 
 // Appearance returns the soldier's appearance.
-func (s *Soldier) Appearance() string {
-	return s.data().Appearance.String()
+func (s *Soldier) Appearance() geoscape.Appearance {
+	return s.data().Appearance
 }
 
 // InitialTimeUnits returns the soldier's initial time units (before improvements).

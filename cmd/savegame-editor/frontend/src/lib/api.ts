@@ -112,3 +112,7 @@ export function textureURL(set: number, terrain: number): string {
 export function baseBitURL(sprite: number): string {
   return `/api/basebits/${sprite}.png`;
 }
+
+export function soldierImageURL(name: string): string {
+  return `/api/soldier-images/${name}.png`;
+}
