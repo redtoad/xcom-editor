@@ -126,8 +126,8 @@
     </div>
     {#if soldier.isDead}
       <div class="dead">
-        <span>Killed in action</span>
-        <button on:click={resurrect}>Resurrect</button>
+        <span>Killed in action &middot; was {soldier.lastRank} (estimated)</span>
+        <button title="Comes back as {soldier.lastRank}" on:click={resurrect}>Resurrect</button>
       </div>
     {/if}
     <div class="info">

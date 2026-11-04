@@ -159,6 +159,8 @@ func handleListSoldiers(w http.ResponseWriter, r *http.Request) {
 		Rank      string `json:"rank"`
 		BaseName  string `json:"baseName"`
 		CraftName string `json:"craftName"`
+		// LastRank is the (estimated) rank before being killed in action.
+		LastRank  string `json:"lastRank"`
 		IsDead    bool   `json:"isDead"`
 		IsWounded bool   `json:"isWounded"`
 		Missions  int    `json:"missions"`
@@ -179,6 +181,7 @@ func handleListSoldiers(w http.ResponseWriter, r *http.Request) {
 			Index:     s.Index(),
 			Name:      s.Name(),
 			Rank:      s.Rank().String(),
+			LastRank:  s.LastRank().String(),
 			BaseName:  baseName,
 			CraftName: craftName,
 			IsDead:    s.IsDead(),
@@ -220,6 +223,7 @@ func handleGetSoldier(w http.ResponseWriter, r *http.Request) {
 				"index":            s.Index(),
 				"name":             s.Name(),
 				"rank":             s.Rank().String(),
+				"lastRank":         s.LastRank().String(),
 				"baseName":         baseName,
 				"craftName":        craftName,
 				"isDead":           s.IsDead(),

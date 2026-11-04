@@ -36,6 +36,8 @@ export interface SoldierSummary {
   index: number;
   name: string;
   rank: string;
+  // (estimated) rank before being killed in action, see Soldier.LastRank
+  lastRank: string;
   baseName: string;
   craftName: string;
   isDead: boolean;
@@ -48,6 +50,8 @@ export interface SoldierDetail {
   index: number;
   name: string;
   rank: string;
+  // (estimated) rank before being killed in action, see Soldier.LastRank
+  lastRank: string;
   baseName: string;
   craftName: string;
   isDead: boolean;

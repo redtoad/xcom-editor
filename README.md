@@ -86,9 +86,12 @@ appear in the sidebar, and if a loaded savegame is overwritten (e.g. saved
 again in the game), it is marked as changed and can be reloaded.
 Each tab offers quick actions: on *Soldiers* "Heal All" and "All With Personal
 Armour" (equips every living soldier without armour) and a "Resurrect" button
-for each dead soldier (brought back as a Squaddie), on *Bases* "Complete
+for each dead soldier, on *Bases* "Complete
 Constructions", on *Transfers* "Speed Up Deliveries", and on *Financials* a
-"Max" button sets the current balance to its maximum ($2,147,483,647). The user
+"Max" button sets the current balance to its maximum ($2,147,483,647). Dead
+soldiers come back with the rank they had before. The game does not keep it,
+so it is estimated from the soldier value (see `savegame.Soldier.LastRank`;
+Rookies and Squaddies cannot be told apart and are revived as Rookies). The user
 interface mimics the game and uses its fonts (`SMALLSET.DAT`, `BIGLETS.DAT`),
 which the editor converts to TrueType (see `resources.BitmapFont.TTF`). The
 frontend (Svelte) is in `cmd/savegame-editor/frontend`; run `npm run build`

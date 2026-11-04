@@ -65,7 +65,11 @@
           on:click={() => selectedIdx = s.index}
         >
           <td class="name">{s.name}</td>
-          <td>{s.rank}</td>
+          {#if s.isDead}
+            <td title="Estimated rank before being killed in action">{s.lastRank}?</td>
+          {:else}
+            <td>{s.rank}</td>
+          {/if}
           <td>{s.baseName}</td>
           <td>{s.craftName}</td>
           <td class="num">{s.missions}</td>
@@ -73,7 +77,7 @@
           <td>
             {#if s.isDead}
               <span class="badge dead">DEAD</span>
-              <button class="resurrect" on:click|stopPropagation={() => resurrect(s.index)}>Resurrect</button>
+              <button class="resurrect" title="Comes back as {s.lastRank}" on:click|stopPropagation={() => resurrect(s.index)}>Resurrect</button>
             {:else if s.isWounded}<span class="badge wounded">WOUNDED</span>
             {:else}<span class="badge ok">OK</span>
             {/if}

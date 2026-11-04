@@ -178,9 +178,26 @@ func TestHandleResurrectSoldier(t *testing.T) {
 		return rec
 	}
 
+	type soldier struct {
+		Rank     string `json:"rank"`
+		LastRank string `json:"lastRank"`
+		IsDead   bool   `json:"isDead"`
+	}
+	var before soldier
+	getJSON(t, "/api/games/GAME_1/soldiers/0", handleGetSoldier, "/api/games/{slot}/soldiers/{idx}", &before)
+	assert.Equal(t, "Dead", before.Rank)
+	assert.True(t, before.IsDead)
+	assert.Equal(t, sg.Soldiers()[0].LastRank().String(), before.LastRank)
+
 	rec := post("/api/games/GAME_1/soldiers/0/resurrect")
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	assert.False(t, sg.Soldiers()[0].IsDead())
+
+	// the soldier comes back with the estimated rank
+	var after soldier
+	getJSON(t, "/api/games/GAME_1/soldiers/0", handleGetSoldier, "/api/games/{slot}/soldiers/{idx}", &after)
+	assert.Equal(t, before.LastRank, after.Rank)
+	assert.Equal(t, after.Rank, after.LastRank)
 
 	// living soldiers cannot be resurrected
 	assert.Equal(t, http.StatusBadRequest, post("/api/games/GAME_1/soldiers/0/resurrect").Code)
