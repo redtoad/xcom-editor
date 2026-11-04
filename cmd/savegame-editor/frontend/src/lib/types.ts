@@ -16,6 +16,8 @@ export interface GameSummary {
   baseCount: number;
   craftCount: number;
   mission: MissionInfo | null;
+  // the savegame was changed on disk and needs to be reloaded
+  stale: boolean;
 }
 
 export interface GameDetail {
@@ -27,6 +29,7 @@ export interface GameDetail {
   craftCount: number;
   balance: number;
   mission: MissionInfo | null;
+  stale: boolean;
 }
 
 export interface SoldierSummary {

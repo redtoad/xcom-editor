@@ -13,6 +13,8 @@
 
   // Svelte reserves "slot" as a keyword, use a different prop name
   export let slot: string;
+  // the savegame was changed on disk (e.g. saved in the game)
+  export let stale = false;
 
   const dispatch = createEventDispatcher<{ changed: void }>();
 
@@ -73,6 +75,13 @@
     };
   }
 
+  function save() {
+    if (stale && !confirm('This savegame was changed on disk. Saving overwrites these changes. Save anyway?')) {
+      return;
+    }
+    doAction('Saving', saveWithPendingChanges);
+  }
+
   async function doAction(name: string, fn: () => Promise<void>) {
     try {
       status = name + '...';
@@ -94,6 +103,12 @@
 {/if}
 
 {#if game}
+  {#if stale}
+    <div class="stale-notice">
+      <span>This savegame was changed on disk (e.g. saved in the game). Reload it to see the changes; saving in the editor would overwrite them.</span>
+      <button class="action reload" on:click={() => doAction('Reloading', reloadAndRefresh)}>Reload</button>
+    </div>
+  {/if}
   <div class="header">
     <h2>{game.title}</h2>
     <div class="meta">
@@ -150,7 +165,7 @@
     <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupDeliveries))}>Speed Up Deliveries</button>
     <div class="spacer"></div>
     <button class="action reload" on:click={() => doAction('Reloading', reloadAndRefresh)}>Reload</button>
-    <button class="action save" on:click={() => doAction('Saving', saveWithPendingChanges)}>Save</button>
+    <button class="action save" on:click={save}>Save</button>
     {#if status}
       <span class="status">{status}</span>
     {/if}
@@ -160,6 +175,19 @@
 <style>
   .header {
     margin-bottom: 4px;
+  }
+  .stale-notice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 6px 8px;
+    color: var(--warning);
+    background: var(--bg);
+    border: 2px solid var(--warning);
+  }
+  .stale-notice span {
+    flex: 1;
   }
   .meta {
     display: flex;

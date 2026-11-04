@@ -97,6 +97,9 @@ func handleListGames(w http.ResponseWriter, r *http.Request) {
 		BaseCount    int        `json:"baseCount"`
 		CraftCount   int        `json:"craftCount"`
 		Mission      *missionJS `json:"mission"`
+		// Stale is true if the savegame was changed on disk since it was
+		// loaded and needs to be reloaded.
+		Stale bool `json:"stale"`
 	}
 
 	result := make([]gameSummary, 0)
@@ -110,6 +113,7 @@ func handleListGames(w http.ResponseWriter, r *http.Request) {
 			BaseCount:    len(entry.sg.Bases()),
 			CraftCount:   len(entry.sg.Crafts()),
 			Mission:      missionInfo(entry.sg),
+			Stale:        entry.stale,
 		})
 		entry.mu.RUnlock()
 	}
@@ -135,6 +139,7 @@ func handleGetGame(w http.ResponseWriter, r *http.Request) {
 		"craftCount":   len(sg.Crafts()),
 		"balance":      sg.Financials.CurrentBalance,
 		"mission":      missionInfo(sg),
+		"stale":        entry.stale,
 	})
 }
 
@@ -642,6 +647,7 @@ func handleSave(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	entry.markCurrent()
 	log.Printf("Saved game: %s", mux.Vars(r)["slot"])
 	writeJSON(w, map[string]string{"status": "ok"})
 }
@@ -746,6 +752,7 @@ func handleReload(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	entry.markCurrent()
 	log.Printf("Reloaded game: %s", slot)
 	writeJSON(w, map[string]string{"status": "ok"})
 }

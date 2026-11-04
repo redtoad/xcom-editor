@@ -32,7 +32,7 @@ func loadTestGames(t *testing.T, slots ...string) {
 		}
 		sg, err := savegame.Load(dst)
 		require.NoError(t, err)
-		games[slot] = &gameEntry{sg: sg}
+		games[slot] = newGameEntry(sg)
 	}
 }
 

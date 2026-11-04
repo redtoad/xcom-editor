@@ -32,6 +32,8 @@ type desktopApp struct {
 // startup is called by Wails once the window has been created.
 func (a *desktopApp) startup(ctx context.Context) {
 	a.ctx = ctx
+	// pick up savegames which are saved (or overwritten) in the game
+	go watchGames(watchInterval)
 	go func() {
 		if a.root != "" {
 			err := loadRoot(a.root)
