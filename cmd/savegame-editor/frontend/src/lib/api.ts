@@ -37,6 +37,10 @@ export async function updateSoldier(slot: string, idx: number, updates: Partial<
   });
 }
 
+export async function resurrectSoldier(slot: string, idx: number): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/soldiers/${idx}/resurrect`, { method: 'POST' });
+}
+
 export async function listBases(slot: string): Promise<BaseSummary[]> {
   return fetchJSON(`/api/games/${slot}/bases`);
 }

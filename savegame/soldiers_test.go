@@ -100,3 +100,31 @@ func TestEquipPersonalArmour(t *testing.T) {
 		}
 	}
 }
+
+func TestSoldierResurrect(t *testing.T) {
+	game := &Savegame{}
+	game.soldierFile.Soldiers = make([]geoscape.SoldierData, 2)
+	for i := range game.soldierFile.Soldiers {
+		game.soldierFile.Soldiers[i].Name = internal.NewNullString(fmt.Sprintf("Soldier %d", i), 25)
+		game.soldierFile.Soldiers[i].Rank = geoscape.Captain
+	}
+	game.soldierFile.Soldiers[0].Rank = geoscape.DeadOrUnused
+	game.soldierFile.Soldiers[0].RecoveryDays = 12
+
+	dead := &Soldier{game: game, offset: 0}
+	alive := &Soldier{game: game, offset: 1}
+
+	if !dead.Resurrect() {
+		t.Fatal("Resurrect() of a dead soldier = false, want true")
+	}
+	if dead.IsDead() || dead.Rank() != Squaddie || dead.RecoveryDays() != 0 {
+		t.Errorf("resurrected soldier: dead=%v rank=%v recovery=%d, want alive Squaddie without recovery",
+			dead.IsDead(), dead.Rank(), dead.RecoveryDays())
+	}
+	if alive.Resurrect() {
+		t.Error("Resurrect() of a living soldier = true, want false")
+	}
+	if alive.Rank() != Captain {
+		t.Errorf("living soldier: rank = %v, want Captain", alive.Rank())
+	}
+}

@@ -612,6 +612,34 @@ func handleHealAll(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]string{"status": "ok"})
 }
 
+// POST /api/games/{slot}/soldiers/{idx}/resurrect
+func handleResurrectSoldier(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	idx, err := strconv.Atoi(mux.Vars(r)["idx"])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid soldier index")
+		return
+	}
+
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+
+	for _, s := range entry.sg.Soldiers() {
+		if s.Index() == idx {
+			if !s.Resurrect() {
+				writeError(w, http.StatusBadRequest, "soldier is not dead")
+				return
+			}
+			writeJSON(w, map[string]string{"status": "ok"})
+			return
+		}
+	}
+	writeError(w, http.StatusNotFound, "soldier not found")
+}
+
 // POST /api/games/{slot}/actions/personal-armour
 func handlePersonalArmour(w http.ResponseWriter, r *http.Request) {
 	entry := getGameEntry(w, r)

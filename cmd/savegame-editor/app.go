@@ -142,6 +142,7 @@ func newRouter() (*mux.Router, error) {
 	api.HandleFunc("/games/{slot}/soldiers", handleListSoldiers).Methods("GET")
 	api.HandleFunc("/games/{slot}/soldiers/{idx}", handleGetSoldier).Methods("GET")
 	api.HandleFunc("/games/{slot}/soldiers/{idx}", handleUpdateSoldier).Methods("PUT")
+	api.HandleFunc("/games/{slot}/soldiers/{idx}/resurrect", handleResurrectSoldier).Methods("POST")
 	api.HandleFunc("/games/{slot}/bases", handleListBases).Methods("GET")
 	api.HandleFunc("/games/{slot}/bases/{idx}", handleGetBase).Methods("GET")
 	api.HandleFunc("/games/{slot}/bases/{idx}", handleUpdateBase).Methods("PUT")

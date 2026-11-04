@@ -250,6 +250,16 @@ func (s *Soldier) IsWounded() bool {
 	return !s.IsDead() && data.RecoveryDays > 0
 }
 
+// Resurrect brings a dead soldier back to life as a healthy Squaddie. It
+// returns false if the soldier is not dead.
+func (s *Soldier) Resurrect() bool {
+	if !s.IsDead() {
+		return false
+	}
+	s.Heal()
+	return true
+}
+
 func (s *Soldier) Heal() {
 	data := &s.game.soldierFile.Soldiers[s.offset]
 	// Dead soldiers are resurrected as Squaddies.
