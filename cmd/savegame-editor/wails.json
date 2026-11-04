@@ -1,0 +1,17 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "X-COM Savegame Editor",
+  "outputfilename": "savegame-editor",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Sebastian Rahlf",
+    "email": "basti@redtoad.de"
+  },
+  "info": {
+    "productName": "X-COM Savegame Editor",
+    "comments": "Savegame editor for X-COM: UFO Defense"
+  }
+}
