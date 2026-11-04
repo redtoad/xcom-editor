@@ -118,6 +118,10 @@ export function terrainSheetURL(name: string): string {
   return `/api/terrain/${name}.png`;
 }
 
+export function unitSheetURL(name: string): string {
+  return `/api/unitsprites/${name}.png`;
+}
+
 export async function getWorld(): Promise<WorldData> {
   return fetchJSON('/api/world');
 }

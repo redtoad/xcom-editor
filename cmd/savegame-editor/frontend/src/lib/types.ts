@@ -244,4 +244,23 @@ export interface BattleTerrain {
   parts: BattleTerrainPart[];
   /** MCD indices of floor, west wall, north wall and object of each tile (4 per tile, order of BattleMap.tiles). */
   tiles: number[];
+  /** Sprites of the units which can be drawn with the game graphics. */
+  units: BattleUnitSprites[];
+}
+
+export interface UnitSprite {
+  /** Sprite file, served at unitSheetURL(sheet). */
+  sheet: string;
+  /** Sprite in the sheet (32x40 pixels per sprite). */
+  frame: number;
+  /** Position relative to the sprite of the upper left tile of the unit, in pixels. */
+  dx: number;
+  dy: number;
+}
+
+export interface BattleUnitSprites {
+  /** BattleUnit.index */
+  index: number;
+  /** Sprites in the order they are drawn. */
+  sprites: UnitSprite[];
 }

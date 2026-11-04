@@ -1,11 +1,12 @@
 <script lang="ts">
   // Isometric view of the Battlescape map, similar to the view of the game.
-  // The terrain is drawn with the sprites of the game if they are available
+  // The map is drawn with the sprites of the game if they are available
   // (see terrain), otherwise with simple shapes: floors are diamonds, walls
-  // and objects are blocks. Units are always drawn as pillars.
+  // and objects are blocks, units are pillars. Units without sprites (see
+  // unitBodies in units.go) are always drawn as pillars.
   import { createEventDispatcher, onMount } from 'svelte';
   import type { BattleMap, BattleTerrain, BattleUnit } from './lib/types';
-  import { terrainSheetURL } from './lib/api';
+  import { terrainSheetURL, unitSheetURL } from './lib/api';
   import { TILE_GROUND, TILE_WEST_WALL, TILE_NORTH_WALL, TILE_OBJECT, TILE_SEEN, tileAt, darken } from './lib/battle';
 
   export let map: BattleMap;
@@ -44,19 +45,32 @@
   // sprite sheets of the terrain sets, in normal and darkened (fog of war)
   // colors, null until they are loaded
   let sheets: { normal: CanvasImageSource; dark: CanvasImageSource }[] | null = null;
+  // sprite sheets of the units by name and the sprites of each unit by index
+  let unitImages = new Map<string, HTMLImageElement>();
+  let unitSprites = new Map<number, BattleTerrain['units'][number]['sprites']>();
+
+  function loadImage(url: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`could not load ${url}`));
+      img.src = url;
+    });
+  }
 
   $: loadSheets(terrain);
 
   async function loadSheets(t: BattleTerrain | null) {
     sheets = null;
     if (!t) return;
-    const loaded = await Promise.all(t.sets.map(name => new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error(`could not load terrain ${name}`));
-      img.src = terrainSheetURL(name);
-    })));
+    const unitNames = [...new Set(t.units.flatMap(u => u.sprites.map(s => s.sheet)))];
+    const [loaded, units] = await Promise.all([
+      Promise.all(t.sets.map(name => loadImage(terrainSheetURL(name)))),
+      Promise.all(unitNames.map(name => loadImage(unitSheetURL(name)))),
+    ]);
     if (t !== terrain) return; // changed while loading
+    unitImages = new Map(unitNames.map((name, i) => [name, units[i]]));
+    unitSprites = new Map(t.units.map(u => [u.index, u.sprites]));
     sheets = loaded.map(img => ({ normal: img, dark: darkened(img) }));
   }
 
@@ -244,6 +258,33 @@
     const color = colors[u.owner] ?? colors.xcom;
     const isSelected = selected?.index === u.index;
     const r = size * 6;
+
+    const sprites = terrain && sheets ? unitSprites.get(u.index) : undefined;
+    if (sprites) {
+      // a ring in the color of the owner below the unit (the sprites of the
+      // units look alike), above large units as they would cover it
+      const ring = () => {
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, r + 3, (r + 3) / 2, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = isSelected ? colors.selected : color;
+        ctx.lineWidth = isSelected ? 3 : 1.5;
+        ctx.stroke();
+      };
+      if (!u.large) ring();
+      const [nx, ny] = project(u.x, u.y, h);
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const s of sprites) {
+        const img = unitImages.get(s.sheet);
+        if (!img) continue;
+        const sx = nx - SPRITE_W / 2 + s.dx, sy = ny - SPRITE_FLOOR_Y + s.dy;
+        ctx.drawImage(img, s.frame * SPRITE_W, 0, SPRITE_W, SPRITE_H, sx, sy, SPRITE_W, SPRITE_H);
+        x0 = Math.min(x0, sx + 8); y0 = Math.min(y0, sy + 4);
+        x1 = Math.max(x1, sx + SPRITE_W - 8); y1 = Math.max(y1, sy + SPRITE_H);
+      }
+      if (u.large) ring();
+      if (x0 < x1) hitAreas.push({ unit: u, x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
+      return;
+    }
 
     // shadow
     ctx.beginPath();

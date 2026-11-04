@@ -115,6 +115,9 @@ type battleTerrainJS struct {
 	// object of each tile (4 values per tile), in the order of
 	// battleMapJS.Tiles. 0 means the part does not exist.
 	Tiles []int `json:"tiles"`
+	// Units holds the sprites of the units which can be drawn with the game
+	// graphics, empty if the unit graphics are not available.
+	Units []battleUnitSpritesJS `json:"units"`
 }
 
 // battleTerrain determines the terrain sets of a mission and the sprites of
@@ -137,7 +140,10 @@ func battleTerrain(b *savegame.Battle, sets map[string]*terrainSet) (*battleTerr
 	if err != nil {
 		return nil, err
 	}
-	result := &battleTerrainJS{Sets: matched, Parts: []terrainPartJS{}}
+	result := &battleTerrainJS{Sets: matched, Parts: []terrainPartJS{}, Units: []battleUnitSpritesJS{}}
+	if unitSheets != nil {
+		result.Units = battleUnitSprites(b)
+	}
 	sx, sy, sz := b.Size()
 	result.Tiles = make([]int, 0, sx*sy*sz*4)
 	for z := 0; z < sz; z++ {

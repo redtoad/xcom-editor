@@ -45,9 +45,10 @@ var games map[string]*gameEntry
 // for new and changed savegames (see watchGames).
 var currentRoot string
 
-// stateMu guards games, currentRoot, world, fonts, baseBits, soldierImages
-// and terrain. API requests hold a read lock for their whole lifetime (see
-// lockState), loadRoot replaces all of them at once under the write lock.
+// stateMu guards games, currentRoot, world, fonts, baseBits, soldierImages,
+// terrain and unitSheets. API requests hold a read lock for their whole
+// lifetime (see lockState), loadRoot replaces all of them at once under the
+// write lock.
 var stateMu sync.RWMutex
 
 // loadRoot loads all savegames (GAME_1 through GAME_10) and the optional
@@ -114,9 +115,17 @@ func loadRoot(root string) error {
 		log.Printf("Loaded Battlescape graphics: %d terrain sets", len(ter))
 	}
 
+	units, err := loadUnitSheets(root)
+	if err != nil {
+		log.Printf("Unit graphics not available (%v)", err)
+		units = nil
+	} else {
+		log.Printf("Loaded unit graphics: %d sprite files", len(units))
+	}
+
 	stateMu.Lock()
 	defer stateMu.Unlock()
-	games, currentRoot, world, fonts, baseBits, soldierImages, terrain = loaded, root, w, f, bits, images, ter
+	games, currentRoot, world, fonts, baseBits, soldierImages, terrain, unitSheets = loaded, root, w, f, bits, images, ter, units
 	return nil
 }
 
@@ -173,6 +182,7 @@ func newRouter() (*mux.Router, error) {
 	api.HandleFunc("/soldier-images/{name}.png", handleGetSoldierImage).Methods("GET")
 	api.HandleFunc("/basebits/{sprite}.png", handleGetBaseBit).Methods("GET")
 	api.HandleFunc("/terrain/{name}.png", handleGetTerrainSheet).Methods("GET")
+	api.HandleFunc("/unitsprites/{name}.png", handleGetUnitSheet).Methods("GET")
 	api.HandleFunc("/fonts/{name}.ttf", handleGetFont).Methods("GET")
 
 	// SPA fallback: serve frontend for all non-API routes
