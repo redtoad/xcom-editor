@@ -1,12 +1,14 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import { getGame, saveGame, reloadGame, healAll, equipPersonalArmour, repairRefuelCrafts, completeConstructions, speedupDeliveries } from './lib/api';
+  import { getGame, saveGame, reloadGame, healAll, equipPersonalArmour, repairRefuelCrafts, completeConstructions, speedupDeliveries, speedupResearch, speedupProduction } from './lib/api';
   import { applyPendingChanges, refreshForms } from './lib/pending';
   import type { GameDetail } from './lib/types';
   import SoldierList from './SoldierList.svelte';
   import BaseList from './BaseList.svelte';
   import CraftList from './CraftList.svelte';
   import TransferList from './TransferList.svelte';
+  import ResearchList from './ResearchList.svelte';
+  import ProductionList from './ProductionList.svelte';
   import FinancialView from './FinancialView.svelte';
   import GlobeView from './GlobeView.svelte';
   import HemisphereMap from './HemisphereMap.svelte';
@@ -37,6 +39,8 @@
     { id: 'soldiers', label: 'Soldiers' },
     { id: 'bases', label: 'Bases' },
     { id: 'craft', label: 'Crafts' },
+    { id: 'research', label: 'Research' },
+    { id: 'production', label: 'Manufacture' },
     { id: 'transfers', label: 'Transfers' },
     { id: 'financials', label: 'Financials' },
     { id: 'map', label: 'Map' },
@@ -159,6 +163,10 @@
       <BaseList gameSlot={slot} />
     {:else if activeTab === 'craft'}
       <CraftList gameSlot={slot} />
+    {:else if activeTab === 'research'}
+      <ResearchList gameSlot={slot} />
+    {:else if activeTab === 'production'}
+      <ProductionList gameSlot={slot} />
     {:else if activeTab === 'transfers'}
       <TransferList gameSlot={slot} />
     {:else if activeTab === 'financials'}
@@ -179,6 +187,10 @@
       <button class="action" on:click={() => doAction('Completing', withPendingChanges(completeConstructions))}>Complete Constructions</button>
     {:else if activeTab === 'craft'}
       <button class="action" on:click={() => doAction('Repairing', withPendingChanges(repairRefuelCrafts))}>Repair &amp; Refuel All</button>
+    {:else if activeTab === 'research'}
+      <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupResearch))}>Speed Up All Research</button>
+    {:else if activeTab === 'production'}
+      <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupProduction))}>Speed Up All Production</button>
     {:else if activeTab === 'transfers'}
       <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupDeliveries))}>Speed Up Deliveries</button>
     {/if}

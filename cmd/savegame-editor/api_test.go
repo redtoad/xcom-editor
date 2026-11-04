@@ -320,3 +320,68 @@ func TestHandleRepairRefuelCrafts(t *testing.T) {
 			c.Status(), "craft %d", c.Index())
 	}
 }
+
+// postRaw performs a POST request against the API and returns the response.
+func postRaw(t *testing.T, path string, handler http.HandlerFunc, route string) *httptest.ResponseRecorder {
+	t.Helper()
+	r := mux.NewRouter()
+	r.HandleFunc(route, handler)
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, path, nil))
+	return rec
+}
+
+func TestHandleResearch(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+
+	var result []researchJS
+	getJSON(t, "/api/games/GAME_1/research", handleListResearch, "/api/games/{slot}/research", &result)
+	assert.Equal(t, []researchJS{{
+		Base: 0, BaseName: games["GAME_1"].sg.Base(0).Name(),
+		Topic: 15, Name: "Elerium-115", DaysRemaining: 107, Scientists: 57,
+	}}, result)
+
+	const route = "/api/games/{slot}/research/{base}/{topic}/speedup"
+	rec := postRaw(t, "/api/games/GAME_1/research/0/15/speedup", handleSpeedupResearchProject, route)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	assert.Equal(t, 1, games["GAME_1"].sg.ResearchProjects()[0].DaysRemaining())
+
+	// topics not being researched cannot be sped up
+	assert.Equal(t, http.StatusNotFound, postRaw(t, "/api/games/GAME_1/research/0/1/speedup", handleSpeedupResearchProject, route).Code)
+	assert.Equal(t, http.StatusNotFound, postRaw(t, "/api/games/GAME_1/research/8/15/speedup", handleSpeedupResearchProject, route).Code)
+	assert.Equal(t, http.StatusBadRequest, postRaw(t, "/api/games/GAME_1/research/x/15/speedup", handleSpeedupResearchProject, route).Code)
+}
+
+func TestHandleSpeedupResearch(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+	rec := postRaw(t, "/api/games/GAME_1/actions/speedup-research", handleSpeedupResearch, "/api/games/{slot}/actions/speedup-research")
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	assert.Equal(t, 1, games["GAME_1"].sg.ResearchProjects()[0].DaysRemaining())
+}
+
+func TestHandleProduction(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+
+	var result []productionJS
+	getJSON(t, "/api/games/GAME_1/production", handleListProduction, "/api/games/{slot}/production", &result)
+	assert.Equal(t, []productionJS{{
+		Base: 0, BaseName: games["GAME_1"].sg.Base(0).Name(),
+		Product: 12, Name: "Medi-Kit", HoursPerUnit: 420, HoursDone: 380,
+		Engineers: 10, Total: 10, Produced: 3,
+	}}, result)
+
+	const route = "/api/games/{slot}/production/{base}/{product}/speedup"
+	rec := postRaw(t, "/api/games/GAME_1/production/0/12/speedup", handleSpeedupProductionProject, route)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	assert.Equal(t, 419, games["GAME_1"].sg.ProductionProjects()[0].HoursDone())
+
+	assert.Equal(t, http.StatusNotFound, postRaw(t, "/api/games/GAME_1/production/0/1/speedup", handleSpeedupProductionProject, route).Code)
+	assert.Equal(t, http.StatusBadRequest, postRaw(t, "/api/games/GAME_1/production/0/x/speedup", handleSpeedupProductionProject, route).Code)
+}
+
+func TestHandleSpeedupProduction(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+	rec := postRaw(t, "/api/games/GAME_1/actions/speedup-production", handleSpeedupProduction, "/api/games/{slot}/actions/speedup-production")
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	assert.Equal(t, 419, games["GAME_1"].sg.ProductionProjects()[0].HoursDone())
+}

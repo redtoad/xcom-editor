@@ -112,7 +112,12 @@ each wounded soldier and a "Resurrect" button for each dead soldier, on
 *Bases* "Complete
 Constructions", on *Craft* "Repair & Refuel All" (repairs, refuels and rearms all
 X-COM craft immediately and puts enough ammunition into the stores of their
-bases to rearm them once more), on *Transfers* "Speed Up Deliveries", and on *Financials* a
+bases to rearm them once more), on *Research* and *Manufacture* (which list
+the ongoing research and production of all bases) a "Speed Up" button for
+each project and "Speed Up All Research"/"Speed Up All Production" (research
+is completed on the next day, the next unit of an item within the next hour;
+the remaining units are built at the normal pace), on *Transfers* "Speed Up
+Deliveries", and on *Financials* a
 "Max" button sets the current balance to its maximum ($2,147,483,647). Dead
 soldiers come back with the rank they had before. The game does not keep it,
 so it is estimated from the soldier value (see `savegame.Soldier.LastRank`;

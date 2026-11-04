@@ -145,6 +145,32 @@ export interface TransferSummary {
   quantity: number;
 }
 
+export interface ResearchProject {
+  base: number;
+  baseName: string;
+  // index in RESEARCH.DAT
+  topic: number;
+  name: string;
+  // scientist days remaining
+  daysRemaining: number;
+  scientists: number;
+}
+
+export interface ProductionProject {
+  base: number;
+  baseName: string;
+  // index in PRODUCT.DAT
+  product: number;
+  name: string;
+  // engineer hours needed to build one unit
+  hoursPerUnit: number;
+  // engineer hours of work done towards the next unit
+  hoursDone: number;
+  engineers: number;
+  total: number;
+  produced: number;
+}
+
 export interface Financials {
   currentBalance: number;
   expenditure: number[];

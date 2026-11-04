@@ -1,6 +1,7 @@
 import type {
   GameSummary, GameDetail, SoldierSummary, SoldierDetail,
   BaseSummary, BaseDetail, CraftSummary, TransferSummary, Financials,
+  ResearchProject, ProductionProject,
   GlobeLocation, WorldData, BattleMap, BattleTerrain
 } from './types';
 
@@ -69,6 +70,22 @@ export async function listTransfers(slot: string): Promise<TransferSummary[]> {
   return fetchJSON(`/api/games/${slot}/transfers`);
 }
 
+export async function listResearch(slot: string): Promise<ResearchProject[]> {
+  return fetchJSON(`/api/games/${slot}/research`);
+}
+
+export async function speedupResearchProject(slot: string, base: number, topic: number): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/research/${base}/${topic}/speedup`, { method: 'POST' });
+}
+
+export async function listProduction(slot: string): Promise<ProductionProject[]> {
+  return fetchJSON(`/api/games/${slot}/production`);
+}
+
+export async function speedupProductionProject(slot: string, base: number, product: number): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/production/${base}/${product}/speedup`, { method: 'POST' });
+}
+
 export async function getFinancials(slot: string): Promise<Financials> {
   return fetchJSON(`/api/games/${slot}/financials`);
 }
@@ -99,6 +116,14 @@ export async function completeConstructions(slot: string): Promise<void> {
 
 export async function speedupDeliveries(slot: string): Promise<void> {
   await fetchJSON(`/api/games/${slot}/actions/speedup-deliveries`, { method: 'POST' });
+}
+
+export async function speedupResearch(slot: string): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/actions/speedup-research`, { method: 'POST' });
+}
+
+export async function speedupProduction(slot: string): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/actions/speedup-production`, { method: 'POST' });
 }
 
 export async function saveGame(slot: string): Promise<void> {

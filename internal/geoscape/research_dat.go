@@ -43,3 +43,34 @@ type ResearchTopic struct {
 	// 18-21: Non-zero if all prerequisites are met.
 	PrerequisitesMet int32
 }
+
+// ResearchTopicNames holds the English names of all research topics in the
+// order of RESEARCH.DAT.
+//
+// https://www.ufopaedia.org/index.php/RESEARCH.DAT
+var ResearchTopicNames = [NumResearchTopics]string{
+	"Laser Weapons", "Motion Scanner", "Medi-Kit", "Psi-Amp",
+	"Heavy Plasma", "Heavy Plasma Clip", "Plasma Rifle", "Plasma Rifle Clip",
+	"Plasma Pistol", "Plasma Pistol Clip", "Blaster Launcher", "Blaster Bomb",
+	"Small Launcher", "Stun Bomb", "Alien Grenade", "Elerium-115",
+	"Mind Probe", "UFO Power Source", "UFO Navigation", "UFO Construction",
+	"Alien Food", "Alien Reproduction", "Alien Entertainment", "Alien Surgery",
+	"Examination Room", "Alien Alloys", "New Fighter Craft", "New Fighter-Transporter",
+	"Ultimate Craft", "Laser Pistol", "Laser Rifle", "Heavy Laser",
+	"Laser Cannon", "Plasma Cannon", "Fusion Missile", "Laser Defense",
+	"Plasma Defense", "Fusion Defense", "Grav Shield", "Mind Shield",
+	"Psionic Laboratory", "Hyper-Wave Decoder",
+	// 42-44 are not used by the game
+	"Tank/Laser Cannon", "Hovertank/Plasma", "Hovertank/Launcher",
+	"Sectoid Corpse", "Snakeman Corpse", "Ethereal Corpse", "Muton Corpse",
+	"Floater Corpse", "Celatid Corpse", "Silacoid Corpse", "Chryssalid Corpse",
+	"Reaper Corpse", "Sectopod Corpse", "Cyberdisc Corpse",
+	"Alien Origins", "The Martian Solution", "Cydonia or Bust",
+	"Personal Armour", "Power Suit", "Flying Suit",
+	"Sectoid Commander", "Sectoid Leader", "Sectoid Engineer", "Sectoid Medic", "Sectoid Navigator", "Sectoid Soldier",
+	"Snakeman Commander", "Snakeman Leader", "Snakeman Engineer", "Snakeman Medic", "Snakeman Navigator", "Snakeman Soldier",
+	"Ethereal Commander", "Ethereal Leader", "Ethereal Engineer", "Ethereal Medic", "Ethereal Navigator", "Ethereal Soldier",
+	"Muton Commander", "Muton Leader", "Muton Engineer", "Muton Medic", "Muton Navigator", "Muton Soldier",
+	"Floater Commander", "Floater Leader", "Floater Engineer", "Floater Medic", "Floater Navigator", "Floater Soldier",
+	"Celatid Terrorist", "Silacoid Terrorist", "Chryssalid Terrorist", "Reaper Terrorist",
+}
