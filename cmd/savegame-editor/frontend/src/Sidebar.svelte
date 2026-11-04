@@ -1,22 +1,35 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onDestroy } from 'svelte';
   import { listGames } from './lib/api';
   import type { GameSummary } from './lib/types';
 
   export let selectedSlot: string | null;
+  // incremented by the parent whenever a savegame has changed (e.g. after
+  // a reload or save), which reloads the list of savegames
+  export let refresh = 0;
 
-  const dispatch = createEventDispatcher<{ select: string }>();
+  // how often the list of savegames is checked for new and changed savegames
+  const pollInterval = 3000;
+
+  const dispatch = createEventDispatcher<{ select: string; update: GameSummary[] }>();
 
   let games: GameSummary[] = [];
   let error = '';
 
-  onMount(async () => {
+  async function load() {
     try {
       games = await listGames();
+      error = '';
+      dispatch('update', games);
     } catch (e: any) {
       error = e.message;
     }
-  });
+  }
+
+  $: refresh, load();
+
+  const timer = setInterval(load, pollInterval);
+  onDestroy(() => clearInterval(timer));
 </script>
 
 {#if error}
@@ -31,9 +44,14 @@
   >
     <div class="slot">
       {game.slot.replace('_', ' ')}
-      {#if game.mission}
-        <span class="mission-badge" title="Saved during a mission (turn {game.mission.turn})">In mission</span>
-      {/if}
+      <span class="badges">
+        {#if game.stale}
+          <span class="badge stale-badge" title="The savegame was changed on disk (e.g. saved in the game) and needs to be reloaded">Changed</span>
+        {/if}
+        {#if game.mission}
+          <span class="badge mission-badge" title="Saved during a mission (turn {game.mission.turn})">In mission</span>
+        {/if}
+      </span>
     </div>
     <div class="title">{game.title}</div>
     <div class="meta">
@@ -77,13 +95,22 @@
   .selected .counts {
     color: var(--button-dark);
   }
-  .mission-badge {
+  .badges {
     float: right;
-    color: var(--danger);
+    display: inline-flex;
+    gap: 4px;
+  }
+  .badge {
     background: var(--bg);
-    border: 1px solid var(--danger);
+    border: 1px solid currentColor;
     padding: 0 4px;
     text-transform: uppercase;
+  }
+  .mission-badge {
+    color: var(--danger);
+  }
+  .stale-badge {
+    color: var(--warning);
   }
   .title {
     color: var(--value);

@@ -53,6 +53,8 @@ func main() {
 	if err := loadRoot(root); err != nil {
 		log.Fatal(err)
 	}
+	// pick up savegames which are saved (or overwritten) in the game
+	go watchGames(watchInterval)
 
 	r, err := newRouter()
 	if err != nil {

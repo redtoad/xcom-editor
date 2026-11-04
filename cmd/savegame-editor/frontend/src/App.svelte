@@ -1,8 +1,14 @@
 <script lang="ts">
   import Sidebar from './Sidebar.svelte';
   import GameDetail from './GameDetail.svelte';
+  import type { GameSummary } from './lib/types';
 
   let selectedSlot: string | null = null;
+  let refresh = 0;
+  let games: GameSummary[] = [];
+
+  // whether the selected savegame was changed on disk (e.g. by the game)
+  $: selectedStale = games.find(g => g.slot === selectedSlot)?.stale ?? false;
 
   function handleSelect(event: CustomEvent<string>) {
     selectedSlot = event.detail;
@@ -13,11 +19,11 @@
   <div class="layout">
     <aside class="sidebar">
       <h1>X-COM Editor</h1>
-      <Sidebar {selectedSlot} on:select={handleSelect} />
+      <Sidebar {selectedSlot} {refresh} on:select={handleSelect} on:update={e => games = e.detail} />
     </aside>
     <section class="detail">
       {#if selectedSlot}
-        <GameDetail slot={selectedSlot} />
+        <GameDetail slot={selectedSlot} stale={selectedStale} on:changed={() => refresh++} />
       {:else}
         <div class="placeholder">Select a savegame from the sidebar.</div>
       {/if}

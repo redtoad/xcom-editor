@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	"github.com/redtoad/xcom-editor/savegame"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -30,9 +29,9 @@ func loadTestGames(t *testing.T, slots ...string) {
 			require.NoError(t, err)
 			require.NoError(t, os.WriteFile(filepath.Join(dst, e.Name()), buf, 0644))
 		}
-		sg, err := savegame.Load(dst)
+		entry, err := loadGame(dst)
 		require.NoError(t, err)
-		games[slot] = &gameEntry{sg: sg}
+		games[slot] = entry
 	}
 }
 

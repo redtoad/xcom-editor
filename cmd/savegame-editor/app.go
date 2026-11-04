@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/redtoad/xcom-editor/savegame"
@@ -30,12 +31,21 @@ var frontendFS embed.FS
 type gameEntry struct {
 	sg *savegame.Savegame
 	mu sync.RWMutex
+	// stamp is the latest modification time of the savegame files when the
+	// savegame was loaded or saved by the editor.
+	stamp time.Time
+	// stale is true if the files were changed since (e.g. by the game).
+	stale bool
 }
 
 // games holds all loaded savegames indexed by slot name (e.g. "GAME_1").
 var games map[string]*gameEntry
 
-// stateMu guards games, world, fonts and baseBits. API requests hold a read
+// currentRoot is the folder the savegames were loaded from, it is watched
+// for new and changed savegames (see watchGames).
+var currentRoot string
+
+// stateMu guards games, currentRoot, world, fonts and baseBits. API requests hold a read
 // lock for their whole lifetime (see lockState), loadRoot replaces all of
 // them at once under the write lock.
 var stateMu sync.RWMutex
@@ -45,19 +55,19 @@ var stateMu sync.RWMutex
 // savegame can be loaded, the current state is kept.
 func loadRoot(root string) error {
 	loaded := make(map[string]*gameEntry)
-	for i := 1; i <= 10; i++ {
+	for i := 1; i <= maxSlots; i++ {
 		slot := fmt.Sprintf("GAME_%d", i)
 		gamePath := filepath.Join(root, slot)
 		if _, err := os.Stat(filepath.Join(gamePath, "SAVEINFO.DAT")); os.IsNotExist(err) {
 			continue
 		}
-		sg, err := savegame.Load(gamePath)
+		entry, err := loadGame(gamePath)
 		if err != nil {
 			log.Printf("Warning: could not load %s: %v", slot, err)
 			continue
 		}
-		loaded[slot] = &gameEntry{sg: sg}
-		log.Printf("Loaded %s: %s", slot, sg.Title())
+		loaded[slot] = entry
+		log.Printf("Loaded %s: %s", slot, entry.sg.Title())
 	}
 
 	if len(loaded) == 0 {
@@ -90,7 +100,7 @@ func loadRoot(root string) error {
 
 	stateMu.Lock()
 	defer stateMu.Unlock()
-	games, world, fonts, baseBits = loaded, w, f, bits
+	games, currentRoot, world, fonts, baseBits = loaded, root, w, f, bits
 	return nil
 }
 

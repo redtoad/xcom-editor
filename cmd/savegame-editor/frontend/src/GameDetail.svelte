@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import { getGame, saveGame, reloadGame, healAll, completeConstructions, speedupDeliveries } from './lib/api';
   import { applyPendingChanges, refreshForms } from './lib/pending';
   import type { GameDetail } from './lib/types';
@@ -13,11 +13,23 @@
 
   // Svelte reserves "slot" as a keyword, use a different prop name
   export let slot: string;
+  // the savegame was changed on disk (e.g. saved in the game), as reported
+  // by the list of savegames in the sidebar
+  export let stale = false;
+
+  const dispatch = createEventDispatcher<{ changed: void }>();
 
   let game: GameDetail | null = null;
   let activeTab = 'soldiers';
   let status = '';
   let error = '';
+  // incremented after every action, re-creates the active tab so that it
+  // shows the current data
+  let version = 0;
+
+  // The sidebar and the detail view poll at different times, the savegame
+  // is stale if either of them saw it changed.
+  $: changedOnDisk = stale || (game?.stale ?? false);
 
   const tabs = [
     { id: 'soldiers', label: 'Soldiers' },
@@ -58,12 +70,31 @@
     await refreshForms();
   }
 
+  // Changes to the savegame (e.g. "Heal All") re-create the active tab, so
+  // apply changes in open edit forms first instead of discarding them.
+  function withPendingChanges(fn: (slot: string) => Promise<void>): () => Promise<void> {
+    return async () => {
+      const target = slot;
+      await applyPendingChanges();
+      await fn(target);
+    };
+  }
+
+  function save() {
+    if (changedOnDisk && !confirm('This savegame was changed on disk. Saving overwrites these changes. Save anyway?')) {
+      return;
+    }
+    doAction('Saving', saveWithPendingChanges);
+  }
+
   async function doAction(name: string, fn: () => Promise<void>) {
     try {
       status = name + '...';
       await fn();
       status = name + ' done!';
       await load();
+      version++;
+      dispatch('changed');
       setTimeout(() => status = '', 2000);
     } catch (e: any) {
       status = '';
@@ -77,6 +108,12 @@
 {/if}
 
 {#if game}
+  {#if changedOnDisk}
+    <div class="stale-notice">
+      <span>This savegame was changed on disk (e.g. saved in the game). Reload it to see the changes; saving in the editor would overwrite them.</span>
+      <button class="action reload" on:click={() => doAction('Reloading', reloadAndRefresh)}>Reload</button>
+    </div>
+  {/if}
   <div class="header">
     <h2>{game.title}</h2>
     <div class="meta">
@@ -108,6 +145,7 @@
   </nav>
 
   <div class="tab-content">
+    {#key version}
     {#if activeTab === 'soldiers'}
       <SoldierList gameSlot={slot} />
     {:else if activeTab === 'bases'}
@@ -123,15 +161,16 @@
     {:else if activeTab === 'globe'}
       <GlobeView gameSlot={slot} />
     {/if}
+    {/key}
   </div>
 
   <div class="action-bar">
-    <button class="action" on:click={() => doAction('Healing', () => healAll(slot))}>Heal All</button>
-    <button class="action" on:click={() => doAction('Completing', () => completeConstructions(slot))}>Complete Constructions</button>
-    <button class="action" on:click={() => doAction('Speeding up', () => speedupDeliveries(slot))}>Speed Up Deliveries</button>
+    <button class="action" on:click={() => doAction('Healing', withPendingChanges(healAll))}>Heal All</button>
+    <button class="action" on:click={() => doAction('Completing', withPendingChanges(completeConstructions))}>Complete Constructions</button>
+    <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupDeliveries))}>Speed Up Deliveries</button>
     <div class="spacer"></div>
     <button class="action reload" on:click={() => doAction('Reloading', reloadAndRefresh)}>Reload</button>
-    <button class="action save" on:click={() => doAction('Saving', saveWithPendingChanges)}>Save</button>
+    <button class="action save" on:click={save}>Save</button>
     {#if status}
       <span class="status">{status}</span>
     {/if}
@@ -141,6 +180,19 @@
 <style>
   .header {
     margin-bottom: 4px;
+  }
+  .stale-notice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 6px 8px;
+    color: var(--warning);
+    background: var(--bg);
+    border: 2px solid var(--warning);
+  }
+  .stale-notice span {
+    flex: 1;
   }
   .meta {
     display: flex;
