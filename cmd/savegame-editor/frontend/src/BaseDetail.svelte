@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-  import { getBase, updateBase, baseBitURL } from './lib/api';
+  import { getBase, updateBase, adjustInventory, baseBitURL } from './lib/api';
   import { registerForm, ChangeTracker } from './lib/pending';
-  import type { BaseDetail } from './lib/types';
+  import type { BaseDetail, InventoryItem } from './lib/types';
 
   export let gameSlot: string;
   export let baseIdx: number;
@@ -19,6 +19,15 @@
   let saving = false;
   let engineers = 0;
   let scientists = 0;
+  // show items not in stores too, so they can be added
+  let showAllItems = false;
+
+  // the quantity is stored as int16
+  const MAX_ITEMS = 32767;
+
+  $: items = (base?.items ?? [])
+    .filter((it) => showAllItems || it.count > 0)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   async function load() {
     try {
@@ -48,6 +57,18 @@
   // Let the global "Save" button apply changes not yet applied here, and
   // "Reload" refresh the form.
   onDestroy(registerForm({ apply, refresh: load }));
+
+  // adjust changes the quantity of an item, by 10 with the shift key.
+  async function adjust(item: InventoryItem, sign: number, e: MouseEvent) {
+    if (!base) return;
+    try {
+      item.count = await adjustInventory(gameSlot, baseIdx, item.index, sign * (e.shiftKey ? 10 : 1));
+      base = base;
+      error = '';
+    } catch (err: any) {
+      error = err.message;
+    }
+  }
 
   async function save() {
     saving = true;
@@ -140,13 +161,27 @@
     </div>
   </div>
 
-  {#if Object.keys(base.inventory).length > 0}
+  <div class="inventory-header">
     <h4>Inventory</h4>
+    <label class="show-all">
+      <input type="checkbox" bind:checked={showAllItems} />
+      Show all items
+    </label>
+  </div>
+  {#if items.length === 0}
+    <div class="meta">No items in stores.</div>
+  {:else}
     <div class="inventory">
-      {#each Object.entries(base.inventory).sort((a, b) => a[0].localeCompare(b[0])) as [item, count]}
-        <div class="inv-item">
-          <span class="inv-name">{item}</span>
-          <span class="inv-count">{count}</span>
+      {#each items as item (item.index)}
+        <div class="inv-item" class:none={item.count === 0}>
+          <span class="inv-name">{item.name}</span>
+          <span class="inv-edit">
+            <button class="inv-btn" title="Remove one (shift: ten)" disabled={item.count <= 0}
+              on:click={(e) => adjust(item, -1, e)}>-</button>
+            <span class="inv-count">{item.count}</span>
+            <button class="inv-btn" title="Add one (shift: ten)" disabled={item.count >= MAX_ITEMS}
+              on:click={(e) => adjust(item, 1, e)}>+</button>
+          </span>
         </div>
       {/each}
     </div>
@@ -178,21 +213,21 @@
     flex-direction: column;
     gap: 2px;
   }
-  label {
+  .fields label {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: var(--row-2);
     padding: 1px 2px 1px 8px;
   }
-  label:nth-child(2) {
+  .fields label:nth-child(2) {
     background: var(--row-3);
   }
-  label span {
+  .fields label span {
     color: var(--text);
     text-transform: uppercase;
   }
-  input {
+  .fields input {
     width: 80px;
     text-align: right;
   }
@@ -273,7 +308,34 @@
   .inv-item:nth-child(even) {
     background: var(--row-4);
   }
+  .inv-item.none .inv-name {
+    color: var(--muted);
+  }
+  .inv-edit {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
   .inv-count {
     color: var(--value);
+    min-width: 5ch;
+    text-align: right;
+  }
+  .inv-btn {
+    min-width: 0;
+    padding: 0 6px;
+    line-height: 1.2;
+  }
+  .inventory-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  /* like the controls of the map */
+  .show-all {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
   }
 </style>

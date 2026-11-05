@@ -1,6 +1,7 @@
 import type {
   GameSummary, GameDetail, SoldierSummary, SoldierDetail,
   BaseSummary, BaseDetail, CraftSummary, TransferSummary, Financials,
+  ResearchProject, ProductionProject,
   GlobeLocation, WorldData, BattleMap, BattleTerrain
 } from './types';
 
@@ -61,12 +62,39 @@ export async function updateBase(slot: string, idx: number, updates: Record<stri
   });
 }
 
+// adjustInventory changes the quantity of an item in a base by delta and
+// returns the new quantity.
+export async function adjustInventory(slot: string, base: number, item: number, delta: number): Promise<number> {
+  const res = await fetchJSON<{ count: number }>(`/api/games/${slot}/bases/${base}/inventory/${item}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ delta }),
+  });
+  return res.count;
+}
+
 export async function listCraft(slot: string): Promise<CraftSummary[]> {
   return fetchJSON(`/api/games/${slot}/craft`);
 }
 
 export async function listTransfers(slot: string): Promise<TransferSummary[]> {
   return fetchJSON(`/api/games/${slot}/transfers`);
+}
+
+export async function listResearch(slot: string): Promise<ResearchProject[]> {
+  return fetchJSON(`/api/games/${slot}/research`);
+}
+
+export async function speedupResearchProject(slot: string, base: number, topic: number): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/research/${base}/${topic}/speedup`, { method: 'POST' });
+}
+
+export async function listProduction(slot: string): Promise<ProductionProject[]> {
+  return fetchJSON(`/api/games/${slot}/production`);
+}
+
+export async function speedupProductionProject(slot: string, base: number, product: number): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/production/${base}/${product}/speedup`, { method: 'POST' });
 }
 
 export async function getFinancials(slot: string): Promise<Financials> {
@@ -99,6 +127,14 @@ export async function completeConstructions(slot: string): Promise<void> {
 
 export async function speedupDeliveries(slot: string): Promise<void> {
   await fetchJSON(`/api/games/${slot}/actions/speedup-deliveries`, { method: 'POST' });
+}
+
+export async function speedupResearch(slot: string): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/actions/speedup-research`, { method: 'POST' });
+}
+
+export async function speedupProduction(slot: string): Promise<void> {
+  await fetchJSON(`/api/games/${slot}/actions/speedup-production`, { method: 'POST' });
 }
 
 export async function saveGame(slot: string): Promise<void> {

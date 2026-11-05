@@ -105,11 +105,19 @@ export interface BaseDetail {
   scientists: number;
   coord: string;
   tiles: TileInfo[];
-  inventory: Record<string, number>;
+  // all items that can be stored in a base, including those not in stores
+  items: InventoryItem[];
   // sprites to draw the base with the graphics of the game (ground,
   // outlines, corridors, interiors, crafts), only if the game files are
   // available
   layers?: BaseSprite[][];
+}
+
+export interface InventoryItem {
+  // index in the inventory of BASE.DAT
+  index: number;
+  name: string;
+  count: number;
 }
 
 export interface BaseSprite {
@@ -143,6 +151,32 @@ export interface TransferSummary {
   hoursLeft: number;
   type: number;
   quantity: number;
+}
+
+export interface ResearchProject {
+  base: number;
+  baseName: string;
+  // index in RESEARCH.DAT
+  topic: number;
+  name: string;
+  // scientist days remaining
+  daysRemaining: number;
+  scientists: number;
+}
+
+export interface ProductionProject {
+  base: number;
+  baseName: string;
+  // index in PRODUCT.DAT
+  product: number;
+  name: string;
+  // engineer hours needed to build one unit
+  hoursPerUnit: number;
+  // engineer hours of work done towards the next unit
+  hoursDone: number;
+  engineers: number;
+  total: number;
+  produced: number;
 }
 
 export interface Financials {

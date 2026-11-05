@@ -2,11 +2,13 @@ package savegame
 
 import (
 	"fmt"
-	"github.com/redtoad/xcom-editor/internal"
-	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"log"
 	"math"
 	"path"
+	"strings"
+
+	"github.com/redtoad/xcom-editor/internal"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 )
 
 type Base struct {
@@ -192,6 +194,46 @@ func (game *Savegame) Bases() []*Base {
 	return bases
 }
 
-func (game *Savegame) SetInventory(baseNr int, item geoscape.Inventory, amount int) {
+// MaxInventory is the maximum quantity of an item in a base (stored as int16).
+const MaxInventory = math.MaxInt16
 
+// InventoryItems returns all items that can be stored in a base in the order
+// of BASE.DAT (unused slots are left out).
+func InventoryItems() []geoscape.Inventory {
+	items := make([]geoscape.Inventory, 0, 96)
+	for i := geoscape.Inventory(0); i < 96; i++ {
+		if validItem(i) {
+			items = append(items, i)
+		}
+	}
+	return items
+}
+
+// validItem returns whether an item is used in the inventory of bases.
+func validItem(item geoscape.Inventory) bool {
+	// unused slots have no name
+	return item >= 0 && item < 96 && !strings.HasPrefix(item.String(), "Inventory(")
+}
+
+// SetInventory sets the quantity of an item in this base. The quantity is
+// limited to 0..MaxInventory. The stores capacity of the base is not checked.
+func (b *Base) SetInventory(item geoscape.Inventory, amount int) error {
+	if !validItem(item) {
+		return fmt.Errorf("invalid item %d", item)
+	}
+	amount = max(0, min(amount, MaxInventory))
+	b.game.BasesData.Bases[b.offset].Inventory[item] = amount
+	return nil
+}
+
+// AdjustInventory changes the quantity of an item in this base by delta and
+// returns the new quantity (see SetInventory).
+func (b *Base) AdjustInventory(item geoscape.Inventory, delta int) (int, error) {
+	if !validItem(item) {
+		return 0, fmt.Errorf("invalid item %d", item)
+	}
+	if err := b.SetInventory(item, b.Inventory()[item]+delta); err != nil {
+		return 0, err
+	}
+	return b.Inventory()[item], nil
 }

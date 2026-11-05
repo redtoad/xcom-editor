@@ -32,3 +32,17 @@ type Product struct {
 	// 17: Unknown, always 0.
 	Unknown2 uint8
 }
+
+// ProductNames holds the English names of all manufacturable items in the
+// order of PRODUCT.DAT.
+var ProductNames = [NumProducts]string{
+	"Fusion Ball Launcher", "Laser Cannon", "Plasma Beam", "Fusion Ball",
+	"Tank/Laser Cannon", "Hovertank/Plasma", "Hovertank/Launcher", "HWP Fusion Bomb",
+	"Laser Pistol", "Laser Rifle", "Heavy Laser", "Motion Scanner",
+	"Medi-Kit", "Psi-Amp", "Heavy Plasma", "Heavy Plasma Clip",
+	"Plasma Rifle", "Plasma Rifle Clip", "Plasma Pistol", "Plasma Pistol Clip",
+	"Blaster Launcher", "Blaster Bomb", "Small Launcher", "Stun Bomb",
+	"Alien Grenade", "Mind Probe", "Personal Armour", "Power Suit",
+	"Flying Suit", "Alien Alloys", "UFO Power Source", "UFO Navigation",
+	"Firestorm", "Lightning", "Avenger",
+}
