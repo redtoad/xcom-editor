@@ -140,11 +140,11 @@ func TestHandleListLocations_Radars(t *testing.T) {
 		radars[loc.Name] = loc.Radars
 	}
 	assert.Equal(t, []radarJS{
-		{Facility: "Large Radar System", Range: 2250, Chance: 20},
-		{Facility: "Small Radar System", Range: 1500, Chance: 10},
+		{Facility: "Large Radar System", Range: 2578, Chance: 20},
+		{Facility: "Small Radar System", Range: 1696, Chance: 10},
 	}, radars["Alpine HQ"])
 	assert.Equal(t, []radarJS{
-		{Facility: "Large Radar System", Range: 2250, Chance: 20},
+		{Facility: "Large Radar System", Range: 2578, Chance: 20},
 	}, radars["Nortern Base"])
 	assert.Nil(t, radars["UFO-0 (supply ship, Alien Supply)"])
 }

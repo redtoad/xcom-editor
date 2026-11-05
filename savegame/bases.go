@@ -5,6 +5,7 @@ import (
 	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"log"
+	"math"
 	"path"
 )
 
@@ -83,12 +84,33 @@ type Radar struct {
 	Chance int
 }
 
+// globeRadius is the radius of the globe in the units GEOSCAPE.EXE uses for
+// distances (the amplitude of SINE.DAT and COS.DAT).
+const globeRadius = 1024
+
+// rangeToNauticalMiles converts a distance as measured by GEOSCAPE.EXE to
+// nautical miles. The game measures the straight distance (chord) between
+// two positions on the globe, a nautical mile is one arc minute.
+func rangeToNauticalMiles(units float64) int {
+	angle := 2 * math.Asin(units/(2*globeRadius)) // radians
+	return int(math.Round(angle * 180 / math.Pi * 60))
+}
+
 // radars holds the detection capabilities of the radar facilities, ordered
 // by range (longest first).
+//
+// The values are taken from the UFO detection routine of GEOSCAPE.EXE: a
+// UFO is detected for sure within 800 units of a base with a hyperwave
+// decoder, otherwise the base's long range chance applies within 750 units
+// and its short range chance within 500 units. The chances are calculated
+// when a construction completes: short range is 10 for small and 20 for
+// large radars, long range is 20 for large radars and hyperwave is 100,
+// facilities of the same type do not add up. (The in-game UFOpaedia states
+// 300 and 450 nautical miles, other sources 1500, 2250 and 2400.)
 var radars = []Radar{
-	{Facility: geoscape.HyperwaveDecoder, Range: 2400, Chance: 100},
-	{Facility: geoscape.LargeRadarSystem, Range: 2250, Chance: 20},
-	{Facility: geoscape.SmallRadarSystem, Range: 1500, Chance: 10},
+	{Facility: geoscape.HyperwaveDecoder, Range: rangeToNauticalMiles(800), Chance: 100},
+	{Facility: geoscape.LargeRadarSystem, Range: rangeToNauticalMiles(750), Chance: 20},
+	{Facility: geoscape.SmallRadarSystem, Range: rangeToNauticalMiles(500), Chance: 10},
 }
 
 // Radars returns the detection capabilities of all completed radar

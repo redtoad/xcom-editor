@@ -338,11 +338,11 @@ func TestBase_Radars(t *testing.T) {
 	bases := sg.Bases()
 	require.Len(t, bases, 2)
 	assert.Equal(t, []savegame.Radar{
-		{Facility: geoscape.LargeRadarSystem, Range: 2250, Chance: 20},
-		{Facility: geoscape.SmallRadarSystem, Range: 1500, Chance: 10},
+		{Facility: geoscape.LargeRadarSystem, Range: 2578, Chance: 20},
+		{Facility: geoscape.SmallRadarSystem, Range: 1696, Chance: 10},
 	}, bases[0].Radars())
 	assert.Equal(t, []savegame.Radar{
-		{Facility: geoscape.LargeRadarSystem, Range: 2250, Chance: 20},
+		{Facility: geoscape.LargeRadarSystem, Range: 2578, Chance: 20},
 	}, bases[1].Radars())
 }
 
@@ -364,6 +364,6 @@ func TestBase_RadarsIgnoresUnfinishedFacilities(t *testing.T) {
 	}
 	require.True(t, built, "no empty tile for the hyperwave decoder")
 	assert.Equal(t, []savegame.Radar{
-		{Facility: geoscape.HyperwaveDecoder, Range: 2400, Chance: 100},
+		{Facility: geoscape.HyperwaveDecoder, Range: 2759, Chance: 100},
 	}, sg.Bases()[1].Radars())
 }
