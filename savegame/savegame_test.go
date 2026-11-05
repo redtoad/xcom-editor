@@ -282,3 +282,50 @@ func TestSavegame_LeftOverBattleFiles(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, before, after)
 }
+
+func TestCraft_Base(t *testing.T) {
+	// the base reference of a craft is an index into LOC.DAT, not BASE.DAT
+	sg, err := savegame.Load(copySavegame(t, "GAME_2"))
+	require.NoError(t, err)
+
+	crafts := sg.Crafts()
+	require.Equal(t, "INTERCEPTOR-1", crafts[1].Name())
+	require.Equal(t, 0, crafts[1].Base().Index())
+
+	// station the interceptor at "Nortern Base" (LOC.DAT entry 5, BASE.DAT entry 1)
+	sg.CraftsFile().Crafts[1].BaseReference = 5
+	require.NotNil(t, crafts[1].Base())
+	assert.Equal(t, "Nortern Base", crafts[1].Base().Name())
+
+	// LOC.DAT entries which are no X-COM base or out of range
+	sg.CraftsFile().Crafts[1].BaseReference = 1 // SKYRANGER-2
+	assert.Nil(t, crafts[1].Base())
+	sg.CraftsFile().Crafts[1].BaseReference = 8 // beyond the last base, see GAME_6
+	assert.Nil(t, crafts[1].Base())
+	sg.CraftsFile().Crafts[1].BaseReference = 1000
+	assert.Nil(t, crafts[1].Base())
+}
+
+func TestCraft_BaseNotInBaseFile(t *testing.T) {
+	// the interceptors of GAME_1 are stationed at bases in LOC.DAT whose
+	// entries in BASE.DAT are empty
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_1"))
+	require.NoError(t, err)
+
+	bases := map[string]string{}
+	for _, c := range sg.Crafts() {
+		if b := c.Base(); b != nil {
+			bases[c.Name()] = b.Name()
+		}
+	}
+	assert.Equal(t, map[string]string{
+		"SKYRANGER-1": "Alpine HQ", "FIRESTORM-1": "Alpine HQ", "AVENGER-2": "Alpine HQ",
+	}, bases)
+}
+
+func TestSavegame_BaseOutOfRange(t *testing.T) {
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_1"))
+	require.NoError(t, err)
+	assert.Nil(t, sg.Base(-1))
+	assert.Nil(t, sg.Base(len(sg.BasesData.Bases)))
+}

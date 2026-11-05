@@ -105,10 +105,18 @@ func (c *Craft) Fuel() int {
 	return c.game.craftsFile.Crafts[c.offset].FuelAmountRemaining
 }
 
-// Base returns the base this craft is stationed at.
+// Base returns the base this craft is stationed at, or nil if unknown.
 func (c *Craft) Base() *Base {
-	baseRef := int(c.game.craftsFile.Crafts[c.offset].BaseReference)
-	return c.game.Base(baseRef)
+	// the base reference is an index into LOC.DAT
+	idx := int(c.game.craftsFile.Crafts[c.offset].BaseReference)
+	if idx < 0 || idx >= len(c.game.locationFile.Objects) {
+		return nil
+	}
+	loc := c.game.locationFile.Objects[idx]
+	if loc.Type != geoscape.XCOMBase {
+		return nil
+	}
+	return c.game.Base(int(loc.TableReference))
 }
 
 // Speed returns the craft's current speed.

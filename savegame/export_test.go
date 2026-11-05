@@ -1,5 +1,7 @@
 package savegame
 
+import "github.com/redtoad/xcom-editor/internal/geoscape"
+
 // HandledFiles returns the names of all data files that are loaded as part of
 // the savegame.
 func HandledFiles(game *Savegame) []string {
@@ -14,4 +16,9 @@ func HandledFiles(game *Savegame) []string {
 		names = append(names, name)
 	}
 	return names
+}
+
+// CraftsFile gives tests access to the raw data of CRAFT.DAT.
+func (game *Savegame) CraftsFile() *geoscape.CraftFile {
+	return &game.craftsFile
 }
