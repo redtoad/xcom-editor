@@ -119,7 +119,9 @@ bases to rearm them once more), on *Research* and *Manufacture* (which list
 the ongoing research and production of all bases) a "Speed Up" button for
 each project and "Speed Up All Research"/"Speed Up All Production" (research
 is completed on the next day, the next unit of an item within the next hour;
-the remaining units are built at the normal pace), on *Transfers* "Speed Up
+the remaining units are built at the normal pace; projects that are finished
+by then anyway are shown as "Ready", and projects without scientists or
+engineers, which do not progress, are marked red), on *Transfers* "Speed Up
 Deliveries", and on *Financials* a
 "Max" button sets the current balance to its maximum ($2,147,483,647). Dead
 soldiers come back with the rank they had before. The game does not keep it,

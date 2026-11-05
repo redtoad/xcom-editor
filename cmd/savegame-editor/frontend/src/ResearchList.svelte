@@ -7,6 +7,9 @@
 
   const SPEEDUP_HINT = 'Reduce the remaining time to one scientist day, ' +
     'so the research is completed on the next day.';
+  const READY_HINT = 'The research is completed on the next day, nothing to speed up.';
+  const IDLE_HINT = 'No scientists assigned: the research does not progress. ' +
+    'Assign scientists in the game.';
 
   let projects: ResearchProject[] = [];
   let error = '';
@@ -53,12 +56,16 @@
     <tbody>
       {#each projects as p (`${p.base}/${p.topic}`)}
         <tr>
-          <td>{p.name}</td>
+          <td class="name">{p.name}</td>
           <td>{p.baseName}</td>
-          <td class="num">{p.scientists}</td>
+          <td class="num" class:idle={p.scientists === 0} title={p.scientists === 0 ? IDLE_HINT : undefined}>{p.scientists}</td>
           <td class="num">{p.daysRemaining}</td>
           <td class="actions">
-            <button on:click={() => speedup(p)} disabled={p.daysRemaining <= 1} title={SPEEDUP_HINT}>Speed Up</button>
+            {#if p.daysRemaining <= 1}
+              <span class="ready" title={READY_HINT}>Ready</span>
+            {:else}
+              <button on:click={() => speedup(p)} title={SPEEDUP_HINT}>Speed Up</button>
+            {/if}
           </td>
         </tr>
       {/each}
@@ -69,6 +76,18 @@
 
 <style>
   .actions { text-align: right; }
+  /* long names may wrap, so the table fits next to the sidebar */
+  td.name { white-space: normal; }
+  .ready {
+    color: var(--ok);
+    text-transform: uppercase;
+    cursor: help;
+  }
+  /* nothing assigned, the project does not progress */
+  td.num.idle {
+    color: var(--danger);
+    cursor: help;
+  }
   .hint { color: var(--muted); }
   .empty {
     color: var(--muted);
