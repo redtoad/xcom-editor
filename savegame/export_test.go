@@ -22,3 +22,8 @@ func HandledFiles(game *Savegame) []string {
 func (game *Savegame) CraftsFile() *geoscape.CraftFile {
 	return &game.craftsFile
 }
+
+// LocationFile gives tests access to the raw data of LOC.DAT.
+func (game *Savegame) LocationFile() *geoscape.LocFile {
+	return &game.locationFile
+}
