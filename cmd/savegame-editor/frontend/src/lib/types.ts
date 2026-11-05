@@ -105,11 +105,19 @@ export interface BaseDetail {
   scientists: number;
   coord: string;
   tiles: TileInfo[];
-  inventory: Record<string, number>;
+  // all items that can be stored in a base, including those not in stores
+  items: InventoryItem[];
   // sprites to draw the base with the graphics of the game (ground,
   // outlines, corridors, interiors, crafts), only if the game files are
   // available
   layers?: BaseSprite[][];
+}
+
+export interface InventoryItem {
+  // index in the inventory of BASE.DAT
+  index: number;
+  name: string;
+  count: number;
 }
 
 export interface BaseSprite {

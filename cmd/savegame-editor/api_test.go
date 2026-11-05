@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -384,4 +385,40 @@ func TestHandleSpeedupProduction(t *testing.T) {
 	rec := postRaw(t, "/api/games/GAME_1/actions/speedup-production", handleSpeedupProduction, "/api/games/{slot}/actions/speedup-production")
 	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
 	assert.Equal(t, 419, games["GAME_1"].sg.ProductionProjects()[0].HoursDone())
+}
+
+func TestHandleAdjustInventory(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+	sg := games["GAME_1"].sg
+	before := sg.Base(0).Inventory()[geoscape.InventoryMediKit]
+
+	adjust := func(path, body string) *httptest.ResponseRecorder {
+		r := mux.NewRouter()
+		r.HandleFunc("/api/games/{slot}/bases/{idx}/inventory/{item}", handleAdjustInventory)
+		rec := httptest.NewRecorder()
+		r.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, path, strings.NewReader(body)))
+		return rec
+	}
+
+	rec := adjust("/api/games/GAME_1/bases/0/inventory/39", `{"delta": 2}`)
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var result struct {
+		Count int `json:"count"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &result))
+	assert.Equal(t, before+2, result.Count)
+	assert.Equal(t, before+2, sg.Base(0).Inventory()[geoscape.InventoryMediKit])
+
+	// the base lists all items, including those not in stores
+	var base struct {
+		Items []inventoryItemJS `json:"items"`
+	}
+	getJSON(t, "/api/games/GAME_1/bases/0", handleGetBase, "/api/games/{slot}/bases/{idx}", &base)
+	assert.Len(t, base.Items, 90)
+	assert.Contains(t, base.Items, inventoryItemJS{Index: 39, Name: "MediKit", Count: before + 2})
+
+	assert.Equal(t, http.StatusBadRequest, adjust("/api/games/GAME_1/bases/0/inventory/43", `{"delta": 1}`).Code)
+	assert.Equal(t, http.StatusBadRequest, adjust("/api/games/GAME_1/bases/0/inventory/x", `{"delta": 1}`).Code)
+	assert.Equal(t, http.StatusBadRequest, adjust("/api/games/GAME_1/bases/0/inventory/39", `nope`).Code)
+	assert.Equal(t, http.StatusNotFound, adjust("/api/games/GAME_1/bases/7/inventory/39", `{"delta": 1}`).Code)
 }

@@ -418,11 +418,9 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 	}
 
 	inventory := b.Inventory()
-	inventoryMap := make(map[string]int)
-	for i := 0; i < 96; i++ {
-		if inventory[i] > 0 {
-			inventoryMap[geoscape.Inventory(i).String()] = inventory[i]
-		}
+	items := make([]inventoryItemJS, 0)
+	for _, item := range savegame.InventoryItems() {
+		items = append(items, inventoryItemJS{Index: int(item), Name: item.String(), Count: inventory[item]})
 	}
 
 	result := map[string]interface{}{
@@ -433,7 +431,7 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 		"scientists": b.Scientists(),
 		"coord":      b.Coord().String(),
 		"tiles":      tiles,
-		"inventory":  inventoryMap,
+		"items":      items,
 	}
 	// sprites to draw the base with the graphics of the game
 	if baseBits != nil {
@@ -446,6 +444,58 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 		result["layers"] = baseLayers(b.Tiles(), crafts)
 	}
 	writeJSON(w, result)
+}
+
+// inventoryItemJS is the quantity of an item in a base.
+type inventoryItemJS struct {
+	// Index is the index in the inventory of BASE.DAT.
+	Index int    `json:"index"`
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+
+type inventoryAdjustRequest struct {
+	Delta int `json:"delta"`
+}
+
+// POST /api/games/{slot}/bases/{idx}/inventory/{item}
+//
+// Changes the quantity of an item in a base by delta and returns the new
+// quantity.
+func handleAdjustInventory(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	idx, err := strconv.Atoi(mux.Vars(r)["idx"])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid base index")
+		return
+	}
+	item, err := strconv.Atoi(mux.Vars(r)["item"])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid item index")
+		return
+	}
+	var req inventoryAdjustRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+
+	if idx < 0 || idx >= len(entry.sg.BasesData.Bases) || entry.sg.Base(idx) == nil {
+		writeError(w, http.StatusNotFound, "base not found")
+		return
+	}
+	count, err := entry.sg.Base(idx).AdjustInventory(geoscape.Inventory(item), req.Delta)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	writeJSON(w, map[string]int{"count": count})
 }
 
 type baseUpdateRequest struct {

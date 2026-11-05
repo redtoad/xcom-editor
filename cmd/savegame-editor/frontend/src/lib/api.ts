@@ -62,6 +62,17 @@ export async function updateBase(slot: string, idx: number, updates: Record<stri
   });
 }
 
+// adjustInventory changes the quantity of an item in a base by delta and
+// returns the new quantity.
+export async function adjustInventory(slot: string, base: number, item: number, delta: number): Promise<number> {
+  const res = await fetchJSON<{ count: number }>(`/api/games/${slot}/bases/${base}/inventory/${item}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ delta }),
+  });
+  return res.count;
+}
+
 export async function listCraft(slot: string): Promise<CraftSummary[]> {
   return fetchJSON(`/api/games/${slot}/craft`);
 }

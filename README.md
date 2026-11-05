@@ -110,7 +110,10 @@ Each tab offers quick actions: on *Soldiers* "Heal All" and "All With Personal
 Armour" (equips every living soldier without armour), a "Heal" button for
 each wounded soldier and a "Resurrect" button for each dead soldier, on
 *Bases* "Complete
-Constructions", on *Craft* "Repair & Refuel All" (repairs, refuels and rearms all
+Constructions" and "-"/"+" buttons to change the quantity of each item in
+the stores of a base (by ten with the shift key; "Show all items" lists items
+not in stores, so they can be added; the stores capacity is not checked), on
+*Craft* "Repair & Refuel All" (repairs, refuels and rearms all
 X-COM craft immediately and puts enough ammunition into the stores of their
 bases to rearm them once more), on *Research* and *Manufacture* (which list
 the ongoing research and production of all bases) a "Speed Up" button for
