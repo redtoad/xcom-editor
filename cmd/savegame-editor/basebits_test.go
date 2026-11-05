@@ -173,3 +173,23 @@ func TestBaseLayers_EmptyLayersAreNotNull(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotContains(t, string(buf), "null")
 }
+
+func TestMiniFacilities(t *testing.T) {
+	assert.Empty(t, miniFacilities(emptyBase()))
+	assert.NotNil(t, miniFacilities(emptyBase()), "encoded as [] in JSON")
+
+	tiles := emptyBase()
+	tiles[0].Type = geoscape.AccessLift
+	tiles[7].Type = geoscape.Laboratory
+	tiles[7].DaysToCompletion = 5
+	tiles[2].Type = geoscape.HangarTopLeft
+	tiles[3].Type = geoscape.HangarTopRight
+	tiles[8].Type = geoscape.HangarBottomLeft
+	tiles[9].Type = geoscape.HangarBottomRight
+
+	assert.Equal(t, []miniFacility{
+		{X: 0, Y: 0, Size: 1, Built: true},  // access lift
+		{X: 2, Y: 0, Size: 2, Built: true},  // hangar (one block)
+		{X: 1, Y: 1, Size: 1, Built: false}, // laboratory under construction
+	}, miniFacilities(tiles))
+}

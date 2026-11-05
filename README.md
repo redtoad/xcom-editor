@@ -103,6 +103,9 @@ and bases are shown like on the base screen of the game, including the crafts
 in their hangars (`BASEBITS.PCK`), and each soldier is shown like on the
 inventory screen, without armour next to the selected armour (`MAN_*.SPK`),
 otherwise a generic world map and a simple facility grid are used.
+Like on the base screen of the game, bases are selected with the miniatures of
+all eight base slots at the top (built facilities in green, facilities under
+construction in red); edits not applied yet are applied when switching bases.
 The editor watches the savegame folder: savegames that are saved in the game
 appear in the sidebar, and if a loaded savegame is overwritten (e.g. saved
 again in the game), it is marked as changed and can be reloaded.

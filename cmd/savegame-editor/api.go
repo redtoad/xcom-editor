@@ -367,6 +367,8 @@ func handleListBases(w http.ResponseWriter, r *http.Request) {
 		Engineers  int    `json:"engineers"`
 		Scientists int    `json:"scientists"`
 		Coord      string `json:"coord"`
+		// facilities to draw the base in the base selector
+		Facilities []miniFacility `json:"facilities"`
 	}
 
 	result := make([]baseSummary, 0)
@@ -378,6 +380,7 @@ func handleListBases(w http.ResponseWriter, r *http.Request) {
 			Engineers:  b.Engineers(),
 			Scientists: b.Scientists(),
 			Coord:      b.Coord().String(),
+			Facilities: miniFacilities(b.Tiles()),
 		})
 	}
 	writeJSON(w, result)

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+  import { onDestroy, createEventDispatcher } from 'svelte';
   import { getBase, updateBase, adjustInventory, baseBitURL } from './lib/api';
   import { registerForm, ChangeTracker } from './lib/pending';
   import type { BaseDetail, InventoryItem } from './lib/types';
@@ -30,8 +30,12 @@
     .sort((a, b) => a.name.localeCompare(b.name));
 
   async function load() {
+    const idx = baseIdx;
     try {
-      base = await getBase(gameSlot, baseIdx);
+      const loaded = await getBase(gameSlot, idx);
+      // another base was selected in the meantime
+      if (idx !== baseIdx) return;
+      base = loaded;
       engineers = base.engineers;
       scientists = base.scientists;
       tracker.reset({ engineers, scientists });
@@ -41,11 +45,14 @@
     }
   }
 
-  onMount(load);
+  // (re)load when another base is selected; the previous base stays visible
+  // until the new one is loaded
+  $: baseIdx, load();
 
   // Tracks which values the server has, so only changes are sent.
   const tracker = new ChangeTracker((v: { engineers: number; scientists: number }) =>
-    updateBase(gameSlot, baseIdx, v));
+    // the base shown, which may still be the previous one while loading
+    updateBase(gameSlot, base!.index, v));
 
   // apply sends the form values to the server if they changed since they
   // were last loaded or applied.
@@ -62,7 +69,7 @@
   async function adjust(item: InventoryItem, sign: number, e: MouseEvent) {
     if (!base) return;
     try {
-      item.count = await adjustInventory(gameSlot, baseIdx, item.index, sign * (e.shiftKey ? 10 : 1));
+      item.count = await adjustInventory(gameSlot, base.index, item.index, sign * (e.shiftKey ? 10 : 1));
       base = base;
       error = '';
     } catch (err: any) {
@@ -141,6 +148,7 @@
 
     <!-- side panel like the base screen of the game -->
     <div class="side">
+      <slot name="selector" />
       <h3>{base.name}</h3>
       <div class="meta">{base.coord}</div>
 
