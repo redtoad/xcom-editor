@@ -299,3 +299,24 @@ func TestHandleHealSoldier(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, post("/api/games/GAME_1/soldiers/999/heal").Code)
 	assert.Equal(t, http.StatusBadRequest, post("/api/games/GAME_1/soldiers/x/heal").Code)
 }
+
+func TestHandleRepairRefuelCrafts(t *testing.T) {
+	loadTestGames(t, "GAME_1")
+	sg := games["GAME_1"].sg
+
+	r := mux.NewRouter()
+	r.HandleFunc("/api/games/{slot}/actions/repair-refuel-crafts", handleRepairRefuelCrafts)
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/api/games/GAME_1/actions/repair-refuel-crafts", nil))
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+
+	for _, c := range sg.Crafts() {
+		if c.MaxFuel() == 0 || c.Damaged() {
+			continue
+		}
+		assert.Equal(t, 0, c.Damage(), "craft %d", c.Index())
+		assert.GreaterOrEqual(t, c.Fuel(), c.MaxFuel(), "craft %d", c.Index())
+		assert.NotContains(t, []geoscape.CraftStatus{geoscape.Repairs, geoscape.Refueling, geoscape.Rearming},
+			c.Status(), "craft %d", c.Index())
+	}
+}
