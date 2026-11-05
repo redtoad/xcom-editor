@@ -152,7 +152,9 @@ cmd/savegame-editor/build-desktop.sh        # -s skips the frontend build, -o se
 ```
 
 The version is taken from `git describe` (override with `VERSION=...`).
-Alternatively, use the Wails v2 CLI (the v3 CLI cannot build the app):
+With the Wails v3 CLI, `wails build` in `cmd/savegame-editor` runs the same
+script (via the `build` task in `Taskfile.yml`; `wails task build:app` skips
+the frontend build). Alternatively, use the Wails v2 CLI:
 
 ```sh
 go install github.com/wailsapp/wails/v2/cmd/wails@latest

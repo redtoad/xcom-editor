@@ -1,0 +1,19 @@
+# Tasks for the desktop application (https://taskfile.dev).
+# `wails build` of the Wails v3 CLI runs the "build" task of this file. The
+# app itself uses Wails v2, so the build is done by build-desktop.sh.
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task: build
+
+  build:
+    desc: Build the frontend and the desktop app into build/bin/
+    cmds:
+      - ./build-desktop.sh
+
+  build:app:
+    desc: Build only the desktop app, reusing frontend/dist
+    cmds:
+      - ./build-desktop.sh -s
