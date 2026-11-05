@@ -14,9 +14,15 @@ type Craft struct {
 }
 
 func (c *Craft) Name() string {
+	// X-COM craft and UFOs are numbered separately; UFOs which have not
+	// been detected yet have no number (0).
+	locType := geoscape.XCOMShip
+	if c.IsUFO() {
+		locType = geoscape.AlienShip
+	}
 	var suffix = 0
 	for _, object := range c.game.locationFile.Objects {
-		if object.Type == geoscape.XCOMShip && int(object.TableReference) == c.offset {
+		if object.Type == locType && int(object.TableReference) == c.offset {
 			suffix = object.CountSuffix
 		}
 	}
@@ -105,8 +111,18 @@ func (c *Craft) Fuel() int {
 	return c.game.craftsFile.Crafts[c.offset].FuelAmountRemaining
 }
 
+// IsUFO returns true if the craft is an alien craft.
+func (c *Craft) IsUFO() bool {
+	return c.Type() >= geoscape.SmallScout
+}
+
 // Base returns the base this craft is stationed at, or nil if unknown.
+// UFOs have no base, their base reference is meaningless (usually 0, which
+// would be the first base in LOC.DAT).
 func (c *Craft) Base() *Base {
+	if c.IsUFO() {
+		return nil
+	}
 	// the base reference is an index into LOC.DAT
 	idx := int(c.game.craftsFile.Crafts[c.offset].BaseReference)
 	if idx < 0 || idx >= len(c.game.locationFile.Objects) {
@@ -188,7 +204,7 @@ var alienRaces = []string{"Sectoid", "Snakeman", "Ethereal", "Muton", "Floater",
 
 // AlienRace returns the alien race on board of a UFO, or "" for X-COM craft.
 func (c *Craft) AlienRace() string {
-	if c.Type() < geoscape.SmallScout {
+	if !c.IsUFO() {
 		return ""
 	}
 	race := c.game.craftsFile.Crafts[c.offset].AlienRace

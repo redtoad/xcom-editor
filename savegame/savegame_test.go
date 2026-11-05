@@ -311,6 +311,30 @@ func TestCraft_Base(t *testing.T) {
 	assert.Nil(t, crafts[1].Base())
 }
 
+func TestCraft_UFO(t *testing.T) {
+	sg, err := savegame.Load(copySavegame(t, "GAME_2"))
+	require.NoError(t, err)
+
+	crafts := sg.Crafts()
+	ufo := crafts[3]
+	require.True(t, ufo.IsUFO())
+	assert.False(t, crafts[1].IsUFO())
+
+	// UFOs have no base, although their base reference (0) points to the
+	// first base in LOC.DAT
+	require.Equal(t, geoscape.XCOMBase, sg.LocationFile().Objects[0].Type)
+	require.Equal(t, 0, int(sg.CraftsFile().Crafts[ufo.Index()].BaseReference))
+	assert.Nil(t, ufo.Base())
+
+	// detected UFOs are numbered by their alien ship entry in LOC.DAT
+	for i, obj := range sg.LocationFile().Objects {
+		if obj.Type == geoscape.AlienShip && int(obj.TableReference) == ufo.Index() {
+			sg.LocationFile().Objects[i].CountSuffix = 7
+		}
+	}
+	assert.Equal(t, "UFO-7", ufo.Name())
+}
+
 func TestCraft_BaseNotInBaseFile(t *testing.T) {
 	// the interceptors of GAME_1 are stationed at bases in LOC.DAT whose
 	// entries in BASE.DAT are empty
