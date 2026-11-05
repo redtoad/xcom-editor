@@ -417,6 +417,18 @@ func TestHandleAdjustInventory(t *testing.T) {
 	assert.Len(t, base.Items, 90)
 	assert.Contains(t, base.Items, inventoryItemJS{Index: 39, Name: "MediKit", Count: before + 2})
 
+	// the items in stores by name are still returned for frontends built
+	// before the items were added (e.g. the frontend/dist checked in)
+	var legacy struct {
+		Inventory map[string]int `json:"inventory"`
+	}
+	getJSON(t, "/api/games/GAME_1/bases/0", handleGetBase, "/api/games/{slot}/bases/{idx}", &legacy)
+	require.NotNil(t, legacy.Inventory)
+	assert.Equal(t, before+2, legacy.Inventory["MediKit"])
+	for name, count := range legacy.Inventory {
+		assert.Positive(t, count, name)
+	}
+
 	assert.Equal(t, http.StatusBadRequest, adjust("/api/games/GAME_1/bases/0/inventory/43", `{"delta": 1}`).Code)
 	assert.Equal(t, http.StatusBadRequest, adjust("/api/games/GAME_1/bases/0/inventory/x", `{"delta": 1}`).Code)
 	assert.Equal(t, http.StatusBadRequest, adjust("/api/games/GAME_1/bases/0/inventory/39", `nope`).Code)

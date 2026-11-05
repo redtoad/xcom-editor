@@ -419,8 +419,14 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 
 	inventory := b.Inventory()
 	items := make([]inventoryItemJS, 0)
+	// items in stores by name, used by frontends built before "items" was
+	// added (e.g. the frontend/dist checked in)
+	inventoryMap := make(map[string]int)
 	for _, item := range savegame.InventoryItems() {
 		items = append(items, inventoryItemJS{Index: int(item), Name: item.String(), Count: inventory[item]})
+		if inventory[item] > 0 {
+			inventoryMap[item.String()] = inventory[item]
+		}
 	}
 
 	result := map[string]interface{}{
@@ -432,6 +438,7 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 		"coord":      b.Coord().String(),
 		"tiles":      tiles,
 		"items":      items,
+		"inventory":  inventoryMap,
 	}
 	// sprites to draw the base with the graphics of the game
 	if baseBits != nil {
