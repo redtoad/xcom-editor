@@ -104,7 +104,12 @@ func (game *Savegame) CompleteConstructions() {
 	}
 }
 
+// Base returns the base at the given index in BASE.DAT, or nil if there is
+// no such base.
 func (game *Savegame) Base(offset int) *Base {
+	if offset < 0 || offset >= len(game.BasesData.Bases) {
+		return nil
+	}
 	base := game.BasesData.Bases[offset]
 	if base.Name.String() != "" {
 		return &Base{
