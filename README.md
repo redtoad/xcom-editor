@@ -143,6 +143,17 @@ API, but shows them in a native window instead of the browser. If no folder
 is given on the command line, it asks for the game folder on startup; another
 folder can be opened via *File → Open Game Folder…*.
 
+The easiest way is the build script, which builds the frontend and the app
+for the current platform (on macOS as `.app` bundle with icon) into
+`cmd/savegame-editor/build/bin/`; it does not need the Wails CLI:
+
+```sh
+cmd/savegame-editor/build-desktop.sh        # -s skips the frontend build, -o sets the output folder
+```
+
+The version is taken from `git describe` (override with `VERSION=...`).
+Alternatively, use the Wails v2 CLI (the v3 CLI cannot build the app):
+
 ```sh
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
 cd cmd/savegame-editor
