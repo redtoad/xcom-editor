@@ -64,6 +64,34 @@ func TestUnitSprites(t *testing.T) {
 			{Sheet: "CYBER", Frame: 28, DY: 16},
 		}, unitSprites(u))
 	})
+	t.Run("tank", func(t *testing.T) {
+		loadTestGames(t, "GAME_6")
+		u := games["GAME_6"].sg.Battle.MapUnits()[0] // Tank/Cannon, facing 1
+		require.NotZero(t, u.Unit.Tank)
+		assert.Equal(t, []unitSpriteJS{
+			{Sheet: "TANKS", Frame: 1},
+			{Sheet: "TANKS", Frame: 9, DX: 16, DY: 8},
+			{Sheet: "TANKS", Frame: 17, DX: -16, DY: 8},
+			{Sheet: "TANKS", Frame: 25, DY: 16},
+			{Sheet: "TANKS", Frame: spriteTurrets + 1, DY: 16 + turretOffsetY}, // cannon turret
+		}, unitSprites(u))
+	})
+	t.Run("hovertank", func(t *testing.T) {
+		loadTestGames(t, "GAME_6")
+		u := games["GAME_6"].sg.Battle.MapUnits()[0]
+		u.Unit.MovementType = 2 // fly
+		u.Unit.TurretImage = 3  // plasma
+		assert.Equal(t, []unitSpriteJS{
+			{Sheet: "TANKS", Frame: spriteHovertank + 1},
+			{Sheet: "TANKS", Frame: spritePropulsion, DX: 16, DY: 8},
+			{Sheet: "TANKS", Frame: spriteHovertank + 9, DX: 16, DY: 8},
+			{Sheet: "TANKS", Frame: spritePropulsion + 8, DX: -16, DY: 8},
+			{Sheet: "TANKS", Frame: spriteHovertank + 17, DX: -16, DY: 8},
+			{Sheet: "TANKS", Frame: spritePropulsion + 16, DY: 16},
+			{Sheet: "TANKS", Frame: spriteHovertank + 25, DY: 16},
+			{Sheet: "TANKS", Frame: spriteTurrets + 3*8 + 1, DX: -7, DY: 16 + turretOffsetY - 3},
+		}, unitSprites(u))
+	})
 	t.Run("alien", func(t *testing.T) {
 		u := mapUnit(t, 32) // Sectoid, facing 6
 		assert.Contains(t, unitSprites(u), unitSpriteJS{Sheet: "SECTOID", Frame: 32 + 6})
