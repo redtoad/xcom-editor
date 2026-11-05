@@ -95,6 +95,18 @@ export interface BaseSummary {
   engineers: number;
   scientists: number;
   coord: string;
+  // facilities to draw the base in the base selector (mini base view)
+  facilities: MiniFacility[];
+}
+
+export interface MiniFacility {
+  // position in grid cells
+  x: number;
+  y: number;
+  // 2 for hangars, 1 for all other facilities
+  size: number;
+  // false while under construction
+  built: boolean;
 }
 
 export interface BaseDetail {
