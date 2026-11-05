@@ -65,7 +65,7 @@ func TestHandleListGames_Mission(t *testing.T) {
 	require.NotNil(t, result[1].Mission)
 	assert.Equal(t, missionJS{
 		Turn: 2, CraftName: "SKYRANGER-2",
-		XcomAlive: 13, XcomTotal: 14, AliensAlive: 7, AliensTotal: 7, Score: -27,
+		XcomAlive: 13, XcomTotal: 14, AliensAlive: 13, AliensTotal: 13, Score: -27,
 	}, *result[1].Mission)
 }
 
@@ -238,14 +238,14 @@ func TestHandleGetBattleMap(t *testing.T) {
 	assert.Equal(t, [3]int{50, 50, 2}, [3]int{m.SizeX, m.SizeY, m.SizeZ})
 	assert.Len(t, m.Tiles, 50*50*2)
 	assert.Empty(t, m.Crafts)
-	require.Len(t, m.Units, 21)
+	require.Len(t, m.Units, 27)
 	assert.Equal(t, battleUnitJS{
 		Index: 0, Name: "Rudi Richter", Owner: "xcom", X: 41, Y: 21, Z: 0,
 		Alive: true, Visible: true, Health: 40, MaxHealth: m.Units[0].MaxHealth,
 		TimeUnits: m.Units[0].TimeUnits, MaxTU: m.Units[0].MaxTU, Morale: m.Units[0].Morale,
 	}, m.Units[0])
-	assert.Equal(t, "Sectoid Commander", m.Units[20].Name, "duplicate spaces are removed")
-	assert.Equal(t, "alien", m.Units[20].Owner)
+	assert.Equal(t, "Sectoid Commander", m.Units[26].Name, "duplicate spaces are removed")
+	assert.Equal(t, "alien", m.Units[26].Owner)
 	// the tile of the first soldier has a floor and was seen by X-COM
 	tile := m.Tiles[21*50+41]
 	assert.NotZero(t, tile&tileGround)

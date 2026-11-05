@@ -77,8 +77,9 @@ Battlescape, either top-down level by level or isometric like in the game
 the isometric map is drawn with the terrain graphics of the game
 (`TERRAIN/*.MCD`, `*.PCK`); as the savegame does not name the terrain files of
 the map, they are determined by matching the tile types of the MCD records
-against the map (see `savegame.Battle.MatchTerrainSets`). Soldiers, Sectoids,
-Snakemen, Mutons, Chryssalids, Cyberdiscs and civilians are drawn with their
+against the map (see `savegame.Battle.MatchTerrainSets`). Soldiers, tanks
+(with their turret), Sectoids, Snakemen, Mutons, Chryssalids, Cyberdiscs and
+civilians are drawn with their
 sprites (`UNITS/*.PCK`), other units as markers. The sprites use the
 Battlescape palette of `PALETTES.DAT` with the last 16 colors replaced by the
 grey gradient the game sets at runtime (see `resources.BattlescapePalette`). Otherwise the map is drawn

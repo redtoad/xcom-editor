@@ -15,7 +15,7 @@ import (
 
 // battleSavegames are real savegames in testdata/ (at the repository root)
 // that were saved during the same mission (in turn 2 and 3).
-var battleSavegames = []string{"GAME_4", "GAME_5"}
+var battleSavegames = []string{"GAME_4", "GAME_5", "GAME_6"}
 
 // MustLoadTestFile loads a DAT file from a savegame in testdata/.
 func MustLoadTestFile(t *testing.T, game, name string) []byte {

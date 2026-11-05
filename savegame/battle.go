@@ -153,8 +153,12 @@ func (game *Savegame) MissionStatus() *MissionStatus {
 
 // MapUnit is a unit on the Battlescape map.
 type MapUnit struct {
-	// Index is the slot in UNITPOS.DAT and UNITREF.DAT.
+	// Index is the slot in UNITPOS.DAT (also used by OBPOS.DAT).
 	Index int
+	// Ref is the entry in UNITREF.DAT. It differs from Index after large
+	// units, which occupy 4 slots in UNITPOS.DAT but only one entry in
+	// UNITREF.DAT.
+	Ref int
 	// X, Y and Z is the position of the unit. Z is the map level in the
 	// order of MAP.DAT, i.e. 0 is the top level and SizeZ-1 the ground level.
 	// Large units are placed at their upper left tile.
@@ -184,20 +188,31 @@ func (u MapUnit) Unconscious() bool {
 
 // MapUnits returns all units on the map. Unused slots and the additional
 // slots of large units (which occupy 4 slots) are skipped.
+//
+// Large units occupy 4 slots in UNITPOS.DAT, but only one entry in
+// UNITREF.DAT, so the entries of both files are matched by counting the
+// slots without the additional slots of large units. This is the same as
+// UNITREF.DAT entry the memory address in UnitPosition.UnitRef points to.
 func (b *Battle) MapUnits() []MapUnit {
 	var units []MapUnit
+	ref := -1
 	for i, pos := range b.UnitPositions.Units {
-		unit := &b.Units.Units[i]
-		if pos.Y == 0xFF || unit.Type == 0xFF {
-			continue // unused slot
-		}
 		large := pos.Flags&battlescape.UnitLarge != 0
 		// large units occupy 4 slots, only use the upper left one
 		if large && pos.Flags&(battlescape.UnitRightSection|battlescape.UnitLowerSection) != 0 {
 			continue
 		}
+		ref++
+		if ref >= len(b.Units.Units) {
+			break
+		}
+		unit := &b.Units.Units[ref]
+		if pos.Y == 0xFF || unit.Type == 0xFF {
+			continue // unused slot
+		}
 		units = append(units, MapUnit{
 			Index:   i,
+			Ref:     ref,
 			X:       int(pos.X),
 			Y:       int(pos.Y),
 			Z:       int(pos.Z),
