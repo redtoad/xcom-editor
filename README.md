@@ -145,20 +145,22 @@ folder can be opened via *File → Open Game Folder…*.
 
 It uses [Wails v3](https://v3.wails.io). The build is done by the tasks in
 `cmd/savegame-editor/Taskfile.yml` and `cmd/savegame-editor/build/` (generated
-with `wails3 generate build-assets`), which call the CLI as `wails3`:
+with `wails generate build-assets`), which call the CLI as `wails`, as
+installed by Homebrew (`go install github.com/wailsapp/wails/v3/cmd/wails3@latest`
+installs it as `wails3`, which then has to be linked as `wails`):
 
 ```sh
-go install github.com/wailsapp/wails/v3/cmd/wails3@latest
+brew install wails
 cd cmd/savegame-editor
-wails3 build                  # builds frontend and app into bin/
-wails3 package                # additionally creates bin/savegame-editor.app on macOS
-wails3 dev                    # live reload of the frontend and the Go code
+wails build                   # builds frontend and app into bin/
+wails package                 # additionally creates bin/savegame-editor.app on macOS
+wails dev                     # live reload of the frontend and the Go code
 ```
 
 The tasks add the build tag `desktop` (`EXTRA_TAGS` in `Taskfile.yml`).
 Platform settings such as the bundle identifier, version and minimum macOS
 version are in `build/config.yml` and `build/darwin/Info.plist` (and the
-other platform folders). `wails3 dev` builds the frontend unminified into
+other platform folders). `wails dev` builds the frontend unminified into
 `frontend/dist`, which is checked in, so restore it afterwards
 (`git checkout frontend/dist`).
 

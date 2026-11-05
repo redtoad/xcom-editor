@@ -1,8 +1,8 @@
 version: '3'
 
-# Tasks of the desktop application, run by the Wails v3 CLI (`wails3 build`,
-# `wails3 package`, `wails3 dev`). The platform tasks in build/ were generated
-# with `wails3 generate build-assets`.
+# Tasks of the desktop application, run by the Wails v3 CLI (`wails build`,
+# `wails package`, `wails dev`). The platform tasks in build/ were generated
+# with `wails generate build-assets`.
 
 vars:
   APP_NAME: "savegame-editor"
@@ -13,7 +13,7 @@ vars:
   # server which opens the browser (see main.go).
   EXTRA_TAGS: '{{if .EXTRA_TAGS}}desktop,{{.EXTRA_TAGS}}{{else}}desktop{{end}}'
   # Target OS for build/package/run. Defaults to the host OS, and is overridden
-  # by `wails3 build GOOS=...` (or the GOOS env var) for cross-compilation.
+  # by `wails build GOOS=...` (or the GOOS env var) for cross-compilation.
   GOOS: '{{.GOOS | default OS}}'
 
 includes:
@@ -41,4 +41,4 @@ tasks:
   dev:
     summary: Runs the application in development mode
     cmds:
-      - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}
+      - wails dev -config ./build/config.yml -port {{.VITE_PORT}}
