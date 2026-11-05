@@ -165,7 +165,7 @@
     <h4>Inventory</h4>
     <label class="show-all">
       <input type="checkbox" bind:checked={showAllItems} />
-      <span>Show all items</span>
+      Show all items
     </label>
   </div>
   {#if items.length === 0}
@@ -213,21 +213,21 @@
     flex-direction: column;
     gap: 2px;
   }
-  label {
+  .fields label {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: var(--row-2);
     padding: 1px 2px 1px 8px;
   }
-  label:nth-child(2) {
+  .fields label:nth-child(2) {
     background: var(--row-3);
   }
-  label span {
+  .fields label span {
     color: var(--text);
     text-transform: uppercase;
   }
-  input {
+  .fields input {
     width: 80px;
     text-align: right;
   }
@@ -331,12 +331,11 @@
     align-items: center;
     gap: 16px;
   }
+  /* like the controls of the map */
   .show-all {
-    background: none;
-    padding: 0;
+    display: flex;
+    align-items: center;
     gap: 6px;
-  }
-  .show-all input {
-    width: auto;
+    color: var(--muted);
   }
 </style>
