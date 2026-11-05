@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import { getGame, saveGame, reloadGame, healAll, equipPersonalArmour, completeConstructions, speedupDeliveries } from './lib/api';
+  import { getGame, saveGame, reloadGame, healAll, equipPersonalArmour, repairRefuelCrafts, completeConstructions, speedupDeliveries } from './lib/api';
   import { applyPendingChanges, refreshForms } from './lib/pending';
   import type { GameDetail } from './lib/types';
   import SoldierList from './SoldierList.svelte';
@@ -177,6 +177,8 @@
       <button class="action" on:click={() => doAction('Equipping', withPendingChanges(equipPersonalArmour))}>All With Personal Armour</button>
     {:else if activeTab === 'bases'}
       <button class="action" on:click={() => doAction('Completing', withPendingChanges(completeConstructions))}>Complete Constructions</button>
+    {:else if activeTab === 'craft'}
+      <button class="action" on:click={() => doAction('Repairing', withPendingChanges(repairRefuelCrafts))}>Repair &amp; Refuel All</button>
     {:else if activeTab === 'transfers'}
       <button class="action" on:click={() => doAction('Speeding up', withPendingChanges(speedupDeliveries))}>Speed Up Deliveries</button>
     {/if}

@@ -686,6 +686,18 @@ func handlePersonalArmour(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]interface{}{"status": "ok", "equipped": n})
 }
 
+// POST /api/games/{slot}/actions/repair-refuel-crafts
+func handleRepairRefuelCrafts(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	n := entry.sg.RepairAndRefuelAllCrafts()
+	writeJSON(w, map[string]interface{}{"status": "ok", "crafts": n})
+}
+
 // POST /api/games/{slot}/actions/complete-constructions
 func handleCompleteConstructions(w http.ResponseWriter, r *http.Request) {
 	entry := getGameEntry(w, r)

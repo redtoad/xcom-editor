@@ -110,7 +110,9 @@ Each tab offers quick actions: on *Soldiers* "Heal All" and "All With Personal
 Armour" (equips every living soldier without armour), a "Heal" button for
 each wounded soldier and a "Resurrect" button for each dead soldier, on
 *Bases* "Complete
-Constructions", on *Transfers* "Speed Up Deliveries", and on *Financials* a
+Constructions", on *Craft* "Repair & Refuel All" (repairs, refuels and rearms all
+X-COM craft immediately and puts enough ammunition into the stores of their
+bases to rearm them once more), on *Transfers* "Speed Up Deliveries", and on *Financials* a
 "Max" button sets the current balance to its maximum ($2,147,483,647). Dead
 soldiers come back with the rank they had before. The game does not keep it,
 so it is estimated from the soldier value (see `savegame.Soldier.LastRank`;
