@@ -73,6 +73,46 @@ func (b *Base) TileAt(x, y int) BaseTile {
 	}
 }
 
+// Radar describes the detection capability of a radar facility.
+type Radar struct {
+	Facility geoscape.Facility
+	// Range is the detection range in nautical miles.
+	Range int
+	// Chance is the chance (in percent) to detect a UFO within range at
+	// each detection check.
+	Chance int
+}
+
+// radars holds the detection capabilities of the radar facilities, ordered
+// by range (longest first).
+var radars = []Radar{
+	{Facility: geoscape.HyperwaveDecoder, Range: 2400, Chance: 100},
+	{Facility: geoscape.LargeRadarSystem, Range: 2250, Chance: 20},
+	{Facility: geoscape.SmallRadarSystem, Range: 1500, Chance: 10},
+}
+
+// Radars returns the detection capabilities of all completed radar
+// facilities of this base, ordered by range (longest first). Multiple
+// facilities of the same type are listed only once.
+//
+// The capabilities are derived from the facilities, since the detection
+// values stored in BASE.DAT are only updated when a construction completes.
+func (b *Base) Radars() []Radar {
+	built := map[geoscape.Facility]bool{}
+	for _, tile := range b.Tiles() {
+		if tile.DaysToCompletion == 0 {
+			built[tile.Type] = true
+		}
+	}
+	result := make([]Radar, 0)
+	for _, r := range radars {
+		if built[r.Facility] {
+			result = append(result, r)
+		}
+	}
+	return result
+}
+
 type BaseTile struct {
 	Type             geoscape.Facility
 	DaysToCompletion int

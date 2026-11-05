@@ -159,6 +159,14 @@ export interface GlobeLocation {
   coord: { lat: number; lon: number };
   destCoord?: { lat: number; lon: number };
   craft?: CraftDetails;
+  // detection capabilities of an X-COM base
+  radars?: Radar[];
+}
+
+export interface Radar {
+  facility: string;
+  range: number; // nautical miles
+  chance: number; // percent
 }
 
 export interface CraftDetails {

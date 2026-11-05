@@ -8,6 +8,7 @@
   import { listLocations, getWorld, textureURL } from './lib/api';
   import type { GlobeLocation, WorldData } from './lib/types';
   import { loadImages, buildTerrainMap, renderGlobe } from './lib/terrainMap';
+  import { radarCoverage, radarColor, radarColors } from './lib/radar';
 
   export let gameSlot: string;
 
@@ -56,6 +57,7 @@
   let error = '';
   let centerLon = 0;
   let showSites = true;
+  let showRadar = true;
   let hovered: GlobeLocation[] | null = null;
   let tooltipX = 0;
   let tooltipY = 0;
@@ -132,6 +134,7 @@
   $: sites = locations.filter(l => l.typeCode !== XCOM_SHIP && l.typeCode !== ALIEN_SHIP);
   $: markers = showSites ? [...sites, ...ships] : ships;
   $: groups = groupByPosition(markers);
+  $: coverage = showRadar ? radarCoverage(locations) : [];
   $: flights = ships
     .filter(s => s.destCoord)
     .map(s => ({ ship: s, dest: s.destCoord! }));
@@ -226,6 +229,10 @@
     <input type="checkbox" bind:checked={showSites} />
     Show bases and sites
   </label>
+  <label>
+    <input type="checkbox" bind:checked={showRadar} />
+    Show radar range
+  </label>
   {#if world && textureSets > 1}
     <label>
       Textures
@@ -260,6 +267,13 @@
           <path class="graticule" d={h.path(graticule)} />
           <path class="land" d={h.path(land)} />
         {/if}
+
+        {#each coverage as c}
+          {@const d = h.path(c.area)}
+          {#if d}
+            <path class="radar" {d} stroke={radarColor(c.radar)} fill={radarColor(c.radar)} />
+          {/if}
+        {/each}
 
         {#each flights as { ship, dest }}
           {@const d = h.path(flightPath(ship, dest))}
@@ -313,6 +327,13 @@
         <div class="tooltip-entry">
           <div class="tooltip-title" style="color:{color(loc)}">{loc.name}</div>
           <div class="tooltip-type">{loc.type}</div>
+          {#if loc.radars?.length}
+            <dl>
+              {#each loc.radars as radar}
+                <dt>{radar.facility}</dt><dd>{radar.range} nm &middot; {radar.chance}%</dd>
+              {/each}
+            </dl>
+          {/if}
           {#if loc.craft?.damaged}
             <div class="tooltip-damaged">Damaged entry in CRAFT.DAT, values are meaningless</div>
           {/if}
@@ -352,6 +373,11 @@
     </span>
   {/each}
   <span class="legend-item"><span class="swatch line"></span> Flight path</span>
+  {#if showRadar}
+    {#each Object.entries(radarColors) as [facility, c]}
+      <span class="legend-item"><span class="swatch ring" style="border-color:{c}"></span> {facility}</span>
+    {/each}
+  {/if}
 </div>
 
 <style>
@@ -451,6 +477,13 @@
   @keyframes dash {
     to { stroke-dashoffset: -20; }
   }
+  .radar {
+    fill-opacity: 0.08;
+    stroke-width: 1.5;
+    stroke-opacity: 0.8;
+    stroke-dasharray: 4 3;
+    pointer-events: none;
+  }
   .destination {
     fill: none;
     stroke-width: 1.5;
@@ -543,6 +576,11 @@
   .swatch.circle { border-radius: 50%; }
   .swatch.diamond { transform: rotate(45deg); width: 8px; height: 8px; }
   .swatch.triangle { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .swatch.ring {
+    border-radius: 50%;
+    border: 2px dashed;
+    background: none;
+  }
   .swatch.line {
     width: 16px;
     height: 0;

@@ -126,6 +126,29 @@ func TestHandleListLocations_CraftDetails(t *testing.T) {
 	assert.Equal(t, 3200, ufo.Craft.Speed)
 }
 
+func TestHandleListLocations_Radars(t *testing.T) {
+	loadTestGames(t, "GAME_2")
+
+	var locations []struct {
+		Name   string    `json:"name"`
+		Radars []radarJS `json:"radars"`
+	}
+	getJSON(t, "/api/games/GAME_2/locations", handleListLocations, "/api/games/{slot}/locations", &locations)
+
+	radars := map[string][]radarJS{}
+	for _, loc := range locations {
+		radars[loc.Name] = loc.Radars
+	}
+	assert.Equal(t, []radarJS{
+		{Facility: "Large Radar System", Range: 2250, Chance: 20},
+		{Facility: "Small Radar System", Range: 1500, Chance: 10},
+	}, radars["Alpine HQ"])
+	assert.Equal(t, []radarJS{
+		{Facility: "Large Radar System", Range: 2250, Chance: 20},
+	}, radars["Nortern Base"])
+	assert.Nil(t, radars["UFO-0 (supply ship, Alien Supply)"])
+}
+
 func TestHandleListCraft_Damaged(t *testing.T) {
 	loadTestGames(t, "GAME_4")
 
