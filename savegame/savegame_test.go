@@ -3,6 +3,7 @@ package savegame_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/redtoad/xcom-editor/internal/battlescape"
@@ -27,9 +28,9 @@ func copySavegame(t *testing.T, game string) string {
 	return dst
 }
 
-// savegames are real savegames in testdata/. GAME_4 and GAME_5 were saved
+// savegames are real savegames in testdata/. GAME_4, GAME_5 and GAME_6 were saved
 // during a mission.
-var savegames = []string{"GAME_1", "GAME_2", "GAME_3", "GAME_4", "GAME_5"}
+var savegames = []string{"GAME_1", "GAME_2", "GAME_3", "GAME_4", "GAME_5", "GAME_6"}
 
 func TestSavegame_AllFilesHandled(t *testing.T) {
 	handled := map[string]bool{}
@@ -121,8 +122,8 @@ func TestSavegame_MissionStatus(t *testing.T) {
 	assert.Equal(t, -27, status.Score)
 	assert.Equal(t, 14, status.XcomTotal)
 	assert.Equal(t, 13, status.XcomAlive)
-	assert.Equal(t, 7, status.AliensTotal)
-	assert.Equal(t, 7, status.AliensAlive)
+	assert.Equal(t, 13, status.AliensTotal)
+	assert.Equal(t, 13, status.AliensAlive)
 	require.NotNil(t, status.Craft)
 	assert.Equal(t, "SKYRANGER-2", status.Craft.Name())
 	assert.Equal(t, 0, status.Craft.Index(), "the craft that is out on the mission")
@@ -167,7 +168,7 @@ func TestBattle_MapUnits(t *testing.T) {
 	sg, err := savegame.Load(copySavegame(t, "GAME_4"))
 	require.NoError(t, err)
 	units := sg.Battle.MapUnits()
-	require.Len(t, units, 21, "14 X-COM units and 7 aliens (large units only once)")
+	require.Len(t, units, 27, "14 X-COM units and 13 aliens (large units only once)")
 
 	first := units[0]
 	assert.Equal(t, 0, first.Index)
@@ -184,6 +185,9 @@ func TestBattle_MapUnits(t *testing.T) {
 	assert.True(t, disc.Large)
 	assert.Equal(t, uint8(battlescape.OwnerAlien), disc.Owner)
 	assert.Equal(t, 18, units[15].Index, "the 3 other slots of the large unit are skipped")
+	assert.Equal(t, 15, units[15].Ref, "large units have only one entry in UNITREF.DAT")
+	assert.Equal(t, 22, units[16].Index)
+	assert.Equal(t, 16, units[16].Ref)
 }
 
 func TestBattle_Tile(t *testing.T) {
@@ -366,4 +370,38 @@ func TestBase_RadarsIgnoresUnfinishedFacilities(t *testing.T) {
 	assert.Equal(t, []savegame.Radar{
 		{Facility: geoscape.HyperwaveDecoder, Range: 2759, Chance: 100},
 	}, sg.Bases()[1].Radars())
+}
+
+func TestBattle_MapUnits_LargeUnitFirst(t *testing.T) {
+	// In GAME_6 the tank occupies UNITPOS.DAT slots 0-3, but only entry 0 of
+	// UNITREF.DAT: all following units are shifted by 3 slots.
+	sg, err := savegame.Load(copySavegame(t, "GAME_6"))
+	require.NoError(t, err)
+	units := sg.Battle.MapUnits()
+	byName := map[string]savegame.MapUnit{}
+	for _, u := range units {
+		byName[u.Unit.Name.String()] = u
+	}
+	tank := units[0]
+	assert.Equal(t, "Tank/Cannon", tank.Unit.Name.String())
+	assert.True(t, tank.Large)
+
+	// soldiers that are still aboard the Skyranger
+	for name, pos := range map[string][3]int{
+		"Gudrun Brehme": {24, 34, 2},
+		"Sarah Jonlan":  {24, 35, 2},
+		"Frank Sharpe":  {25, 35, 2},
+	} {
+		u, ok := byName[name]
+		require.True(t, ok, name)
+		assert.Equal(t, pos, [3]int{u.X, u.Y, u.Z}, name)
+		assert.Equal(t, uint8(battlescape.OwnerXcom), u.Owner, name)
+	}
+	// the soldiers in UNITREF.DAT 1-3 are no longer hidden behind the tank
+	assert.Contains(t, byName, "Donald McNeil")
+	for _, u := range units {
+		if strings.HasPrefix(u.Unit.Name.String(), "Sectoid") {
+			assert.Equal(t, uint8(battlescape.OwnerAlien), u.Owner, "%s (slot %d)", u.Unit.Name, u.Index)
+		}
+	}
 }

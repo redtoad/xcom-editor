@@ -65,7 +65,7 @@ func TestUnitSprites(t *testing.T) {
 		}, unitSprites(u))
 	})
 	t.Run("alien", func(t *testing.T) {
-		u := mapUnit(t, 26) // Sectoid, facing 6
+		u := mapUnit(t, 32) // Sectoid, facing 6
 		assert.Contains(t, unitSprites(u), unitSpriteJS{Sheet: "SECTOID", Frame: 32 + 6})
 	})
 	t.Run("unknown type", func(t *testing.T) {
@@ -121,7 +121,7 @@ func TestLoadUnitSheets(t *testing.T) {
 func TestBattleUnitSprites(t *testing.T) {
 	loadTestGames(t, "GAME_4")
 	units := battleUnitSprites(games["GAME_4"].sg.Battle)
-	// all units of GAME_4 have sprites (soldiers, Sectoids and a Cyberdisc)
-	assert.Len(t, units, 21)
+	// all units of GAME_4 have sprites (soldiers, Sectoids and Cyberdiscs)
+	assert.Len(t, units, 27)
 	assert.Equal(t, 14, units[14].Index)
 }

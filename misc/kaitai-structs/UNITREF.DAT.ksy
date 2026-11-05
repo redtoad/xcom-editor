@@ -4,8 +4,10 @@ meta:
   file-extension: DAT
   endian: le
 doc: |
-  UNITREF.DAT holds the stats of all units on the map. Each entry belongs to
-  the entry with the same index in UNITPOS.DAT.
+  UNITREF.DAT holds the stats of all units on the map. Large units have one
+  entry here, but 4 entries in UNITPOS.DAT, so the n-th entry belongs to the
+  n-th entry of UNITPOS.DAT when the additional entries of large units (right
+  and lower section) are skipped.
 
   The file is 9920 bytes long (80 units * 124 bytes).
 

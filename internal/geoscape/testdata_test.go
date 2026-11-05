@@ -13,9 +13,9 @@ import (
 )
 
 // savegameDirs are real savegames stored in testdata/ at the repository root.
-// GAME_4 and GAME_5 were saved during a mission and also contain Battlescape
+// GAME_4, GAME_5 and GAME_6 were saved during a mission and also contain Battlescape
 // files. PARTIAL contains only some files of another savegame.
-var savegameDirs = []string{"GAME_1", "GAME_2", "GAME_3", "GAME_4", "GAME_5", "PARTIAL"}
+var savegameDirs = []string{"GAME_1", "GAME_2", "GAME_3", "GAME_4", "GAME_5", "GAME_6", "PARTIAL"}
 
 // MustLoadTestFile loads a DAT file from a savegame in testdata/.
 func MustLoadTestFile(t *testing.T, game, name string) []byte {
