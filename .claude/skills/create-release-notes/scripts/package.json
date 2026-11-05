@@ -1,0 +1,9 @@
+{
+  "name": "release-notes-screenshots",
+  "private": true,
+  "type": "module",
+  "description": "Takes screenshots of the savegame editor for the release notes.",
+  "dependencies": {
+    "playwright": "1.56.1"
+  }
+}
