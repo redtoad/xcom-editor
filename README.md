@@ -143,30 +143,28 @@ API, but shows them in a native window instead of the browser. If no folder
 is given on the command line, it asks for the game folder on startup; another
 folder can be opened via *File → Open Game Folder…*.
 
-The easiest way is the build script, which builds the frontend and the app
-for the current platform (on macOS as `.app` bundle with icon) into
-`cmd/savegame-editor/build/bin/`; it does not need the Wails CLI:
+It uses [Wails v3](https://v3.wails.io). The build is done by the tasks in
+`cmd/savegame-editor/Taskfile.yml` and `cmd/savegame-editor/build/` (generated
+with `wails3 generate build-assets`), which call the CLI as `wails3`:
 
 ```sh
-cmd/savegame-editor/build-desktop.sh        # -s skips the frontend build, -o sets the output folder
-```
-
-The version is taken from `git describe` (override with `VERSION=...`).
-With the Wails v3 CLI, `wails build` in `cmd/savegame-editor` runs the same
-script (via the `build` task in `Taskfile.yml`; `wails task build:app` skips
-the frontend build). Alternatively, use the Wails v2 CLI:
-
-```sh
-go install github.com/wailsapp/wails/v2/cmd/wails@latest
+go install github.com/wailsapp/wails/v3/cmd/wails3@latest
 cd cmd/savegame-editor
-wails build -skipbindings   # creates build/bin/ (an .app bundle on macOS)
-wails dev -skipbindings -appargs path/to/game   # live reload of the frontend
+wails3 build                  # builds frontend and app into bin/
+wails3 package                # additionally creates bin/savegame-editor.app on macOS
+wails3 dev                    # live reload of the frontend and the Go code
 ```
+
+The tasks add the build tag `desktop` (`EXTRA_TAGS` in `Taskfile.yml`).
+Platform settings such as the bundle identifier, version and minimum macOS
+version are in `build/config.yml` and `build/darwin/Info.plist` (and the
+other platform folders). `wails3 dev` builds the frontend unminified into
+`frontend/dist`, which is checked in, so restore it afterwards
+(`git checkout frontend/dist`).
 
 The app icon is `cmd/savegame-editor/build/appicon.png`, rendered from
-`appicon.svg` next to it (`inkscape appicon.svg -w 1024 -h 1024 -o appicon.png`).
+`appicon.svg` next to it (`inkscape appicon.svg -w 1024 -h 1024 -o appicon.png`);
+the platform icons are generated from it during the build.
 
-Without the Wails CLI, build it with `go build -tags desktop,production`
-(on macOS additionally with `CGO_LDFLAGS="-framework UniformTypeIdentifiers"`).
 The desktop build needs cgo and the platform's webview (WebKit on macOS and
 Linux, WebView2 on Windows), so it is not cross-compiled by goreleaser.

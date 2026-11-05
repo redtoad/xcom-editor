@@ -1,19 +1,44 @@
-# Tasks for the desktop application (https://taskfile.dev).
-# `wails build` of the Wails v3 CLI runs the "build" task of this file. The
-# app itself uses Wails v2, so the build is done by build-desktop.sh.
-version: "3"
+version: '3'
+
+# Tasks of the desktop application, run by the Wails v3 CLI (`wails3 build`,
+# `wails3 package`, `wails3 dev`). The platform tasks in build/ were generated
+# with `wails3 generate build-assets`.
+
+vars:
+  APP_NAME: "savegame-editor"
+  BIN_DIR: "bin"
+  PACKAGE_MANAGER: '{{.PACKAGE_MANAGER | default "npm"}}'
+  VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
+  # Without the build tag "desktop" the savegame editor is built as a web
+  # server which opens the browser (see main.go).
+  EXTRA_TAGS: '{{if .EXTRA_TAGS}}desktop,{{.EXTRA_TAGS}}{{else}}desktop{{end}}'
+  # Target OS for build/package/run. Defaults to the host OS, and is overridden
+  # by `wails3 build GOOS=...` (or the GOOS env var) for cross-compilation.
+  GOOS: '{{.GOOS | default OS}}'
+
+includes:
+  common: ./build/Taskfile.yml
+  windows: ./build/windows/Taskfile.yml
+  darwin: ./build/darwin/Taskfile.yml
+  linux: ./build/linux/Taskfile.yml
 
 tasks:
-  default:
-    cmds:
-      - task: build
-
   build:
-    desc: Build the frontend and the desktop app into build/bin/
+    summary: Builds the application
     cmds:
-      - ./build-desktop.sh
+      - task: "{{.GOOS}}:build"
 
-  build:app:
-    desc: Build only the desktop app, reusing frontend/dist
+  package:
+    summary: Packages a production build of the application
     cmds:
-      - ./build-desktop.sh -s
+      - task: "{{.GOOS}}:package"
+
+  run:
+    summary: Runs the application
+    cmds:
+      - task: "{{.GOOS}}:run"
+
+  dev:
+    summary: Runs the application in development mode
+    cmds:
+      - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}
