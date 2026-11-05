@@ -1,4 +1,4 @@
-//go:build !desktop && !dev
+//go:build !desktop
 
 package main
 

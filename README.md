@@ -143,17 +143,30 @@ API, but shows them in a native window instead of the browser. If no folder
 is given on the command line, it asks for the game folder on startup; another
 folder can be opened via *File → Open Game Folder…*.
 
+It uses [Wails v3](https://v3.wails.io). The build is done by the tasks in
+`cmd/savegame-editor/Taskfile.yml` and `cmd/savegame-editor/build/` (generated
+with `wails generate build-assets`), which call the CLI as `wails`, as
+installed by Homebrew (`go install github.com/wailsapp/wails/v3/cmd/wails3@latest`
+installs it as `wails3`, which then has to be linked as `wails`):
+
 ```sh
-go install github.com/wailsapp/wails/v2/cmd/wails@latest
+brew install wails
 cd cmd/savegame-editor
-wails build -skipbindings   # creates build/bin/ (an .app bundle on macOS)
-wails dev -skipbindings -appargs path/to/game   # live reload of the frontend
+wails build                   # builds frontend and app into bin/
+wails package                 # additionally creates bin/savegame-editor.app on macOS
+wails dev                     # live reload of the frontend and the Go code
 ```
 
-The app icon is `cmd/savegame-editor/build/appicon.png`, rendered from
-`appicon.svg` next to it (`inkscape appicon.svg -w 1024 -h 1024 -o appicon.png`).
+The tasks add the build tag `desktop` (`EXTRA_TAGS` in `Taskfile.yml`).
+Platform settings such as the bundle identifier, version and minimum macOS
+version are in `build/config.yml` and `build/darwin/Info.plist` (and the
+other platform folders). `wails dev` builds the frontend unminified into
+`frontend/dist`, which is checked in, so restore it afterwards
+(`git checkout frontend/dist`).
 
-Without the Wails CLI, build it with `go build -tags desktop,production`
-(on macOS additionally with `CGO_LDFLAGS="-framework UniformTypeIdentifiers"`).
+The app icon is `cmd/savegame-editor/build/appicon.png`, rendered from
+`appicon.svg` next to it (`inkscape appicon.svg -w 1024 -h 1024 -o appicon.png`);
+the platform icons are generated from it during the build.
+
 The desktop build needs cgo and the platform's webview (WebKit on macOS and
 Linux, WebView2 on Windows), so it is not cross-compiled by goreleaser.

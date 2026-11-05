@@ -1,0 +1,17 @@
+{
+	"fixed": {
+		"file_version": "0.0.0",
+		"product_version": "0.0.0"
+	},
+	"info": {
+		"0409": {
+			"FileVersion": "0.0.0",
+			"ProductVersion": "0.0.0",
+			"CompanyName": "Sebastian Rahlf",
+			"FileDescription": "Savegame editor for X-COM: UFO Defense",
+			"LegalCopyright": "© 2026, Sebastian Rahlf",
+			"ProductName": "X-COM Savegame Editor",
+			"Comments": "Savegame editor for X-COM: UFO Defense"
+		}
+	}
+}
