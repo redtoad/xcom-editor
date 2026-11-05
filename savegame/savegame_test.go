@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/redtoad/xcom-editor/internal/battlescape"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/redtoad/xcom-editor/savegame"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -328,4 +329,41 @@ func TestSavegame_BaseOutOfRange(t *testing.T) {
 	require.NoError(t, err)
 	assert.Nil(t, sg.Base(-1))
 	assert.Nil(t, sg.Base(len(sg.BasesData.Bases)))
+}
+
+func TestBase_Radars(t *testing.T) {
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_2"))
+	require.NoError(t, err)
+
+	bases := sg.Bases()
+	require.Len(t, bases, 2)
+	assert.Equal(t, []savegame.Radar{
+		{Facility: geoscape.LargeRadarSystem, Range: 2578, Chance: 20},
+		{Facility: geoscape.SmallRadarSystem, Range: 1696, Chance: 10},
+	}, bases[0].Radars())
+	assert.Equal(t, []savegame.Radar{
+		{Facility: geoscape.LargeRadarSystem, Range: 2578, Chance: 20},
+	}, bases[1].Radars())
+}
+
+func TestBase_RadarsIgnoresUnfinishedFacilities(t *testing.T) {
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_2"))
+	require.NoError(t, err)
+
+	data := &sg.BasesData.Bases[1]
+	built := false
+	for i := range data.Grid {
+		switch {
+		case data.Grid[i] == geoscape.LargeRadarSystem:
+			data.DaysToCompletion[i] = 5 // still under construction
+		case data.Grid[i] == geoscape.Empty && !built:
+			data.Grid[i] = geoscape.HyperwaveDecoder
+			data.DaysToCompletion[i] = 0
+			built = true
+		}
+	}
+	require.True(t, built, "no empty tile for the hyperwave decoder")
+	assert.Equal(t, []savegame.Radar{
+		{Facility: geoscape.HyperwaveDecoder, Range: 2759, Chance: 100},
+	}, sg.Bases()[1].Radars())
 }

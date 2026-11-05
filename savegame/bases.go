@@ -5,6 +5,7 @@ import (
 	"github.com/redtoad/xcom-editor/internal"
 	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"log"
+	"math"
 	"path"
 )
 
@@ -71,6 +72,67 @@ func (b *Base) TileAt(x, y int) BaseTile {
 		Type:             data.Grid[tileNo],
 		DaysToCompletion: int(data.DaysToCompletion[tileNo]),
 	}
+}
+
+// Radar describes the detection capability of a radar facility.
+type Radar struct {
+	Facility geoscape.Facility
+	// Range is the detection range in nautical miles.
+	Range int
+	// Chance is the chance (in percent) to detect a UFO within range at
+	// each detection check.
+	Chance int
+}
+
+// globeRadius is the radius of the globe in the units GEOSCAPE.EXE uses for
+// distances (the amplitude of SINE.DAT and COS.DAT).
+const globeRadius = 1024
+
+// rangeToNauticalMiles converts a distance as measured by GEOSCAPE.EXE to
+// nautical miles. The game measures the straight distance (chord) between
+// two positions on the globe, a nautical mile is one arc minute.
+func rangeToNauticalMiles(units float64) int {
+	angle := 2 * math.Asin(units/(2*globeRadius)) // radians
+	return int(math.Round(angle * 180 / math.Pi * 60))
+}
+
+// radars holds the detection capabilities of the radar facilities, ordered
+// by range (longest first).
+//
+// The values are taken from the UFO detection routine of GEOSCAPE.EXE: a
+// UFO is detected for sure within 800 units of a base with a hyperwave
+// decoder, otherwise the base's long range chance applies within 750 units
+// and its short range chance within 500 units. The chances are calculated
+// when a construction completes: short range is 10 for small and 20 for
+// large radars, long range is 20 for large radars and hyperwave is 100,
+// facilities of the same type do not add up. (The in-game UFOpaedia states
+// 300 and 450 nautical miles, other sources 1500, 2250 and 2400.)
+var radars = []Radar{
+	{Facility: geoscape.HyperwaveDecoder, Range: rangeToNauticalMiles(800), Chance: 100},
+	{Facility: geoscape.LargeRadarSystem, Range: rangeToNauticalMiles(750), Chance: 20},
+	{Facility: geoscape.SmallRadarSystem, Range: rangeToNauticalMiles(500), Chance: 10},
+}
+
+// Radars returns the detection capabilities of all completed radar
+// facilities of this base, ordered by range (longest first). Multiple
+// facilities of the same type are listed only once.
+//
+// The capabilities are derived from the facilities, since the detection
+// values stored in BASE.DAT are only updated when a construction completes.
+func (b *Base) Radars() []Radar {
+	built := map[geoscape.Facility]bool{}
+	for _, tile := range b.Tiles() {
+		if tile.DaysToCompletion == 0 {
+			built[tile.Type] = true
+		}
+	}
+	result := make([]Radar, 0)
+	for _, r := range radars {
+		if built[r.Facility] {
+			result = append(result, r)
+		}
+	}
+	return result
 }
 
 type BaseTile struct {

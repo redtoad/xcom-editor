@@ -2,6 +2,8 @@
   import { onMount, onDestroy } from 'svelte';
   import { listLocations } from './lib/api';
   import type { GlobeLocation } from './lib/types';
+  import { radarCoverage, radarColor, radarColors } from './lib/radar';
+  import type { RadarCoverage } from './lib/radar';
   import Globe from 'globe.gl';
   import { MeshBasicMaterial, BackSide } from 'three';
 
@@ -11,6 +13,7 @@
   let error = '';
   let container: HTMLDivElement;
   let globe: ReturnType<typeof Globe> | null = null;
+  let showRadar = true;
 
   const EARTH_NIGHT_IMG = '/earth-day.jpg';
 
@@ -48,6 +51,19 @@
       <b>${d.name}</b><br/><span style="opacity:0.7">${d.type}</span>
     </div>`;
   }
+
+  // radarRings returns the outline of each radar range as a path.
+  function radarRings(locations: GlobeLocation[], showRadar: boolean): RadarCoverage[] {
+    return showRadar ? radarCoverage(locations) : [];
+  }
+
+  function radarLabel(c: RadarCoverage): string {
+    return `<div style="color:${radarColor(c.radar)};font-family:XcomSmall,monospace;font-size:18px;text-shadow:0 0 4px #000">
+      <b>${c.base.name}</b><br/><span style="opacity:0.7">${c.radar.facility} &middot; ${c.radar.range} nm &middot; ${c.radar.chance}%</span>
+    </div>`;
+  }
+
+  $: if (globe) globe.pathsData(radarRings(locations, showRadar));
 
   async function load() {
     try {
@@ -104,7 +120,17 @@
       .arcDashLength(0.4)
       .arcDashGap(0.2)
       .arcDashAnimateTime(1500)
-      .arcLabel(pointLabel as any);
+      .arcLabel(pointLabel as any)
+      .pathsData(radarRings(locations, showRadar))
+      .pathPoints((c: any) => c.area.coordinates[0])
+      .pathPointLat((p: any) => p[1])
+      .pathPointLng((p: any) => p[0])
+      .pathPointAlt(0.005)
+      .pathColor((c: any) => radarColor(c.radar))
+      .pathStroke(1)
+      .pathDashLength(0.01)
+      .pathDashGap(0.005)
+      .pathLabel(radarLabel as any);
 
     // Add a translucent inner sphere for the back-side visibility
     const scene = globe.scene();
@@ -151,7 +177,16 @@
         {entry.label}
       </span>
     {/each}
+    {#if showRadar}
+      {#each Object.entries(radarColors) as [facility, c]}
+        <span class="legend-item"><span class="dot ring" style="border-color:{c}"></span> {facility}</span>
+      {/each}
+    {/if}
   </div>
+  <label class="toggle">
+    <input type="checkbox" bind:checked={showRadar} />
+    Show radar range
+  </label>
 </div>
 
 <style>
@@ -182,6 +217,19 @@
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    color: var(--muted);
+  }
+  .dot.ring {
+    background: none;
+    border: 2px dashed;
+    width: 10px;
+    height: 10px;
   }
   .dot {
     display: inline-block;

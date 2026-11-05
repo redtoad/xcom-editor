@@ -91,7 +91,11 @@ Edits to soldiers, bases and the balance are applied with "Apply Changes" (or
 "Update"); "Save" writes the savegame to disk and also applies edits in an
 open form that were not applied yet, while "Reload" refreshes open forms with
 the values read from disk. It has a map of both hemispheres of the globe with all
-bases, X-COM craft and UFOs, their flight paths and details on hover. If the
+bases, X-COM craft and UFOs, their flight paths and details on hover. Both the
+map and the 3D globe show the detection range of the radars of each base
+(small radar 1696 nm, large radar 2578 nm, hyperwave decoder 2759 nm, as
+used by the detection routine of `GEOSCAPE.EXE`; see `savegame.Base.Radars`),
+only completed facilities count. If the
 folder is the game folder (containing `GEODATA` and `GEOGRAPH`), the map is
 drawn with the terrain and textures of the game (`WORLD.DAT`, `TEXTURE.DAT`)
 and bases are shown like on the base screen of the game, including the crafts

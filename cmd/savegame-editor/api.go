@@ -744,6 +744,13 @@ type craftDetails struct {
 	Damaged bool `json:"damaged,omitempty"`
 }
 
+// radarJS is the detection capability of a radar facility of a base.
+type radarJS struct {
+	Facility string `json:"facility"`
+	Range    int    `json:"range"`  // nautical miles
+	Chance   int    `json:"chance"` // percent
+}
+
 // GET /api/games/{slot}/locations
 func handleListLocations(w http.ResponseWriter, r *http.Request) {
 	entry := getGameEntry(w, r)
@@ -765,6 +772,7 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 		Coord     coordJS       `json:"coord"`
 		DestCoord *coordJS      `json:"destCoord,omitempty"`
 		Craft     *craftDetails `json:"craft,omitempty"`
+		Radars    []radarJS     `json:"radars,omitempty"`
 	}
 
 	result := make([]locationSummary, 0)
@@ -777,6 +785,18 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 			TypeCode: int(loc.Type),
 			Name:     name,
 			Coord:    coordJS{Lat: c.Lat, Lon: c.Lon},
+		}
+
+		if loc.Type == geoscape.XCOMBase {
+			if b := sg.Base(loc.TableReference); b != nil {
+				for _, radar := range b.Radars() {
+					summary.Radars = append(summary.Radars, radarJS{
+						Facility: radar.Facility.String(),
+						Range:    radar.Range,
+						Chance:   radar.Chance,
+					})
+				}
+			}
 		}
 
 		if loc.Type == geoscape.XCOMShip || loc.Type == geoscape.AlienShip {
