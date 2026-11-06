@@ -30,7 +30,7 @@ var unitSheets map[string][]byte
 
 // unitSheetFiles are the sprite files of the units which are drawn (see
 // unitBodies).
-var unitSheetFiles = []string{"XCOM_0", "XCOM_1", "XCOM_2", "TANKS", "SECTOID", "SNAKEMAN", "MUTON", "CHRYS", "FLOATER", "X_REAP", "CYBER", "CIVM", "CIVF"}
+var unitSheetFiles = []string{"XCOM_0", "XCOM_1", "XCOM_2", "TANKS", "SECTOID", "SNAKEMAN", "MUTON", "CHRYS", "FLOATER", "X_REAP", "CYBER", "CIVM", "CIVF", corpseSheet}
 
 // loadUnitSheets loads the unit sprites (UNITS/*.PCK and *.TAB) from the
 // game root folder.
@@ -97,6 +97,11 @@ type unitBody struct {
 	FemaleTorso int
 	// Dead is the sprite of the dead or unconscious unit, -1 if there is none.
 	Dead int
+	// Corpse are the sprites of the corpse of large units in UNITS/FLOOROB.PCK,
+	// one per tile in the order of largeUnitOffsets, nil if there is none.
+	// The game places the corpse as items (OBDATA.DAT "corpse 1-4") on the
+	// tiles of the unit.
+	Corpse []int
 }
 
 // Sprites of humanoid units, one per direction.
@@ -135,6 +140,10 @@ const (
 // (in pixels).
 var hovertankTurretOffset = [8][2]int{{-2, -1}, {-7, -3}, {-5, -4}, {0, -5}, {5, -4}, {7, -3}, {2, -1}, {0, -1}}
 
+// corpseSheet holds the sprites of the corpses of large units (items on the
+// ground).
+const corpseSheet = "FLOOROB"
+
 // largeUnitOffsets are the positions of the sprites of the 4 tiles of large
 // units relative to the upper left tile: upper left, upper right, lower left,
 // lower right.
@@ -152,7 +161,7 @@ var unitBodies = map[uint8]unitBody{
 	7:  {Sheet: "MUTON", Shape: shapeHumanoid, Torso: 32, Dead: 266},
 	8:  {Sheet: "FLOATER", Shape: shapeFloater, Torso: 16, Dead: 66},
 	11: {Sheet: "CHRYS", Shape: shapeHumanoid, Torso: 24, Dead: 226},
-	12: {Sheet: "X_REAP", Shape: shapeLarge, Dead: -1},
+	12: {Sheet: "X_REAP", Shape: shapeLarge, Dead: -1, Corpse: []int{52, 55, 54, 53}},
 	14: {Sheet: "CYBER", Shape: shapeLarge, Dead: -1},
 	16: {Sheet: "CIVM", Shape: shapeSingle, Dead: 74},
 	17: {Sheet: "CIVF", Shape: shapeSingle, Dead: 74},
@@ -201,6 +210,14 @@ func unitSprites(u savegame.MapUnit) []unitSpriteJS {
 		return unitSpriteJS{Sheet: body.Sheet, Frame: frame, DX: dx, DY: dy}
 	}
 	if !u.Alive() || u.Unconscious() {
+		if body.Corpse != nil {
+			result := make([]unitSpriteJS, len(body.Corpse))
+			for part, frame := range body.Corpse {
+				off := largeUnitOffsets[part]
+				result[part] = unitSpriteJS{Sheet: corpseSheet, Frame: frame, DX: off[0], DY: off[1]}
+			}
+			return result
+		}
 		if body.Dead < 0 {
 			return nil
 		}

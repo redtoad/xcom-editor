@@ -80,7 +80,8 @@ the map, they are determined by matching the tile types of the MCD records
 against the map (see `savegame.Battle.MatchTerrainSets`). Soldiers, tanks
 (with their turret), Sectoids, Snakemen, Mutons, Floaters, Chryssalids, Reapers,
 Cyberdiscs and civilians are drawn with their sprites (`UNITS/*.PCK`), other
-units as markers. The sprites use the
+units as markers. Dead Reapers are drawn with their corpse (`UNITS/FLOOROB.PCK`),
+which lies on all 4 tiles of the unit. The sprites use the
 Battlescape palette of `PALETTES.DAT` with the last 16 colors replaced by the
 grey gradient the game sets at runtime (see `resources.BattlescapePalette`). Otherwise the map is drawn
 with simple shapes. The map shows the floors, walls and objects of the
