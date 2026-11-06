@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=X-COM Savegame Editor
+Comment=Savegame editor for X-COM: UFO Defense
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/savegame-editor %u
+Terminal=false
+Type=Application
+Icon=savegame-editor
+Categories=Utility;
+StartupWMClass=savegame-editor
+
+ 

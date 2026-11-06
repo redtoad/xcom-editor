@@ -21,11 +21,10 @@ examples/world/.cache/
 cmd/editor/editor
 bin/revive-soldiers
 
-cmd/savegame-editor/build/*
-!cmd/savegame-editor/build/appicon.png
-!cmd/savegame-editor/build/appicon.svg
-cmd/savegame-editor/frontend/wailsjs/
-cmd/savegame-editor/frontend/package.json.md5
+!cmd/savegame-editor/build/**/*.png
+cmd/savegame-editor/bin/
+cmd/savegame-editor/.task/
+cmd/savegame-editor/frontend/bindings/
 
 .claude/skills/create-release-notes/scripts/node_modules/
 .claude/skills/create-release-notes/scripts/package-lock.json

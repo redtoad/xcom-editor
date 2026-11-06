@@ -1,37 +1,32 @@
-//go:build desktop || dev
+//go:build desktop
 
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 	"net/http"
 	goruntime "runtime"
 	"strings"
 
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/menu"
-	"github.com/wailsapp/wails/v2/pkg/menu/keys"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 // desktopApp runs the savegame editor in a native window (using Wails)
 // instead of the default browser. The frontend talks to the same API, which
 // is served through the asset server of the webview.
 type desktopApp struct {
-	ctx  context.Context
-	root string
+	app    *application.App
+	window *application.WebviewWindow
+	root   string
 	// ready is closed as soon as the savegames have been loaded, API
 	// requests are held back until then.
 	ready chan struct{}
 }
 
-// startup is called by Wails once the window has been created.
-func (a *desktopApp) startup(ctx context.Context) {
-	a.ctx = ctx
+// startup is called by Wails once the application has been started.
+func (a *desktopApp) startup(*application.ApplicationEvent) {
 	// pick up savegames which are saved (or overwritten) in the game
 	go watchGames(watchInterval)
 	go func() {
@@ -44,7 +39,7 @@ func (a *desktopApp) startup(ctx context.Context) {
 			a.showError(err)
 		}
 		if !a.chooseRoot() {
-			wailsruntime.Quit(ctx)
+			a.app.Quit()
 			return
 		}
 		close(a.ready)
@@ -55,10 +50,14 @@ func (a *desktopApp) startup(ctx context.Context) {
 // returns false if the user cancelled the dialog.
 func (a *desktopApp) chooseRoot() bool {
 	for {
-		root, err := wailsruntime.OpenDirectoryDialog(a.ctx, wailsruntime.OpenDialogOptions{
-			Title:            "Choose the X-COM game folder (containing GAME_1 ... GAME_10)",
-			DefaultDirectory: a.root,
-		})
+		root, err := a.app.Dialog.OpenFile().
+			SetTitle("Choose the X-COM game folder (containing GAME_1 ... GAME_10)").
+			SetMessage("Choose the X-COM game folder (containing GAME_1 ... GAME_10)").
+			CanChooseFiles(false).
+			CanChooseDirectories(true).
+			SetDirectory(a.root).
+			AttachToWindow(a.window).
+			PromptForSingleSelection()
 		if err != nil || root == "" {
 			return false
 		}
@@ -74,31 +73,33 @@ func (a *desktopApp) chooseRoot() bool {
 
 // openFolder lets the user switch to another savegame folder and reloads the
 // frontend afterwards.
-func (a *desktopApp) openFolder(*menu.CallbackData) {
+func (a *desktopApp) openFolder(*application.Context) {
 	select {
 	case <-a.ready:
 	default:
 		return // the startup dialog is still open
 	}
-	if a.chooseRoot() {
-		wailsruntime.WindowReloadApp(a.ctx)
-	}
+	go func() {
+		if a.chooseRoot() {
+			a.window.Reload()
+		}
+	}()
 }
 
 func (a *desktopApp) showError(err error) {
 	log.Print(err)
-	_, _ = wailsruntime.MessageDialog(a.ctx, wailsruntime.MessageDialogOptions{
-		Type:    wailsruntime.ErrorDialog,
-		Title:   "Could not load savegames",
-		Message: err.Error(),
-	})
+	a.app.Dialog.Error().
+		SetTitle("Could not load savegames").
+		SetMessage(err.Error()).
+		AttachToWindow(a.window).
+		Show()
 }
 
 // serveAPI returns a middleware for the asset server which passes API
 // requests to api (once the savegames have been loaded) and everything else
 // on to the frontend assets, which are served by the Vite dev server when
 // running with `wails dev`.
-func (a *desktopApp) serveAPI(api http.Handler) assetserver.Middleware {
+func (a *desktopApp) serveAPI(api http.Handler) application.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if !strings.HasPrefix(r.URL.Path, "/api/") {
@@ -115,21 +116,21 @@ func (a *desktopApp) serveAPI(api http.Handler) assetserver.Middleware {
 	}
 }
 
-func (a *desktopApp) menu() *menu.Menu {
-	m := menu.NewMenu()
+func (a *desktopApp) menu() *application.Menu {
+	m := application.NewMenu()
 	if goruntime.GOOS == "darwin" {
-		m.Append(menu.AppMenu())
+		m.AddRole(application.AppMenu)
 	}
 	file := m.AddSubmenu("File")
-	file.AddText("Open Game Folder…", keys.CmdOrCtrl("o"), a.openFolder)
+	file.Add("Open Game Folder…").SetAccelerator("CmdOrCtrl+O").OnClick(a.openFolder)
 	file.AddSeparator()
-	file.AddText("Quit", keys.CmdOrCtrl("q"), func(*menu.CallbackData) {
-		wailsruntime.Quit(a.ctx)
+	file.Add("Quit").SetAccelerator("CmdOrCtrl+Q").OnClick(func(*application.Context) {
+		a.app.Quit()
 	})
 	if goruntime.GOOS == "darwin" {
 		// Needed for copy & paste in text fields on macOS.
-		m.Append(menu.EditMenu())
-		m.Append(menu.WindowMenu())
+		m.AddRole(application.EditMenu)
+		m.AddRole(application.WindowMenu)
 	}
 	return m
 }
@@ -143,7 +144,7 @@ func main() {
 	log.Printf("Starting savegame editor...")
 	log.Printf("Version %s-%s %s %s", version, commit, date, builtBy)
 
-	app := &desktopApp{root: flag.Arg(0), ready: make(chan struct{})}
+	d := &desktopApp{root: flag.Arg(0), ready: make(chan struct{})}
 
 	r, err := newRouter()
 	if err != nil {
@@ -154,21 +155,30 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = wails.Run(&options.App{
+	d.app = application.New(application.Options{
+		Name:        "X-COM Savegame Editor",
+		Description: "Savegame editor for X-COM: UFO Defense",
+		Assets: application.AssetOptions{
+			Handler:    application.AssetFileServerFS(assets),
+			Middleware: d.serveAPI(r),
+		},
+		Mac: application.MacOptions{
+			ApplicationShouldTerminateAfterLastWindowClosed: true,
+		},
+	})
+	d.app.Menu.Set(d.menu())
+	d.window = d.app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:            "X-COM Savegame Editor",
 		Width:            1280,
 		Height:           800,
 		MinWidth:         800,
 		MinHeight:        600,
-		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 255},
-		AssetServer: &assetserver.Options{
-			Assets:     assets,
-			Middleware: app.serveAPI(r),
-		},
-		Menu:      app.menu(),
-		OnStartup: app.startup,
+		BackgroundColour: application.NewRGB(0, 0, 0),
+		URL:              "/",
 	})
-	if err != nil {
+	d.app.Event.OnApplicationEvent(events.Common.ApplicationStarted, d.startup)
+
+	if err := d.app.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -367,6 +367,8 @@ func handleListBases(w http.ResponseWriter, r *http.Request) {
 		Engineers  int    `json:"engineers"`
 		Scientists int    `json:"scientists"`
 		Coord      string `json:"coord"`
+		// facilities to draw the base in the base selector
+		Facilities []miniFacility `json:"facilities"`
 	}
 
 	result := make([]baseSummary, 0)
@@ -378,6 +380,7 @@ func handleListBases(w http.ResponseWriter, r *http.Request) {
 			Engineers:  b.Engineers(),
 			Scientists: b.Scientists(),
 			Coord:      b.Coord().String(),
+			Facilities: miniFacilities(b.Tiles()),
 		})
 	}
 	writeJSON(w, result)
@@ -418,10 +421,14 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 	}
 
 	inventory := b.Inventory()
+	items := make([]inventoryItemJS, 0)
+	// items in stores by name, used by frontends built before "items" was
+	// added (e.g. the frontend/dist checked in)
 	inventoryMap := make(map[string]int)
-	for i := 0; i < 96; i++ {
-		if inventory[i] > 0 {
-			inventoryMap[geoscape.Inventory(i).String()] = inventory[i]
+	for _, item := range savegame.InventoryItems() {
+		items = append(items, inventoryItemJS{Index: int(item), Name: item.String(), Count: inventory[item]})
+		if inventory[item] > 0 {
+			inventoryMap[item.String()] = inventory[item]
 		}
 	}
 
@@ -433,6 +440,7 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 		"scientists": b.Scientists(),
 		"coord":      b.Coord().String(),
 		"tiles":      tiles,
+		"items":      items,
 		"inventory":  inventoryMap,
 	}
 	// sprites to draw the base with the graphics of the game
@@ -446,6 +454,58 @@ func handleGetBase(w http.ResponseWriter, r *http.Request) {
 		result["layers"] = baseLayers(b.Tiles(), crafts)
 	}
 	writeJSON(w, result)
+}
+
+// inventoryItemJS is the quantity of an item in a base.
+type inventoryItemJS struct {
+	// Index is the index in the inventory of BASE.DAT.
+	Index int    `json:"index"`
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+
+type inventoryAdjustRequest struct {
+	Delta int `json:"delta"`
+}
+
+// POST /api/games/{slot}/bases/{idx}/inventory/{item}
+//
+// Changes the quantity of an item in a base by delta and returns the new
+// quantity.
+func handleAdjustInventory(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	idx, err := strconv.Atoi(mux.Vars(r)["idx"])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid base index")
+		return
+	}
+	item, err := strconv.Atoi(mux.Vars(r)["item"])
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid item index")
+		return
+	}
+	var req inventoryAdjustRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+
+	if idx < 0 || idx >= len(entry.sg.BasesData.Bases) || entry.sg.Base(idx) == nil {
+		writeError(w, http.StatusNotFound, "base not found")
+		return
+	}
+	count, err := entry.sg.Base(idx).AdjustInventory(geoscape.Inventory(item), req.Delta)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	writeJSON(w, map[string]int{"count": count})
 }
 
 type baseUpdateRequest struct {
@@ -686,6 +746,18 @@ func handlePersonalArmour(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]interface{}{"status": "ok", "equipped": n})
 }
 
+// POST /api/games/{slot}/actions/repair-refuel-crafts
+func handleRepairRefuelCrafts(w http.ResponseWriter, r *http.Request) {
+	entry := getGameEntry(w, r)
+	if entry == nil {
+		return
+	}
+	entry.mu.Lock()
+	defer entry.mu.Unlock()
+	n := entry.sg.RepairAndRefuelAllCrafts()
+	writeJSON(w, map[string]interface{}{"status": "ok", "crafts": n})
+}
+
 // POST /api/games/{slot}/actions/complete-constructions
 func handleCompleteConstructions(w http.ResponseWriter, r *http.Request) {
 	entry := getGameEntry(w, r)
@@ -744,6 +816,13 @@ type craftDetails struct {
 	Damaged bool `json:"damaged,omitempty"`
 }
 
+// radarJS is the detection capability of a radar facility of a base.
+type radarJS struct {
+	Facility string `json:"facility"`
+	Range    int    `json:"range"`  // nautical miles
+	Chance   int    `json:"chance"` // percent
+}
+
 // GET /api/games/{slot}/locations
 func handleListLocations(w http.ResponseWriter, r *http.Request) {
 	entry := getGameEntry(w, r)
@@ -765,6 +844,7 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 		Coord     coordJS       `json:"coord"`
 		DestCoord *coordJS      `json:"destCoord,omitempty"`
 		Craft     *craftDetails `json:"craft,omitempty"`
+		Radars    []radarJS     `json:"radars,omitempty"`
 	}
 
 	result := make([]locationSummary, 0)
@@ -777,6 +857,18 @@ func handleListLocations(w http.ResponseWriter, r *http.Request) {
 			TypeCode: int(loc.Type),
 			Name:     name,
 			Coord:    coordJS{Lat: c.Lat, Lon: c.Lon},
+		}
+
+		if loc.Type == geoscape.XCOMBase {
+			if b := sg.Base(loc.TableReference); b != nil {
+				for _, radar := range b.Radars() {
+					summary.Radars = append(summary.Radars, radarJS{
+						Facility: radar.Facility.String(),
+						Range:    radar.Range,
+						Chance:   radar.Chance,
+					})
+				}
+			}
 		}
 
 		if loc.Type == geoscape.XCOMShip || loc.Type == geoscape.AlienShip {

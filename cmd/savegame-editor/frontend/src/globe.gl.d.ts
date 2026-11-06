@@ -33,6 +33,18 @@ declare module 'globe.gl' {
     arcDashGap(gap: number | ((d: any) => number)): GlobeInstance;
     arcDashAnimateTime(ms: number | ((d: any) => number)): GlobeInstance;
 
+    // Paths layer
+    pathsData(data: object[]): GlobeInstance;
+    pathPoints(accessor: string | ((d: any) => any[])): GlobeInstance;
+    pathPointLat(accessor: string | ((p: any) => number)): GlobeInstance;
+    pathPointLng(accessor: string | ((p: any) => number)): GlobeInstance;
+    pathPointAlt(accessor: number | string | ((p: any) => number)): GlobeInstance;
+    pathColor(accessor: string | ((d: any) => string)): GlobeInstance;
+    pathStroke(width: number | ((d: any) => number)): GlobeInstance;
+    pathDashLength(length: number | ((d: any) => number)): GlobeInstance;
+    pathDashGap(gap: number | ((d: any) => number)): GlobeInstance;
+    pathLabel(accessor: string | ((d: any) => string)): GlobeInstance;
+
     // Camera
     pointOfView(pov: { lat?: number; lng?: number; altitude?: number }, transitionMs?: number): GlobeInstance;
 

@@ -77,8 +77,9 @@ Battlescape, either top-down level by level or isometric like in the game
 the isometric map is drawn with the terrain graphics of the game
 (`TERRAIN/*.MCD`, `*.PCK`); as the savegame does not name the terrain files of
 the map, they are determined by matching the tile types of the MCD records
-against the map (see `savegame.Battle.MatchTerrainSets`). Soldiers, Sectoids,
-Snakemen, Mutons, Chryssalids, Cyberdiscs and civilians are drawn with their
+against the map (see `savegame.Battle.MatchTerrainSets`). Soldiers, tanks
+(with their turret), Sectoids, Snakemen, Mutons, Chryssalids, Cyberdiscs and
+civilians are drawn with their
 sprites (`UNITS/*.PCK`), other units as markers. The sprites use the
 Battlescape palette of `PALETTES.DAT` with the last 16 colors replaced by the
 grey gradient the game sets at runtime (see `resources.BattlescapePalette`). Otherwise the map is drawn
@@ -91,13 +92,20 @@ Edits to soldiers, bases and the balance are applied with "Apply Changes" (or
 "Update"); "Save" writes the savegame to disk and also applies edits in an
 open form that were not applied yet, while "Reload" refreshes open forms with
 the values read from disk. It has a map of both hemispheres of the globe with all
-bases, X-COM craft and UFOs, their flight paths and details on hover. If the
+bases, X-COM craft and UFOs, their flight paths and details on hover. Both the
+map and the 3D globe show the detection range of the radars of each base
+(small radar 1696 nm, large radar 2578 nm, hyperwave decoder 2759 nm, as
+used by the detection routine of `GEOSCAPE.EXE`; see `savegame.Base.Radars`),
+only completed facilities count. If the
 folder is the game folder (containing `GEODATA` and `GEOGRAPH`), the map is
 drawn with the terrain and textures of the game (`WORLD.DAT`, `TEXTURE.DAT`)
 and bases are shown like on the base screen of the game, including the crafts
 in their hangars (`BASEBITS.PCK`), and each soldier is shown like on the
 inventory screen, without armour next to the selected armour (`MAN_*.SPK`),
 otherwise a generic world map and a simple facility grid are used.
+Like on the base screen of the game, bases are selected with the miniatures of
+all eight base slots at the top (built facilities in green, facilities under
+construction in red); edits not applied yet are applied when switching bases.
 The editor watches the savegame folder: savegames that are saved in the game
 appear in the sidebar, and if a loaded savegame is overwritten (e.g. saved
 again in the game), it is marked as changed and can be reloaded.
@@ -105,7 +113,19 @@ Each tab offers quick actions: on *Soldiers* "Heal All" and "All With Personal
 Armour" (equips every living soldier without armour), a "Heal" button for
 each wounded soldier and a "Resurrect" button for each dead soldier, on
 *Bases* "Complete
-Constructions", on *Transfers* "Speed Up Deliveries", and on *Financials* a
+Constructions" and "-"/"+" buttons to change the quantity of each item in
+the stores of a base (by ten with the shift key; "Show all items" lists items
+not in stores, so they can be added; the stores capacity is not checked), on
+*Craft* "Repair & Refuel All" (repairs, refuels and rearms all
+X-COM craft immediately and puts enough ammunition into the stores of their
+bases to rearm them once more), on *Research* and *Manufacture* (which list
+the ongoing research and production of all bases) a "Speed Up" button for
+each project and "Speed Up All Research"/"Speed Up All Production" (research
+is completed on the next day, the next unit of an item within the next hour;
+the remaining units are built at the normal pace; projects that are finished
+by then anyway are shown as "Ready", and projects without scientists or
+engineers, which do not progress, are marked red), on *Transfers* "Speed Up
+Deliveries", and on *Financials* a
 "Max" button sets the current balance to its maximum ($2,147,483,647). Dead
 soldiers come back with the rank they had before. The game does not keep it,
 so it is estimated from the soldier value (see `savegame.Soldier.LastRank`;
@@ -123,17 +143,30 @@ API, but shows them in a native window instead of the browser. If no folder
 is given on the command line, it asks for the game folder on startup; another
 folder can be opened via *File → Open Game Folder…*.
 
+It uses [Wails v3](https://v3.wails.io). The build is done by the tasks in
+`cmd/savegame-editor/Taskfile.yml` and `cmd/savegame-editor/build/` (generated
+with `wails generate build-assets`), which call the CLI as `wails`, as
+installed by Homebrew (`go install github.com/wailsapp/wails/v3/cmd/wails3@latest`
+installs it as `wails3`, which then has to be linked as `wails`):
+
 ```sh
-go install github.com/wailsapp/wails/v2/cmd/wails@latest
+brew install wails
 cd cmd/savegame-editor
-wails build -skipbindings   # creates build/bin/ (an .app bundle on macOS)
-wails dev -skipbindings -appargs path/to/game   # live reload of the frontend
+wails build                   # builds frontend and app into bin/
+wails package                 # additionally creates bin/savegame-editor.app on macOS
+wails dev                     # live reload of the frontend and the Go code
 ```
 
-The app icon is `cmd/savegame-editor/build/appicon.png`, rendered from
-`appicon.svg` next to it (`inkscape appicon.svg -w 1024 -h 1024 -o appicon.png`).
+The tasks add the build tag `desktop` (`EXTRA_TAGS` in `Taskfile.yml`).
+Platform settings such as the bundle identifier, version and minimum macOS
+version are in `build/config.yml` and `build/darwin/Info.plist` (and the
+other platform folders). `wails dev` builds the frontend unminified into
+`frontend/dist`, which is checked in, so restore it afterwards
+(`git checkout frontend/dist`).
 
-Without the Wails CLI, build it with `go build -tags desktop,production`
-(on macOS additionally with `CGO_LDFLAGS="-framework UniformTypeIdentifiers"`).
+The app icon is `cmd/savegame-editor/build/appicon.png`, rendered from
+`appicon.svg` next to it (`inkscape appicon.svg -w 1024 -h 1024 -o appicon.png`);
+the platform icons are generated from it during the build.
+
 The desktop build needs cgo and the platform's webview (WebKit on macOS and
 Linux, WebView2 on Windows), so it is not cross-compiled by goreleaser.

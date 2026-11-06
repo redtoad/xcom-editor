@@ -14,9 +14,15 @@ type Craft struct {
 }
 
 func (c *Craft) Name() string {
+	// X-COM craft and UFOs are numbered separately; UFOs which have not
+	// been detected yet have no number (0).
+	locType := geoscape.XCOMShip
+	if c.IsUFO() {
+		locType = geoscape.AlienShip
+	}
 	var suffix = 0
 	for _, object := range c.game.locationFile.Objects {
-		if object.Type == geoscape.XCOMShip && int(object.TableReference) == c.offset {
+		if object.Type == locType && int(object.TableReference) == c.offset {
 			suffix = object.CountSuffix
 		}
 	}
@@ -105,10 +111,28 @@ func (c *Craft) Fuel() int {
 	return c.game.craftsFile.Crafts[c.offset].FuelAmountRemaining
 }
 
-// Base returns the base this craft is stationed at.
+// IsUFO returns true if the craft is an alien craft.
+func (c *Craft) IsUFO() bool {
+	return c.Type() >= geoscape.SmallScout
+}
+
+// Base returns the base this craft is stationed at, or nil if unknown.
+// UFOs have no base, their base reference is meaningless (usually 0, which
+// would be the first base in LOC.DAT).
 func (c *Craft) Base() *Base {
-	baseRef := int(c.game.craftsFile.Crafts[c.offset].BaseReference)
-	return c.game.Base(baseRef)
+	if c.IsUFO() {
+		return nil
+	}
+	// the base reference is an index into LOC.DAT
+	idx := int(c.game.craftsFile.Crafts[c.offset].BaseReference)
+	if idx < 0 || idx >= len(c.game.locationFile.Objects) {
+		return nil
+	}
+	loc := c.game.locationFile.Objects[idx]
+	if loc.Type != geoscape.XCOMBase {
+		return nil
+	}
+	return c.game.Base(int(loc.TableReference))
 }
 
 // Speed returns the craft's current speed.
@@ -180,7 +204,7 @@ var alienRaces = []string{"Sectoid", "Snakeman", "Ethereal", "Muton", "Floater",
 
 // AlienRace returns the alien race on board of a UFO, or "" for X-COM craft.
 func (c *Craft) AlienRace() string {
-	if c.Type() < geoscape.SmallScout {
+	if !c.IsUFO() {
 		return ""
 	}
 	race := c.game.craftsFile.Crafts[c.offset].AlienRace
@@ -228,4 +252,115 @@ func (c *Craft) Damaged() bool {
 	// valid entries always contain several values (weapons, fuel, base,
 	// location, ...), damaged ones only leftovers.
 	return nonZero <= 2
+}
+
+// maxFuel maps the X-COM craft types to their fuel capacity.
+var maxFuel = map[geoscape.CraftType]int{
+	geoscape.Skyranger:   1500,
+	geoscape.Lightning:   30,
+	geoscape.Avenger:     60,
+	geoscape.Interceptor: 1000,
+	geoscape.Firestorm:   20,
+}
+
+// craftWeapon describes the ammunition of a craft weapon.
+type craftWeapon struct {
+	// maxAmmo is the number of rounds of a fully armed weapon.
+	maxAmmo int
+	// ammo is the item in the base stores used to rearm the weapon, or -1
+	// if the weapon needs no ammunition (laser and plasma weapons).
+	ammo geoscape.Inventory
+	// roundsPerItem is the number of rounds one ammo item contains.
+	roundsPerItem int
+}
+
+var craftWeapons = map[geoscape.WeaponType]craftWeapon{
+	geoscape.Stingray:    {6, geoscape.InventoryStingrayMissile, 1},
+	geoscape.Avalanche:   {3, geoscape.InventoryAvalancheMissile, 1},
+	geoscape.Cannon:      {200, geoscape.InventoryCannonRounds, 50}, // Cannon Rounds (x50)
+	geoscape.FusionBall:  {2, geoscape.InventoryFusionBalls, 1},
+	geoscape.LaserCannon: {99, -1, 0},
+	geoscape.PlasmaBeam:  {100, -1, 0},
+}
+
+// MaxFuel returns the fuel capacity of an X-COM craft, or 0 for UFOs.
+func (c *Craft) MaxFuel() int {
+	return maxFuel[c.Type()]
+}
+
+// RepairAndRefuel repairs all damage of an X-COM craft, fills up its fuel
+// and rearms its weapons. Values above the capacity (e.g. from earlier edits)
+// are kept. A craft waiting at its base for repairs, refuelling or rearming
+// becomes ready. The ammunition is not taken from the base stores (see
+// RepairAndRefuelAllCrafts). It returns false for UFOs and damaged entries
+// (see Damaged), which are left unchanged.
+func (c *Craft) RepairAndRefuel() bool {
+	capacity := c.MaxFuel()
+	if capacity == 0 || c.Damaged() {
+		return false
+	}
+	data := &c.game.craftsFile.Crafts[c.offset]
+	data.Damage = 0
+	data.FuelAmountRemaining = max(data.FuelAmountRemaining, capacity)
+	if w, ok := craftWeapons[data.LeftWeapon]; ok {
+		data.LeftAmmo = max(data.LeftAmmo, w.maxAmmo)
+	}
+	if w, ok := craftWeapons[data.RightWeapon]; ok {
+		data.RightAmmo = max(data.RightAmmo, w.maxAmmo)
+	}
+	switch data.Status {
+	case geoscape.Repairs, geoscape.Refueling, geoscape.Rearming:
+		data.Status = geoscape.Ready
+	}
+	return true
+}
+
+// reloadItems returns the ammo items (and their quantities) needed to fully
+// rearm the craft's weapons once.
+func (c *Craft) reloadItems() map[geoscape.Inventory]int {
+	items := make(map[geoscape.Inventory]int)
+	data := c.game.craftsFile.Crafts[c.offset]
+	for _, weapon := range []geoscape.WeaponType{data.LeftWeapon, data.RightWeapon} {
+		w, ok := craftWeapons[weapon]
+		if !ok || w.ammo < 0 {
+			continue
+		}
+		items[w.ammo] += (w.maxAmmo + w.roundsPerItem - 1) / w.roundsPerItem
+	}
+	return items
+}
+
+// RepairAndRefuelAllCrafts repairs, refuels and rearms all X-COM craft (see
+// RepairAndRefuel) and returns the number of craft that were changed.
+//
+// The base stores are not used for rearming. Instead, every base gets enough
+// ammunition in its stores to fully rearm all of its craft once more (items
+// already in the stores count towards that), so the game can rearm the craft
+// after their next mission.
+func (game *Savegame) RepairAndRefuelAllCrafts() int {
+	n := 0
+	needed := make(map[int]map[geoscape.Inventory]int)
+	for _, craft := range game.Crafts() {
+		if !craft.RepairAndRefuel() {
+			continue
+		}
+		n++
+		base := craft.Base()
+		if base == nil {
+			continue
+		}
+		if needed[base.offset] == nil {
+			needed[base.offset] = make(map[geoscape.Inventory]int)
+		}
+		for item, qty := range craft.reloadItems() {
+			needed[base.offset][item] += qty
+		}
+	}
+	for baseIdx, items := range needed {
+		inventory := &game.BasesData.Bases[baseIdx].Inventory
+		for item, qty := range items {
+			inventory[item] = max(inventory[item], qty)
+		}
+	}
+	return n
 }

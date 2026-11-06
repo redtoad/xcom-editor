@@ -147,6 +147,36 @@ func baseLayers(tiles []savegame.BaseTile, crafts []hangarCraft) [][]baseSprite 
 	return [][]baseSprite{ground, shapes, corridors, interiors, craftSprites}
 }
 
+// miniFacility is a facility drawn on the mini base view of the base screen
+// (the base selector at the top), in grid cells.
+type miniFacility struct {
+	X    int `json:"x"`
+	Y    int `json:"y"`
+	Size int `json:"size"`
+	// Built is false while the facility is under construction.
+	Built bool `json:"built"`
+}
+
+// miniFacilities returns the facilities of a base to draw it like the mini
+// base view of the game: one block per facility, hangars are a single block
+// of 2x2 cells.
+func miniFacilities(tiles []savegame.BaseTile) []miniFacility {
+	const size = 6
+	result := []miniFacility{}
+	for i, tile := range tiles {
+		f := tile.Type
+		if f == geoscape.Empty || (f > geoscape.HangarTopLeft && f <= geoscape.HangarBottomRight) {
+			continue
+		}
+		s := 1
+		if f == geoscape.HangarTopLeft {
+			s = 2
+		}
+		result = append(result, miniFacility{i % size, i / size, s, tile.DaysToCompletion == 0})
+	}
+	return result
+}
+
 // GET /api/basebits/{sprite}.png
 func handleGetBaseBit(w http.ResponseWriter, r *http.Request) {
 	idx, err := strconv.Atoi(mux.Vars(r)["sprite"])

@@ -4,8 +4,10 @@ meta:
   file-extension: DAT
   endian: le
 doc: |
-  UNITPOS.DAT holds the positions and owners of all units on the map. Each
-  entry belongs to the entry with the same index in UNITREF.DAT.
+  UNITPOS.DAT holds the positions and owners of all units on the map. Large
+  units (2x2 tiles) occupy 4 entries, but only one entry in UNITREF.DAT, so
+  the n-th entry of UNITREF.DAT belongs to the n-th entry here when the
+  additional entries of large units (right and lower section) are skipped.
 
   The file is 1120 bytes long (80 units * 14 bytes).
 

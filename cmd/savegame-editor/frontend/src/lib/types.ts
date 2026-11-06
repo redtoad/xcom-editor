@@ -95,6 +95,18 @@ export interface BaseSummary {
   engineers: number;
   scientists: number;
   coord: string;
+  // facilities to draw the base in the base selector (mini base view)
+  facilities: MiniFacility[];
+}
+
+export interface MiniFacility {
+  // position in grid cells
+  x: number;
+  y: number;
+  // 2 for hangars, 1 for all other facilities
+  size: number;
+  // false while under construction
+  built: boolean;
 }
 
 export interface BaseDetail {
@@ -105,11 +117,19 @@ export interface BaseDetail {
   scientists: number;
   coord: string;
   tiles: TileInfo[];
-  inventory: Record<string, number>;
+  // all items that can be stored in a base, including those not in stores
+  items: InventoryItem[];
   // sprites to draw the base with the graphics of the game (ground,
   // outlines, corridors, interiors, crafts), only if the game files are
   // available
   layers?: BaseSprite[][];
+}
+
+export interface InventoryItem {
+  // index in the inventory of BASE.DAT
+  index: number;
+  name: string;
+  count: number;
 }
 
 export interface BaseSprite {
@@ -145,6 +165,32 @@ export interface TransferSummary {
   quantity: number;
 }
 
+export interface ResearchProject {
+  base: number;
+  baseName: string;
+  // index in RESEARCH.DAT
+  topic: number;
+  name: string;
+  // scientist days remaining
+  daysRemaining: number;
+  scientists: number;
+}
+
+export interface ProductionProject {
+  base: number;
+  baseName: string;
+  // index in PRODUCT.DAT
+  product: number;
+  name: string;
+  // engineer hours needed to build one unit
+  hoursPerUnit: number;
+  // engineer hours of work done towards the next unit
+  hoursDone: number;
+  engineers: number;
+  total: number;
+  produced: number;
+}
+
 export interface Financials {
   currentBalance: number;
   expenditure: number[];
@@ -159,6 +205,14 @@ export interface GlobeLocation {
   coord: { lat: number; lon: number };
   destCoord?: { lat: number; lon: number };
   craft?: CraftDetails;
+  // detection capabilities of an X-COM base
+  radars?: Radar[];
+}
+
+export interface Radar {
+  facility: string;
+  range: number; // nautical miles
+  chance: number; // percent
 }
 
 export interface CraftDetails {

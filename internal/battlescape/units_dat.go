@@ -23,8 +23,11 @@ const (
 	UnitDamaged        = 1 << 7
 )
 
-// UnitposFile holds the positions and owners of all units on the map. Each
-// entry belongs to the entry with the same index in UNITREF.DAT.
+// UnitposFile holds the positions and owners of all units on the map. Large
+// units (UnitLarge) occupy 4 entries, but only one entry in UNITREF.DAT, so
+// the n-th entry of UNITREF.DAT belongs to the n-th entry here when the
+// additional entries of large units (UnitRightSection, UnitLowerSection) are
+// skipped (see savegame.Battle.MapUnits).
 //
 // The file is 1120 bytes long (80 units * 14 bytes).
 //
@@ -58,8 +61,8 @@ type UnitPosition struct {
 	Unknown2 [3]uint8
 }
 
-// UnitrefFile holds the stats of all units on the map. Each entry belongs to
-// the entry with the same index in UNITPOS.DAT.
+// UnitrefFile holds the stats of all units on the map. Large units have one
+// entry here, but 4 entries in UNITPOS.DAT (see UnitposFile).
 //
 // The file is 9920 bytes long (80 units * 124 bytes).
 //

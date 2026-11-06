@@ -3,9 +3,11 @@ package savegame_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/redtoad/xcom-editor/internal/battlescape"
+	"github.com/redtoad/xcom-editor/internal/geoscape"
 	"github.com/redtoad/xcom-editor/savegame"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,9 +28,9 @@ func copySavegame(t *testing.T, game string) string {
 	return dst
 }
 
-// savegames are real savegames in testdata/. GAME_4 and GAME_5 were saved
+// savegames are real savegames in testdata/. GAME_4, GAME_5 and GAME_6 were saved
 // during a mission.
-var savegames = []string{"GAME_1", "GAME_2", "GAME_3", "GAME_4", "GAME_5"}
+var savegames = []string{"GAME_1", "GAME_2", "GAME_3", "GAME_4", "GAME_5", "GAME_6"}
 
 func TestSavegame_AllFilesHandled(t *testing.T) {
 	handled := map[string]bool{}
@@ -120,8 +122,8 @@ func TestSavegame_MissionStatus(t *testing.T) {
 	assert.Equal(t, -27, status.Score)
 	assert.Equal(t, 14, status.XcomTotal)
 	assert.Equal(t, 13, status.XcomAlive)
-	assert.Equal(t, 7, status.AliensTotal)
-	assert.Equal(t, 7, status.AliensAlive)
+	assert.Equal(t, 13, status.AliensTotal)
+	assert.Equal(t, 13, status.AliensAlive)
 	require.NotNil(t, status.Craft)
 	assert.Equal(t, "SKYRANGER-2", status.Craft.Name())
 	assert.Equal(t, 0, status.Craft.Index(), "the craft that is out on the mission")
@@ -166,7 +168,7 @@ func TestBattle_MapUnits(t *testing.T) {
 	sg, err := savegame.Load(copySavegame(t, "GAME_4"))
 	require.NoError(t, err)
 	units := sg.Battle.MapUnits()
-	require.Len(t, units, 21, "14 X-COM units and 7 aliens (large units only once)")
+	require.Len(t, units, 27, "14 X-COM units and 13 aliens (large units only once)")
 
 	first := units[0]
 	assert.Equal(t, 0, first.Index)
@@ -183,6 +185,9 @@ func TestBattle_MapUnits(t *testing.T) {
 	assert.True(t, disc.Large)
 	assert.Equal(t, uint8(battlescape.OwnerAlien), disc.Owner)
 	assert.Equal(t, 18, units[15].Index, "the 3 other slots of the large unit are skipped")
+	assert.Equal(t, 15, units[15].Ref, "large units have only one entry in UNITREF.DAT")
+	assert.Equal(t, 22, units[16].Index)
+	assert.Equal(t, 16, units[16].Ref)
 }
 
 func TestBattle_Tile(t *testing.T) {
@@ -281,4 +286,146 @@ func TestSavegame_LeftOverBattleFiles(t *testing.T) {
 	after, err := os.ReadFile(filepath.Join(dir, "UNITREF.DAT"))
 	require.NoError(t, err)
 	assert.Equal(t, before, after)
+}
+
+func TestCraft_Base(t *testing.T) {
+	// the base reference of a craft is an index into LOC.DAT, not BASE.DAT
+	sg, err := savegame.Load(copySavegame(t, "GAME_2"))
+	require.NoError(t, err)
+
+	crafts := sg.Crafts()
+	require.Equal(t, "INTERCEPTOR-1", crafts[1].Name())
+	require.Equal(t, 0, crafts[1].Base().Index())
+
+	// station the interceptor at "Nortern Base" (LOC.DAT entry 5, BASE.DAT entry 1)
+	sg.CraftsFile().Crafts[1].BaseReference = 5
+	require.NotNil(t, crafts[1].Base())
+	assert.Equal(t, "Nortern Base", crafts[1].Base().Name())
+
+	// LOC.DAT entries which are no X-COM base or out of range
+	sg.CraftsFile().Crafts[1].BaseReference = 1 // SKYRANGER-2
+	assert.Nil(t, crafts[1].Base())
+	sg.CraftsFile().Crafts[1].BaseReference = 8 // beyond the last base, see GAME_6
+	assert.Nil(t, crafts[1].Base())
+	sg.CraftsFile().Crafts[1].BaseReference = 1000
+	assert.Nil(t, crafts[1].Base())
+}
+
+func TestCraft_UFO(t *testing.T) {
+	sg, err := savegame.Load(copySavegame(t, "GAME_2"))
+	require.NoError(t, err)
+
+	crafts := sg.Crafts()
+	ufo := crafts[3]
+	require.True(t, ufo.IsUFO())
+	assert.False(t, crafts[1].IsUFO())
+
+	// UFOs have no base, although their base reference (0) points to the
+	// first base in LOC.DAT
+	require.Equal(t, geoscape.XCOMBase, sg.LocationFile().Objects[0].Type)
+	require.Equal(t, 0, int(sg.CraftsFile().Crafts[ufo.Index()].BaseReference))
+	assert.Nil(t, ufo.Base())
+
+	// detected UFOs are numbered by their alien ship entry in LOC.DAT
+	for i, obj := range sg.LocationFile().Objects {
+		if obj.Type == geoscape.AlienShip && int(obj.TableReference) == ufo.Index() {
+			sg.LocationFile().Objects[i].CountSuffix = 7
+		}
+	}
+	assert.Equal(t, "UFO-7", ufo.Name())
+}
+
+func TestCraft_BaseNotInBaseFile(t *testing.T) {
+	// the interceptors of GAME_1 are stationed at bases in LOC.DAT whose
+	// entries in BASE.DAT are empty
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_1"))
+	require.NoError(t, err)
+
+	bases := map[string]string{}
+	for _, c := range sg.Crafts() {
+		if b := c.Base(); b != nil {
+			bases[c.Name()] = b.Name()
+		}
+	}
+	assert.Equal(t, map[string]string{
+		"SKYRANGER-1": "Alpine HQ", "FIRESTORM-1": "Alpine HQ", "AVENGER-2": "Alpine HQ",
+	}, bases)
+}
+
+func TestSavegame_BaseOutOfRange(t *testing.T) {
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_1"))
+	require.NoError(t, err)
+	assert.Nil(t, sg.Base(-1))
+	assert.Nil(t, sg.Base(len(sg.BasesData.Bases)))
+}
+
+func TestBase_Radars(t *testing.T) {
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_2"))
+	require.NoError(t, err)
+
+	bases := sg.Bases()
+	require.Len(t, bases, 2)
+	assert.Equal(t, []savegame.Radar{
+		{Facility: geoscape.LargeRadarSystem, Range: 2578, Chance: 20},
+		{Facility: geoscape.SmallRadarSystem, Range: 1696, Chance: 10},
+	}, bases[0].Radars())
+	assert.Equal(t, []savegame.Radar{
+		{Facility: geoscape.LargeRadarSystem, Range: 2578, Chance: 20},
+	}, bases[1].Radars())
+}
+
+func TestBase_RadarsIgnoresUnfinishedFacilities(t *testing.T) {
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_2"))
+	require.NoError(t, err)
+
+	data := &sg.BasesData.Bases[1]
+	built := false
+	for i := range data.Grid {
+		switch {
+		case data.Grid[i] == geoscape.LargeRadarSystem:
+			data.DaysToCompletion[i] = 5 // still under construction
+		case data.Grid[i] == geoscape.Empty && !built:
+			data.Grid[i] = geoscape.HyperwaveDecoder
+			data.DaysToCompletion[i] = 0
+			built = true
+		}
+	}
+	require.True(t, built, "no empty tile for the hyperwave decoder")
+	assert.Equal(t, []savegame.Radar{
+		{Facility: geoscape.HyperwaveDecoder, Range: 2759, Chance: 100},
+	}, sg.Bases()[1].Radars())
+}
+
+func TestBattle_MapUnits_LargeUnitFirst(t *testing.T) {
+	// In GAME_6 the tank occupies UNITPOS.DAT slots 0-3, but only entry 0 of
+	// UNITREF.DAT: all following units are shifted by 3 slots.
+	sg, err := savegame.Load(copySavegame(t, "GAME_6"))
+	require.NoError(t, err)
+	units := sg.Battle.MapUnits()
+	byName := map[string]savegame.MapUnit{}
+	for _, u := range units {
+		byName[u.Unit.Name.String()] = u
+	}
+	tank := units[0]
+	assert.Equal(t, "Tank/Cannon", tank.Unit.Name.String())
+	assert.True(t, tank.Large)
+
+	// soldiers that are still aboard the Skyranger
+	for name, pos := range map[string][3]int{
+		"Gudrun Brehme": {24, 34, 2},
+		"Sarah Jonlan":  {24, 35, 2},
+		"Frank Sharpe":  {25, 35, 2},
+	} {
+		u, ok := byName[name]
+		require.True(t, ok, name)
+		assert.Equal(t, pos, [3]int{u.X, u.Y, u.Z}, name)
+		assert.Equal(t, uint8(battlescape.OwnerXcom), u.Owner, name)
+	}
+	// the soldiers in UNITREF.DAT 1-3 are no longer hidden behind the tank
+	assert.Contains(t, byName, "Donald McNeil")
+	for _, u := range units {
+		if strings.HasPrefix(u.Unit.Name.String(), "Sectoid") {
+			assert.Equal(t, uint8(battlescape.OwnerAlien), u.Owner, "%s (slot %d)", u.Unit.Name, u.Index)
+		}
+	}
 }
