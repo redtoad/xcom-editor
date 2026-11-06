@@ -4,7 +4,7 @@
 //   node screenshot.mjs --out FILE.png [--url http://localhost:8091]
 //                       [--game GAME_4] [--tab Mission] [--click "Text"]...
 //                       [--element CSS-SELECTOR] [--wait MS]
-//                       [--width 1440] [--height 900]
+//                       [--width 1440] [--height 900] [--scale 0.4]
 //
 // --game   clicks the savegame in the sidebar (matched by its text)
 // --tab    opens a tab of the savegame (Mission, Soldiers, Bases, Crafts, ...)
@@ -12,9 +12,12 @@
 //          in the given order), e.g. a toggle like "Show radar range"
 // --element  screenshots only this element instead of the whole page
 // --wait   extra time to wait before the screenshot (maps, sprites, globe)
+// --scale  size of the saved image relative to the 2x screenshot (default
+//          0.4: a 1440px wide page is saved 1152px wide)
+import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 
-const args = { url: 'http://localhost:8091', clicks: [], wait: 1500, width: 1440, height: 900 };
+const args = { url: 'http://localhost:8091', clicks: [], wait: 1500, width: 1440, height: 900, scale: 0.4 };
 const argv = process.argv.slice(2);
 for (let i = 0; i < argv.length; i++) {
   const key = argv[i];
@@ -29,6 +32,7 @@ for (let i = 0; i < argv.length; i++) {
     case '--wait': args.wait = Number(value); break;
     case '--width': args.width = Number(value); break;
     case '--height': args.height = Number(value); break;
+    case '--scale': args.scale = Number(value); break;
     default:
       console.error(`unknown argument ${key}`);
       process.exit(2);
@@ -75,7 +79,22 @@ try {
   await page.waitForTimeout(args.wait);
 
   const target = args.element ? page.locator(args.element).first() : page;
-  await target.screenshot({ path: args.out });
+  const shot = await target.screenshot();
+  // downscale the (2x) screenshot in the browser, which smooths better than
+  // rendering at a lower device scale factor
+  const dataURL = await page.evaluate(async ({ src, scale }) => {
+    const img = new Image();
+    img.src = src;
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.naturalWidth * scale);
+    canvas.height = Math.round(img.naturalHeight * scale);
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/png');
+  }, { src: `data:image/png;base64,${shot.toString('base64')}`, scale: args.scale });
+  writeFileSync(args.out, Buffer.from(dataURL.split(',')[1], 'base64'));
   console.log(`saved ${args.out}`);
   if (errors.length) {
     console.error(`page errors:\n${errors.join('\n')}`);

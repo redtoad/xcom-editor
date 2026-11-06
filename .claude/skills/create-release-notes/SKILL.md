@@ -189,7 +189,7 @@ node $SCRIPTS/screenshot.mjs --game GAME_4 --tab Mission --click "Isometric" \
   --out "$WORK/TARGET_TAG-mission-map.png"
 ```
 
-Options: `--game` (savegame in the sidebar), `--tab`, `--click "Text"` (repeatable, clicks by visible text), `--element CSS` (only this element), `--wait MS` (default 1500; use 3000+ for the globe and isometric maps), `--width`/`--height`.
+Options: `--game` (savegame in the sidebar), `--tab`, `--click "Text"` (repeatable, clicks by visible text), `--element CSS` (only this element), `--wait MS` (default 1500; use 3000+ for the globe and isometric maps), `--width`/`--height`, `--scale` (default 0.4 of the 2x screenshot, i.e. 1152px wide; keep it, so all release screenshots have the same size).
 
 **Look at every screenshot** (Read the PNG) before using it: does it show the feature, is it fully loaded, no error message? Otherwise adjust the clicks/selector and repeat. Some features only show up in a certain state (e.g. a "Heal" button only for wounded soldiers): try the other savegames; if none of them shows the feature, leave that screenshot out and say so in Step 5 — never edit the savegames to fake the state. Name files `TARGET_TAG-<feature>.png` (lowercase, hyphens).
 
