@@ -131,18 +131,101 @@ Only include populated categories:
 - English, active, concise: "Added document rules" instead of "Document rules were added"
 - No technical details that end users won't understand
 - Security entries from Dependabot (Step 2d): Use identifier hierarchy — prefer CVE-ID, otherwise GHSA-ID, otherwise Advisory-Summary + Dependabot-Alert-Number (e.g., "Alert #53"). CVE-IDs are not always present — never leave empty, fall back to the next level. Manual security fixes without a Dependabot origin can be entered without an ID if the fix is clearly identifiable as a security fix.
-- If there are any new feature in or significant changes to the UI (e.g. int the savegame editor), add a meaningful screenshot 
+- New features in, or visible changes to, the savegame editor get a screenshot (Step 4b)
+
+## Step 4b: Screenshots of UI changes — mandatory for visible changes!
+
+Take screenshots automatically whenever a PR adds or visibly changes something in the savegame editor (`cmd/savegame-editor/frontend/`, or backend changes that alter what it shows, e.g. sprites or map data). Bugfixes and internal changes get no screenshot. At most one screenshot per feature, at most 3 per release.
+
+### Which screenshots
+
+Check which PRs changed the UI:
+
+```bash
+git diff --stat "$PREV_TAG..TARGET_TAG" -- cmd/savegame-editor/
+```
+
+For each such feature, decide from the PR description and the diff which **savegame**, **tab** and **clicks** show it best:
+
+| Savegame (`testdata/`) | Shows |
+|-----------|---------|
+| `GAME_1` … `GAME_3` | Geoscape: soldiers, bases, crafts, transfers, financials, map, globe |
+| `GAME_4`, `GAME_5`, `GAME_6` | Mission tab (saved during a mission); `GAME_6` has a tank |
+
+Tabs: Mission, Soldiers, Bases, Crafts, Transfers, Financials, Map, Globe.
+
+### Start the editor at TARGET_TAG
+
+The screenshots must show the released state, not the current working tree. Run everything in a scratch directory (scratchpad or `mktemp -d`), never in `testdata/` — the editor watches and can write the savegame folder.
+
+```bash
+WORK=$(mktemp -d)
+git worktree add --detach "$WORK/src" TARGET_TAG
+mkdir -p "$WORK/game"
+cp -R "$WORK"/src/testdata/GAME_* "$WORK/game/"
+```
+
+If the user has the original game folder (with `GEODATA`, `GEOGRAPH`, `TERRAIN`, `UNITS`), ask for its path and copy it to `$WORK/game` instead, so the maps and units are drawn with the game graphics. Never point the editor at the original folder.
+
+Start the editor in the background (the frontend build in `frontend/dist` is committed and embedded; `open` of the browser fails harmlessly):
+
+```bash
+cd "$WORK/src" && go run ./cmd/savegame-editor -port 8091 "$WORK/game"
+```
+
+### Take the screenshots
+
+Install Playwright once (`node_modules` is not committed). The script uses an installed Google Chrome; only without Chrome install Playwright's Chromium as well (`npx playwright install chromium`, a large download — run it in the background):
+
+```bash
+SCRIPTS=.claude/skills/create-release-notes/scripts
+(cd $SCRIPTS && npm install)
+```
+
+Then one call per screenshot:
+
+```bash
+node $SCRIPTS/screenshot.mjs --game GAME_4 --tab Mission --click "Isometric" \
+  --out "$WORK/TARGET_TAG-mission-map.png"
+```
+
+Options: `--game` (savegame in the sidebar), `--tab`, `--click "Text"` (repeatable, clicks by visible text), `--element CSS` (only this element), `--wait MS` (default 1500; use 3000+ for the globe and isometric maps), `--width`/`--height`, `--scale` (default 0.4 of the 2x screenshot, i.e. 1152px wide; keep it, so all release screenshots have the same size).
+
+**Look at every screenshot** (Read the PNG) before using it: does it show the feature, is it fully loaded, no error message? Otherwise adjust the clicks/selector and repeat. Some features only show up in a certain state (e.g. a "Heal" button only for wounded soldiers): try the other savegames; if none of them shows the feature, leave that screenshot out and say so in Step 5 — never edit the savegames to fake the state. Name files `TARGET_TAG-<feature>.png` (lowercase, hyphens).
+
+Afterwards stop the editor and clean up:
+
+```bash
+git worktree remove --force "$WORK/src"
+```
+
+### In the changelog
+
+Put the screenshots directly below the feature entry they belong to, with a short alt text:
+
+```markdown
+## New Features
+* Added a Mission tab that shows a map of the ongoing mission #20
+
+  ![Mission tab with the isometric map](https://github.com/OWNER/REPO/releases/download/TARGET_TAG/TARGET_TAG-mission-map.png)
+```
+
+The URL points to the release asset uploaded in Step 6.
 
 ## Step 5: Show changelog for review
 
-Show the full changelog text in the chat and ask:
+Show the full changelog text in the chat, show the screenshots to the user (send the PNG files) and ask:
 > "Should I save this changelog for **TARGET_TAG**?"
 
 Wait for explicit confirmation. Only then proceed to Step 6.
 
 ## Step 6: Update release
 
+Upload the screenshots first (as release assets; `--clobber` replaces a screenshot of an earlier run), then update the notes:
+
 ```bash
+gh release upload TARGET_TAG "$WORK"/TARGET_TAG-*.png --clobber
+
 gh release edit TARGET_TAG --notes "$(cat <<'EOF'
 
 ...changelog text...
@@ -151,6 +234,8 @@ gh release edit TARGET_TAG --notes "$(cat <<'EOF'
 EOF
 )"
 ```
+
+Open the release page afterwards and check that the screenshots are shown.
 
 ## Step 7: Store security fixes in Memory
 
@@ -176,3 +261,7 @@ This way, CVE IDs and alert numbers remain traceable even if GitHub later update
 - **English texts** → Everything in English
 - **Create new release** → This skill only edits existing releases (`gh release edit`, not `gh release create`)
 - **No technical details** → End users don't care about internal implementation details. Only include what is relevant to them.
+- **Skip screenshots or ask the user for them** → Step 4b takes them automatically; only the original game folder is asked for (optional)
+- **Screenshot of the working tree instead of TARGET_TAG** → Always start the editor from a worktree at TARGET_TAG
+- **Run the editor on `testdata/` or the original game folder** → Always on a copy in a scratch directory
+- **Use a screenshot without looking at it** → Half-loaded maps or error messages are worse than no screenshot

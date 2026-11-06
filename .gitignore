@@ -25,3 +25,6 @@ bin/revive-soldiers
 cmd/savegame-editor/bin/
 cmd/savegame-editor/.task/
 cmd/savegame-editor/frontend/bindings/
+
+.claude/skills/create-release-notes/scripts/node_modules/
+.claude/skills/create-release-notes/scripts/package-lock.json
