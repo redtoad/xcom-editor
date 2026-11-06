@@ -429,3 +429,26 @@ func TestBattle_MapUnits_LargeUnitFirst(t *testing.T) {
 		}
 	}
 }
+
+func TestSoldier_Base(t *testing.T) {
+	// the base reference of a soldier is an index into LOC.DAT, not BASE.DAT
+	// (GAME_6 has soldiers at LOC.DAT entries 0, 4, 5, 8 and 9)
+	sg, err := savegame.Load(filepath.Join("..", "testdata", "GAME_6"))
+	require.NoError(t, err)
+
+	bases := map[int]int{} // LOC.DAT entry -> BASE.DAT entry
+	for _, s := range sg.Soldiers() {
+		b := s.Base()
+		require.NotNil(t, b, "soldier %s has no base", s.Name())
+		bases[sg.SoldierFile().Soldiers[s.Index()].Base] = b.Index()
+	}
+	assert.Equal(t, map[int]int{0: 0, 4: 2, 5: 1, 8: 3, 9: 4}, bases)
+
+	// LOC.DAT entries which are no X-COM base or out of range, and soldiers
+	// being transferred
+	s := sg.Soldiers()[0]
+	for _, ref := range []int{-1, 0xFF, 1000} {
+		sg.SoldierFile().Soldiers[s.Index()].Base = ref
+		assert.Nil(t, s.Base(), "base reference %d", ref)
+	}
+}

@@ -30,9 +30,13 @@ func main() {
 		} else {
 			craftName = craft.Name()
 		}
+		var baseName = "in transfer"
+		if base := soldier.Base(); base != nil {
+			baseName = base.Name()
+		}
 		line := fmt.Sprintf("%s (%s) @ %v / %s",
 			soldier.Name(), soldier.Rank(),
-			craftName, soldier.Base().Name())
+			craftName, baseName)
 		if soldier.IsDead() {
 			soldier.Heal()
 			fmt.Println(Red + line + " revived as " + soldier.Rank().String() + Reset)

@@ -124,15 +124,7 @@ func (c *Craft) Base() *Base {
 		return nil
 	}
 	// the base reference is an index into LOC.DAT
-	idx := int(c.game.craftsFile.Crafts[c.offset].BaseReference)
-	if idx < 0 || idx >= len(c.game.locationFile.Objects) {
-		return nil
-	}
-	loc := c.game.locationFile.Objects[idx]
-	if loc.Type != geoscape.XCOMBase {
-		return nil
-	}
-	return c.game.Base(int(loc.TableReference))
+	return c.game.baseAtLocation(int(c.game.craftsFile.Crafts[c.offset].BaseReference))
 }
 
 // Speed returns the craft's current speed.
