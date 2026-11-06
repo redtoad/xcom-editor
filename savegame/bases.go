@@ -184,6 +184,20 @@ func (game *Savegame) Base(offset int) *Base {
 	return nil
 }
 
+// baseAtLocation returns the base referenced by the LOC.DAT entry idx, or nil
+// if the entry does not exist or is no X-COM base. Crafts and soldiers refer
+// to their base this way.
+func (game *Savegame) baseAtLocation(idx int) *Base {
+	if idx < 0 || idx >= len(game.locationFile.Objects) {
+		return nil
+	}
+	loc := game.locationFile.Objects[idx]
+	if loc.Type != geoscape.XCOMBase {
+		return nil
+	}
+	return game.Base(int(loc.TableReference))
+}
+
 func (game *Savegame) Bases() []*Base {
 	bases := make([]*Base, 0)
 	for idx, base := range game.BasesData.Bases {
