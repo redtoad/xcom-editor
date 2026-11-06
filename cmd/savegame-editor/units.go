@@ -30,7 +30,7 @@ var unitSheets map[string][]byte
 
 // unitSheetFiles are the sprite files of the units which are drawn (see
 // unitBodies).
-var unitSheetFiles = []string{"XCOM_0", "XCOM_1", "XCOM_2", "TANKS", "SECTOID", "SNAKEMAN", "MUTON", "CHRYS", "CYBER", "CIVM", "CIVF"}
+var unitSheetFiles = []string{"XCOM_0", "XCOM_1", "XCOM_2", "TANKS", "SECTOID", "SNAKEMAN", "MUTON", "CHRYS", "FLOATER", "X_REAP", "CYBER", "CIVM", "CIVF"}
 
 // loadUnitSheets loads the unit sprites (UNITS/*.PCK and *.TAB) from the
 // game root folder.
@@ -81,6 +81,9 @@ const (
 	shapeLarge
 	// shapeTank units are large units with a turret (X-COM tanks).
 	shapeTank
+	// shapeFloater units are humanoid units without legs (Floaters), their
+	// torso reaches down to the ground.
+	shapeFloater
 )
 
 // unitBody describes the sprites of a unit type (UNITREF.DAT Type).
@@ -104,6 +107,13 @@ const (
 	spriteLegsKneel = 24
 	// kneelOffset moves the upper body of kneeling units down (in pixels).
 	kneelOffset = 4
+)
+
+// Arm sprites of Floaters (UNITS/FLOATER.PCK), one per direction. Unlike the
+// other humanoid units, the right arm comes first.
+const (
+	spriteFloaterRightArm = 0
+	spriteFloaterLeftArm  = 8
 )
 
 // Sprites of tanks (UNITS/TANKS.PCK). The hull has one sprite per tile and
@@ -140,7 +150,9 @@ var unitBodies = map[uint8]unitBody{
 	4:  {Sheet: "SECTOID", Shape: shapeHumanoid, Torso: 32, Dead: 266},
 	5:  {Sheet: "SNAKEMAN", Shape: shapeHumanoid, Torso: 24, Dead: 98},
 	7:  {Sheet: "MUTON", Shape: shapeHumanoid, Torso: 32, Dead: 266},
+	8:  {Sheet: "FLOATER", Shape: shapeFloater, Torso: 16, Dead: 66},
 	11: {Sheet: "CHRYS", Shape: shapeHumanoid, Torso: 24, Dead: 226},
+	12: {Sheet: "X_REAP", Shape: shapeLarge, Dead: -1},
 	14: {Sheet: "CYBER", Shape: shapeLarge, Dead: -1},
 	16: {Sheet: "CIVM", Shape: shapeSingle, Dead: 74},
 	17: {Sheet: "CIVF", Shape: shapeSingle, Dead: 74},
@@ -221,9 +233,18 @@ func unitSprites(u savegame.MapUnit) []unitSpriteJS {
 		"legs":     sprite(legs+dir, 0, 0),
 		"torso":    sprite(torso+dir, 0, upper),
 	}
+	if body.Shape == shapeFloater {
+		// no legs and the arms swapped, Floaters cannot kneel
+		parts["leftArm"] = sprite(spriteFloaterLeftArm+dir, 0, 0)
+		parts["rightArm"] = sprite(spriteFloaterRightArm+dir, 0, 0)
+		parts["torso"] = sprite(torso+dir, 0, 0)
+		delete(parts, "legs")
+	}
 	result := make([]unitSpriteJS, 0, 4)
 	for _, name := range humanoidOrder[dir] {
-		result = append(result, parts[name])
+		if part, ok := parts[name]; ok {
+			result = append(result, part)
+		}
 	}
 	return result
 }

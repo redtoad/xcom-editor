@@ -96,9 +96,33 @@ func TestUnitSprites(t *testing.T) {
 		u := mapUnit(t, 32) // Sectoid, facing 6
 		assert.Contains(t, unitSprites(u), unitSpriteJS{Sheet: "SECTOID", Frame: 32 + 6})
 	})
+	t.Run("floater", func(t *testing.T) {
+		u := mapUnit(t, 32) // Sectoid, facing 6
+		u.Unit.Type = 8     // Floater: no legs, right arm before left arm
+		assert.Equal(t, []unitSpriteJS{
+			{Sheet: "FLOATER", Frame: spriteFloaterRightArm + 6},
+			{Sheet: "FLOATER", Frame: 16 + 6},
+			{Sheet: "FLOATER", Frame: spriteFloaterLeftArm + 6},
+		}, unitSprites(u))
+	})
+	t.Run("dead floater", func(t *testing.T) {
+		u := mapUnit(t, 8) // dead
+		u.Unit.Type = 8
+		assert.Equal(t, []unitSpriteJS{{Sheet: "FLOATER", Frame: 66}}, unitSprites(u))
+	})
+	t.Run("reaper", func(t *testing.T) {
+		u := mapUnit(t, 14) // Cyberdisc, facing 4
+		u.Unit.Type = 12
+		assert.Equal(t, []unitSpriteJS{
+			{Sheet: "X_REAP", Frame: 4},
+			{Sheet: "X_REAP", Frame: 12, DX: 16, DY: 8},
+			{Sheet: "X_REAP", Frame: 20, DX: -16, DY: 8},
+			{Sheet: "X_REAP", Frame: 28, DY: 16},
+		}, unitSprites(u))
+	})
 	t.Run("unknown type", func(t *testing.T) {
 		u := mapUnit(t, 26)
-		u.Unit.Type = 8 // Floater, not supported
+		u.Unit.Type = 6 // Ethereal, not supported
 		assert.Nil(t, unitSprites(u))
 	})
 }
