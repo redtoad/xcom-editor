@@ -19,13 +19,22 @@ import (
 // mapUnit returns the unit in the given slot of GAME_4.
 func mapUnit(t *testing.T, index int) savegame.MapUnit {
 	t.Helper()
-	loadTestGames(t, "GAME_4")
-	for _, u := range games["GAME_4"].sg.Battle.MapUnits() {
+	return gameMapUnit(t, "GAME_4", index)
+}
+
+// gameMapUnit returns the unit in the given slot of a test game. The stats
+// are a copy, so tests can change them without affecting other tests.
+func gameMapUnit(t *testing.T, game string, index int) savegame.MapUnit {
+	t.Helper()
+	loadTestGames(t, game)
+	for _, u := range games[game].sg.Battle.MapUnits() {
 		if u.Index == index {
+			stats := *u.Unit
+			u.Unit = &stats
 			return u
 		}
 	}
-	t.Fatalf("no unit in slot %d", index)
+	t.Fatalf("no unit in slot %d of %s", index, game)
 	return savegame.MapUnit{}
 }
 
@@ -65,8 +74,7 @@ func TestUnitSprites(t *testing.T) {
 		}, unitSprites(u))
 	})
 	t.Run("tank", func(t *testing.T) {
-		loadTestGames(t, "GAME_6")
-		u := games["GAME_6"].sg.Battle.MapUnits()[0] // Tank/Cannon, facing 1
+		u := gameMapUnit(t, "GAME_6", 0) // Tank/Cannon, facing 1
 		require.NotZero(t, u.Unit.Tank)
 		assert.Equal(t, []unitSpriteJS{
 			{Sheet: "TANKS", Frame: 1},
@@ -77,8 +85,7 @@ func TestUnitSprites(t *testing.T) {
 		}, unitSprites(u))
 	})
 	t.Run("hovertank", func(t *testing.T) {
-		loadTestGames(t, "GAME_6")
-		u := games["GAME_6"].sg.Battle.MapUnits()[0]
+		u := gameMapUnit(t, "GAME_6", 0)
 		u.Unit.MovementType = 2 // fly
 		u.Unit.TurretImage = 3  // plasma
 		assert.Equal(t, []unitSpriteJS{
@@ -96,9 +103,61 @@ func TestUnitSprites(t *testing.T) {
 		u := mapUnit(t, 32) // Sectoid, facing 6
 		assert.Contains(t, unitSprites(u), unitSpriteJS{Sheet: "SECTOID", Frame: 32 + 6})
 	})
+	t.Run("floater", func(t *testing.T) {
+		u := mapUnit(t, 32) // Sectoid, facing 6
+		u.Unit.Type = 8     // Floater: no legs, right arm before left arm
+		assert.Equal(t, []unitSpriteJS{
+			{Sheet: "FLOATER", Frame: spriteFloaterRightArm + 6},
+			{Sheet: "FLOATER", Frame: 16 + 6},
+			{Sheet: "FLOATER", Frame: spriteFloaterLeftArm + 6},
+		}, unitSprites(u))
+	})
+	t.Run("dead floater", func(t *testing.T) {
+		u := mapUnit(t, 8) // dead
+		u.Unit.Type = 8
+		assert.Equal(t, []unitSpriteJS{{Sheet: "FLOATER", Frame: 66}}, unitSprites(u))
+	})
+	t.Run("reaper", func(t *testing.T) {
+		u := mapUnit(t, 14) // Cyberdisc, facing 4
+		u.Unit.Type = 12
+		assert.Equal(t, []unitSpriteJS{
+			{Sheet: "X_REAP", Frame: 4},
+			{Sheet: "X_REAP", Frame: 12, DX: 16, DY: 8},
+			{Sheet: "X_REAP", Frame: 20, DX: -16, DY: 8},
+			{Sheet: "X_REAP", Frame: 28, DY: 16},
+		}, unitSprites(u))
+	})
+	t.Run("dead reaper", func(t *testing.T) {
+		u := mapUnit(t, 14) // Cyberdisc
+		u.Unit.Type = 12
+		u.Unit.Health = 0
+		// the corpse (OBDATA.DAT reaper corpse 1-4) lies on the 4 tiles
+		assert.Equal(t, []unitSpriteJS{
+			{Sheet: "FLOOROB", Frame: 52},
+			{Sheet: "FLOOROB", Frame: 55, DX: 16, DY: 8},
+			{Sheet: "FLOOROB", Frame: 54, DX: -16, DY: 8},
+			{Sheet: "FLOOROB", Frame: 53, DY: 16},
+		}, unitSprites(u))
+	})
+	t.Run("dead cyberdisc", func(t *testing.T) {
+		u := mapUnit(t, 14) // Cyberdisc
+		u.Unit.Health = 0
+		// the corpse (OBDATA.DAT cyber 1-4) lies on the 4 tiles
+		assert.Equal(t, []unitSpriteJS{
+			{Sheet: "FLOOROB", Frame: 56},
+			{Sheet: "FLOOROB", Frame: 57, DX: 16, DY: 8},
+			{Sheet: "FLOOROB", Frame: 58, DX: -16, DY: 8},
+			{Sheet: "FLOOROB", Frame: 59, DY: 16},
+		}, unitSprites(u))
+	})
+	t.Run("dead large unit without corpse", func(t *testing.T) {
+		u := gameMapUnit(t, "GAME_6", 0) // Tank/Cannon
+		u.Unit.Health = 0
+		assert.Nil(t, unitSprites(u))
+	})
 	t.Run("unknown type", func(t *testing.T) {
 		u := mapUnit(t, 26)
-		u.Unit.Type = 8 // Floater, not supported
+		u.Unit.Type = 6 // Ethereal, not supported
 		assert.Nil(t, unitSprites(u))
 	})
 }
