@@ -162,7 +162,7 @@ var unitBodies = map[uint8]unitBody{
 	8:  {Sheet: "FLOATER", Shape: shapeFloater, Torso: 16, Dead: 66},
 	11: {Sheet: "CHRYS", Shape: shapeHumanoid, Torso: 24, Dead: 226},
 	12: {Sheet: "X_REAP", Shape: shapeLarge, Dead: -1, Corpse: []int{52, 55, 54, 53}},
-	14: {Sheet: "CYBER", Shape: shapeLarge, Dead: -1},
+	14: {Sheet: "CYBER", Shape: shapeLarge, Dead: -1, Corpse: []int{56, 57, 58, 59}},
 	16: {Sheet: "CIVM", Shape: shapeSingle, Dead: 74},
 	17: {Sheet: "CIVF", Shape: shapeSingle, Dead: 74},
 }
