@@ -27,3 +27,8 @@ func (game *Savegame) CraftsFile() *geoscape.CraftFile {
 func (game *Savegame) LocationFile() *geoscape.LocFile {
 	return &game.locationFile
 }
+
+// SoldierFile gives tests access to the raw data of SOLDIER.DAT.
+func (game *Savegame) SoldierFile() *geoscape.SoldierFile {
+	return &game.soldierFile
+}

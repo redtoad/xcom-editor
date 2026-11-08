@@ -259,9 +259,11 @@ func (s *Soldier) LastRank() Rank {
 	return Rookie
 }
 
+// Base returns the base the soldier is at, or nil if unknown (e.g. while the
+// soldier is being transferred).
 func (s *Soldier) Base() *Base {
-	baseNo := s.game.soldierFile.Soldiers[s.offset].Base
-	return s.game.Base(baseNo)
+	// the base reference is an index into LOC.DAT
+	return s.game.baseAtLocation(s.game.soldierFile.Soldiers[s.offset].Base)
 }
 
 const NoCraft = -1
